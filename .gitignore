@@ -174,3 +174,5 @@ cython_debug/
 .pypirc
 
 .venv
+runner_envs
+saved_graphs

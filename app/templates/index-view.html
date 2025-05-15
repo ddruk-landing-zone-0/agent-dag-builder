@@ -1,0 +1,1550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent DAG - View & Manage</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4a6fa5;
+            --secondary-color: #166088;
+            --accent-color: #4fc08d;
+            --light-bg: #f8f9fa;
+            --dark-bg: #343a40;
+            --text-color: #212529;
+            --light-text: #f8f9fa;
+            --danger: #dc3545;
+            --warning: #ffc107;
+            --success: #28a745;
+            --info: #17a2b8;
+            --pending: #6c757d;
+            --running: #007bff;
+            --completed: #28a745;
+            --waiting: #ffc107;
+            --border-radius: 6px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--light-bg);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            border-bottom: 1px solid #dee2e6;
+            margin-bottom: 20px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--secondary-color);
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 8px 16px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+        }
+
+        .btn-secondary {
+            background-color: var(--secondary-color);
+        }
+
+        .btn-success {
+            background-color: var(--success);
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+        }
+
+        .btn-sm {
+            padding: 5px 10px;
+            font-size: 12px;
+        }
+
+        .panel {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #dee2e6;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .panel-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--dark-bg);
+        }
+
+        .panel-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .session-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .session-item {
+            background-color: var(--light-bg);
+            border-radius: var(--border-radius);
+            padding: 15px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .session-item:hover {
+            background-color: #e9ecef;
+            transform: translateY(-2px);
+        }
+
+        .session-name {
+            font-weight: 500;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            width: 400px;
+            max-width: 90%;
+            padding: 20px;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .close {
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-color);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ced4da;
+            border-radius: var(--border-radius);
+            font-size: 14px;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .graph-container {
+            position: relative;
+            height: 600px;
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .graph-wrapper {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+        }
+
+        .graph {
+            position: relative;
+            min-width: 100%;
+            min-height: 100%;
+            padding: 40px;
+        }
+
+        .node {
+            position: absolute;
+            width: 180px;
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 15px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .node:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .node-pending {
+            border-left: 5px solid var(--pending);
+        }
+
+        .node-running {
+            border-left: 5px solid var(--running);
+        }
+
+        .node-completed {
+            border-left: 5px solid var(--completed);
+        }
+
+        .node-waiting {
+            border-left: 5px solid var(--waiting);
+        }
+
+        .node-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .node-title {
+            font-weight: 600;
+            font-size: 14px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .node-status {
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            color: white;
+        }
+
+        .status-pending {
+            background-color: var(--pending);
+        }
+
+        .status-running {
+            background-color: var(--running);
+        }
+
+        .status-completed {
+            background-color: var(--completed);
+        }
+
+        .status-waiting {
+            background-color: var(--waiting);
+        }
+
+        .node-body {
+            font-size: 12px;
+            margin-bottom: 10px;
+        }
+
+        .node-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .node-compiled {
+            font-size: 11px;
+            color: var(--secondary-color);
+        }
+
+        .node-actions {
+            display: flex;
+            gap: 5px;
+        }
+
+        .edge {
+            position: absolute;
+            pointer-events: none;
+            stroke: #adb5bd;
+            stroke-width: 2;
+        }
+
+        .edge-arrow {
+            fill: #adb5bd;
+        }
+
+        .node-detail-panel {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 0;
+            height: 100%;
+            width: 350px;
+            background-color: white;
+            box-shadow: -4px 0 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            overflow-y: auto;
+            z-index: 10;
+        }
+
+        .node-detail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .detail-close {
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .node-param-group {
+            margin-bottom: 15px;
+        }
+
+        .node-param-title {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .node-param {
+            margin-bottom: 10px;
+        }
+
+        .param-label {
+            display: block;
+            font-size: 12px;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .param-input {
+            width: 100%;
+            padding: 5px 8px;
+            border: 1px solid #ced4da;
+            border-radius: var(--border-radius);
+            font-size: 12px;
+        }
+
+        .param-textarea {
+            width: 100%;
+            height: 80px;
+            padding: 5px 8px;
+            border: 1px solid #ced4da;
+            border-radius: var(--border-radius);
+            font-size: 12px;
+            resize: vertical;
+        }
+
+        .controls {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 5;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: var(--border-radius);
+            padding: 10px;
+            box-shadow: var(--box-shadow);
+        }
+
+        .tooltip {
+            position: absolute;
+            background-color: var(--dark-bg);
+            color: white;
+            padding: 5px 10px;
+            border-radius: var(--border-radius);
+            font-size: 12px;
+            z-index: 999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .no-sessions {
+            text-align: center;
+            padding: 20px;
+            color: var(--pending);
+            font-style: italic;
+        }
+
+        .loading {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top: 4px solid var(--primary-color);
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: var(--transition);
+        }
+
+        .tab.active {
+            border-bottom: 2px solid var(--primary-color);
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        .tab:hover:not(.active) {
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .empty-graph {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #6c757d;
+        }
+
+        .empty-graph i {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">Agent DAG</div>
+            <div class="header-actions">
+                <a href="index-create.html" class="btn btn-primary" id="create-node-btn">Create Node</a>
+                <button class="btn btn-secondary" id="compile-btn">Compile Graph</button>
+            </div>
+        </div>
+
+        <div class="panel">
+            <div class="panel-header">
+                <div class="panel-title">Sessions</div>
+                <div class="panel-actions">
+                    <button class="btn btn-primary btn-sm" id="new-session-btn">New Session</button>
+                    <button class="btn btn-danger btn-sm" id="delete-session-btn">Delete Session</button>
+                </div>
+            </div>
+            <div class="session-list" id="session-list">
+                <!-- Sessions will be loaded here -->
+                <div class="no-sessions">No sessions available</div>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <div class="tab active" data-tab="graph">Graph View</div>
+            <div class="tab" data-tab="json">JSON View</div>
+        </div>
+
+        <div class="tab-content" id="graph-tab">
+            <div class="graph-container">
+                <div class="controls">
+                    <button class="btn btn-sm" id="center-graph-btn">
+                        <i class="fas fa-compress-arrows-alt"></i> Center
+                    </button>
+                </div>
+                <div class="graph-wrapper">
+                    <div class="graph" id="graph">
+                        <!-- Graph will be rendered here -->
+                        <div class="empty-graph">
+                            <i class="fas fa-project-diagram"></i>
+                            <p>Select a session to view its graph</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="node-detail-panel" id="node-detail-panel">
+                    <div class="node-detail-header">
+                        <h3 id="detail-node-name">Node Details</h3>
+                        <span class="detail-close" id="detail-close">&times;</span>
+                    </div>
+                    <div id="node-details-content">
+                        <!-- Node details will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-content" id="json-tab" style="display:none;">
+            <div class="panel">
+                <pre id="json-view" style="max-height: 600px; overflow: auto;"></pre>
+            </div>
+        </div>
+    </div>
+
+    <!-- New Session Modal -->
+    <div class="modal" id="new-session-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Create New Session</h3>
+                <span class="close" id="new-session-close">&times;</span>
+            </div>
+            <form id="new-session-form">
+                <div class="form-group">
+                    <label class="form-label" for="session-id">Session ID</label>
+                    <input type="text" class="form-control" id="session-id" placeholder="Enter session name" required>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn" id="new-session-cancel">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Delete Session Modal -->
+    <div class="modal" id="delete-session-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Delete Session</h3>
+                <span class="close" id="delete-session-close">&times;</span>
+            </div>
+            <form id="delete-session-form">
+                <div class="form-group">
+                    <label class="form-label" for="delete-session-id">Select Session</label>
+                    <select class="form-control" id="delete-session-id" required>
+                        <!-- Sessions will be loaded here -->
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn" id="delete-session-cancel">Cancel</button>
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div class="loading" id="loading">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Tooltip -->
+    <div class="tooltip" id="tooltip"></div>
+
+    <script>
+        // API Configuration
+        const API_BASE_URL = '';
+        let currentSessionId = null;
+        let graphData = null;
+        let nodes = {};
+        let draggingNode = null;
+        let offsetX = 0, offsetY = 0;
+        let zoomLevel = 1;
+        let panX = 0, panY = 0;
+
+        // DOM Elements
+        const sessionList = document.getElementById('session-list');
+        const newSessionBtn = document.getElementById('new-session-btn');
+        const deleteSessionBtn = document.getElementById('delete-session-btn');
+        const compileBtn = document.getElementById('compile-btn');
+        const createNodeBtn = document.getElementById('create-node-btn');
+        const centerGraphBtn = document.getElementById('center-graph-btn');
+        const graphEl = document.getElementById('graph');
+        const nodeDetailPanel = document.getElementById('node-detail-panel');
+        const detailNodeName = document.getElementById('detail-node-name');
+        const nodeDetailsContent = document.getElementById('node-details-content');
+        const detailClose = document.getElementById('detail-close');
+        const newSessionModal = document.getElementById('new-session-modal');
+        const newSessionClose = document.getElementById('new-session-close');
+        const newSessionCancel = document.getElementById('new-session-cancel');
+        const newSessionForm = document.getElementById('new-session-form');
+        const deleteSessionModal = document.getElementById('delete-session-modal');
+        const deleteSessionClose = document.getElementById('delete-session-close');
+        const deleteSessionCancel = document.getElementById('delete-session-cancel');
+        const deleteSessionForm = document.getElementById('delete-session-form');
+        const deleteSessionIdSelect = document.getElementById('delete-session-id');
+        const loading = document.getElementById('loading');
+        const tooltip = document.getElementById('tooltip');
+        const jsonView = document.getElementById('json-view');
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', () => {
+            loadSessions();
+            setupEventListeners();
+        });
+
+        // Load all available sessions
+        async function loadSessions() {
+            showLoading();
+            try {
+                const response = await fetch(`${API_BASE_URL}/list-sessions`);
+                const data = await response.json();
+                
+                if (data.sessions && data.sessions.length > 0) {
+                    renderSessionList(data.sessions);
+                } else {
+                    sessionList.innerHTML = '<div class="no-sessions">No sessions available</div>';
+                }
+                
+                // Also update the delete session dropdown
+                updateDeleteSessionDropdown(data.sessions);
+            } catch (error) {
+                console.error('Error loading sessions:', error);
+                sessionList.innerHTML = '<div class="no-sessions">Error loading sessions</div>';
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Render the session list
+        function renderSessionList(sessions) {
+            sessionList.innerHTML = '';
+            sessions.forEach(session => {
+                const sessionItem = document.createElement('div');
+                sessionItem.className = 'session-item';
+                sessionItem.dataset.id = session;
+                sessionItem.innerHTML = `
+                    <div class="session-name">${session}</div>
+                    <div class="session-actions">
+                        <button class="btn btn-success btn-sm session-open">Open</button>
+                    </div>
+                `;
+                sessionList.appendChild(sessionItem);
+
+                // Add click event for opening session
+                sessionItem.querySelector('.session-open').addEventListener('click', () => {
+                    openSession(session);
+                });
+            });
+        }
+
+        // Update the delete session dropdown
+        function updateDeleteSessionDropdown(sessions) {
+            deleteSessionIdSelect.innerHTML = '';
+            sessions.forEach(session => {
+                const option = document.createElement('option');
+                option.value = session;
+                option.textContent = session;
+                deleteSessionIdSelect.appendChild(option);
+            });
+        }
+
+        // Open a session and load its graph
+        async function openSession(sessionId) {
+            showLoading();
+            try {
+                const response = await fetch(`${API_BASE_URL}/get-session-graph`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ session_id: sessionId })
+                });
+                
+                const data = await response.json();
+                
+                if (data.graph) {
+                    currentSessionId = sessionId;
+                    graphData = data.graph;
+                    renderGraph(graphData);
+                    updateJsonView(data);
+                    
+                    // Update the Create Node button URL to include session ID
+                    createNodeBtn.href = `index-create.html?session=${encodeURIComponent(sessionId)}`;
+                    
+                    // Show compile button
+                    compileBtn.style.display = 'inline-block';
+                } else {
+                    console.error('Invalid graph data');
+                }
+            } catch (error) {
+                console.error('Error loading session graph:', error);
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Render the graph visualization
+        function renderGraph(graph) {
+            if (!graph.nodes || Object.keys(graph.nodes).length === 0) {
+                graphEl.innerHTML = `
+                    <div class="empty-graph">
+                        <i class="fas fa-project-diagram"></i>
+                        <p>No nodes in this graph</p>
+                    </div>
+                `;
+                return;
+            }
+
+            graphEl.innerHTML = '';
+            nodes = {};
+
+            // Calculate initial positions for nodes
+            const nodePositions = calculateNodePositions(graph.nodes);
+            
+            // Create nodes
+            Object.entries(graph.nodes).forEach(([nodeName, nodeData]) => {
+                const position = nodePositions[nodeName];
+                createNodeElement(nodeName, nodeData, position);
+            });
+
+            // Create edges after all nodes are created
+            Object.entries(graph.nodes).forEach(([nodeName, nodeData]) => {
+                if (nodeData._children && nodeData._children.length > 0) {
+                    nodeData._children.forEach(childName => {
+                        if (nodes[nodeName] && nodes[childName]) {
+                            createEdge(nodeName, childName);
+                        }
+                    });
+                }
+            });
+
+            // Center the graph
+            centerGraph();
+        }
+
+        // Calculate positions for nodes in the graph
+        function calculateNodePositions(nodesData) {
+            const positions = {};
+            const nodesList = Object.keys(nodesData);
+            const nodeWidth = 180;
+            const nodeHeight = 120;
+            const horizontalSpacing = 250;
+            const verticalSpacing = 150;
+            
+            // Find root nodes (nodes without parents)
+            const rootNodes = nodesList.filter(nodeName => 
+                !nodesData[nodeName]._parents || nodesData[nodeName]._parents.length === 0
+            );
+            
+            // If there are no root nodes, just arrange in a grid
+            if (rootNodes.length === 0) {
+                const cols = Math.ceil(Math.sqrt(nodesList.length));
+                nodesList.forEach((nodeName, index) => {
+                    const col = index % cols;
+                    const row = Math.floor(index / cols);
+                    positions[nodeName] = {
+                        x: col * horizontalSpacing + 50,
+                        y: row * verticalSpacing + 50
+                    };
+                });
+                return positions;
+            }
+            
+            // Process each root node and its children
+            let currentLevel = rootNodes;
+            let nextLevel = [];
+            let levelY = 50;
+            
+            while (currentLevel.length > 0) {
+                // Position nodes on current level
+                const levelWidth = currentLevel.length * (nodeWidth + horizontalSpacing) - horizontalSpacing;
+                let startX = Math.max(50, (graphEl.clientWidth - levelWidth) / 2);
+                
+                currentLevel.forEach(nodeName => {
+                    positions[nodeName] = {
+                        x: startX,
+                        y: levelY
+                    };
+                    
+                    startX += nodeWidth + horizontalSpacing;
+                    
+                    // Add children to next level
+                    const children = nodesData[nodeName]._children || [];
+                    children.forEach(child => {
+                        if (!nextLevel.includes(child)) {
+                            nextLevel.push(child);
+                        }
+                    });
+                });
+                
+                // Move to next level
+                currentLevel = nextLevel;
+                nextLevel = [];
+                levelY += verticalSpacing;
+            }
+            
+            return positions;
+        }
+
+        // Create a node element in the DOM
+        function createNodeElement(nodeName, nodeData, position) {
+            const node = document.createElement('div');
+            node.className = `node node-${nodeData.status || 'pending'}`;
+            node.id = `node-${nodeName}`;
+            node.style.left = `${position.x}px`;
+            node.style.top = `${position.y}px`;
+
+            
+            node.innerHTML = `
+                <div class="node-header">
+                    <div class="node-title">${nodeName}</div>
+                    <div class="node-status status-${nodeData.status || 'pending'}">${nodeData.status || 'Pending'}</div>
+                </div>
+                <div class="node-body">
+                    ${nodeData.outputSchema ? Object.keys(nodeData.outputSchema).length : 0} outputs
+                </div>
+                <div class="node-footer">
+                    <div class="node-compiled">${nodeData._compiled ? 'Compiled' : 'Not Compiled'}</div>
+                    <div class="node-actions">
+                        <button class="btn btn-sm btn-success node-run-btn" data-node="${nodeName}">Run</button>
+                    </div>
+                </div>
+            `;
+            
+            graphEl.appendChild(node);
+            nodes[nodeName] = {
+                element: node,
+                data: nodeData,
+                position
+            };
+            
+            // Make node draggable
+            node.addEventListener('mousedown', (e) => {
+                if (e.target.classList.contains('node-run-btn')) {
+                    return; // Don't start drag if clicking the run button
+                }
+                
+                draggingNode = node;
+                const rect = node.getBoundingClientRect();
+                offsetX = e.clientX - rect.left;
+                offsetY = e.clientY - rect.top;
+                node.style.zIndex = 1000;
+            });
+            
+            // Add click event for node details
+            node.addEventListener('click', (e) => {
+                if (e.target.classList.contains('node-run-btn')) {
+                    // Execute node
+                    executeNode(nodeName);
+                    return;
+                }
+                
+                // Show node details
+                showNodeDetails(nodeName, nodeData);
+            });
+            
+            // Add hover effect for node
+            node.addEventListener('mouseenter', () => {
+                showTooltip(`Click to view details. Drag to move.`, node);
+            });
+            
+            node.addEventListener('mouseleave', () => {
+                hideTooltip();
+            });
+        }
+
+        // Create an edge between two nodes
+        function createEdge(sourceNodeName, targetNodeName) {
+            const sourceNode = nodes[sourceNodeName];
+            const targetNode = nodes[targetNodeName];
+            
+            if (!sourceNode || !targetNode) return;
+            
+            const svgNS = "http://www.w3.org/2000/svg";
+            const svg = document.createElementNS(svgNS, "svg");
+            svg.classList.add('edge');
+            svg.setAttribute('id', `edge-${sourceNodeName}-${targetNodeName}`);
+            
+            const path = document.createElementNS(svgNS, "path");
+            path.classList.add('edge-path');
+            svg.appendChild(path);
+            
+            // Add arrow marker
+            const marker = document.createElementNS(svgNS, "marker");
+            marker.setAttribute('id', `arrowhead-${sourceNodeName}-${targetNodeName}`);
+            marker.setAttribute('viewBox', '0 0 10 10');
+            marker.setAttribute('refX', '5');
+            marker.setAttribute('refY', '5');
+            marker.setAttribute('markerWidth', '6');
+            marker.setAttribute('markerHeight', '6');
+            marker.setAttribute('orient', 'auto');
+            
+            const markerPath = document.createElementNS(svgNS, "path");
+            markerPath.setAttribute('d', 'M 0 0 L 10 5 L 0 10 z');
+            markerPath.classList.add('edge-arrow');
+            marker.appendChild(markerPath);
+            
+            const defs = document.createElementNS(svgNS, "defs");
+            defs.appendChild(marker);
+            svg.appendChild(defs);
+            
+            graphEl.appendChild(svg);
+            updateEdge(sourceNodeName, targetNodeName);
+        }
+
+        // Update edge position when nodes move
+        function updateEdge(sourceNodeName, targetNodeName) {
+            const sourceNode = nodes[sourceNodeName];
+            const targetNode = nodes[targetNodeName];
+            
+            if (!sourceNode || !targetNode) return;
+            
+            const svg = document.getElementById(`edge-${sourceNodeName}-${targetNodeName}`);
+            const path = svg.querySelector('path');
+            
+            const sourceRect = sourceNode.element.getBoundingClientRect();
+            const targetRect = targetNode.element.getBoundingClientRect();
+            const graphRect = graphEl.getBoundingClientRect();
+            
+            const sourceX = sourceNode.element.offsetLeft + sourceRect.width / 2;
+            const sourceY = sourceNode.element.offsetTop + sourceRect.height / 2;
+            const targetX = targetNode.element.offsetLeft + targetRect.width / 2;
+            const targetY = targetNode.element.offsetTop + targetRect.height / 2;
+            
+            // Calculate the angle between the nodes
+            const dx = targetX - sourceX;
+            const dy = targetY - sourceY;
+            const angle = Math.atan2(dy, dx);
+            
+            // Calculate where the edge should connect to the nodes
+            const sourceNodeRadius = Math.min(sourceRect.width, sourceRect.height) / 2;
+            const targetNodeRadius = Math.min(targetRect.width, targetRect.height) / 2;
+            
+            const sourceConnectX = sourceX + Math.cos(angle) * sourceNodeRadius;
+            const sourceConnectY = sourceY + Math.sin(angle) * sourceNodeRadius;
+            const targetConnectX = targetX - Math.cos(angle) * targetNodeRadius;
+            const targetConnectY = targetY - Math.sin(angle) * targetNodeRadius;
+            
+            // Set the path
+            path.setAttribute('d', `M ${sourceConnectX} ${sourceConnectY} L ${targetConnectX} ${targetConnectY}`);
+            path.setAttribute('marker-end', `url(#arrowhead-${sourceNodeName}-${targetNodeName})`);
+            
+            // Position and size the SVG
+            const minX = Math.min(sourceConnectX, targetConnectX);
+            const minY = Math.min(sourceConnectY, targetConnectY);
+            const maxX = Math.max(sourceConnectX, targetConnectX);
+            const maxY = Math.max(sourceConnectY, targetConnectY);
+            
+            svg.style.left = `${minX}px`;
+            svg.style.top = `${minY}px`;
+            svg.style.width = `${maxX - minX + 10}px`;
+            svg.style.height = `${maxY - minY + 10}px`;
+            
+            // Adjust the viewBox
+            svg.setAttribute('viewBox', `${minX} ${minY} ${maxX - minX + 10} ${maxY - minY + 10}`);
+        }
+
+        // Execute node
+        async function executeNode(nodeName) {
+            if (!currentSessionId) return;
+            
+            showLoading();
+            try {
+                const response = await fetch(`${API_BASE_URL}/execute-session`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        session_id: currentSessionId,
+                        start_node: nodeName
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    // Update the node status
+                    const nodeEl = document.getElementById(`node-${nodeName}`);
+                    if (nodeEl) {
+                        nodeEl.className = `node node-running`;
+                        nodeEl.querySelector('.node-status').className = 'node-status status-running';
+                        nodeEl.querySelector('.node-status').textContent = 'Running';
+                    }
+                    
+                    // Show success message
+                    alert(`Execution started for node: ${nodeName}`);
+                    
+                    // Reload the graph after a short delay
+                    setTimeout(() => {
+                        openSession(currentSessionId);
+                    }, 2000);
+                } else {
+                    alert(`Error: ${data.error || 'Failed to execute node'}`);
+                }
+            } catch (error) {
+                console.error('Error executing node:', error);
+                alert('Error executing node. Check console for details.');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Show node details panel
+        function showNodeDetails(nodeName, nodeData) {
+            detailNodeName.textContent = nodeName;
+            nodeDetailPanel.style.display = 'block';
+            
+            // Build the details content
+            let detailsHtml = `
+                <div class="node-param-group">
+                    <div class="node-param-title">Status</div>
+                    <div class="node-param">
+                        <label class="param-label">Status</label>
+                        <input type="text" class="param-input" value="${nodeData.status || 'pending'}" readonly>
+                    </div>
+                    <div class="node-param">
+                        <label class="param-label">Compiled</label>
+                        <input type="text" class="param-input" value="${nodeData._compiled ? 'Yes' : 'No'}" readonly>
+                    </div>
+                </div>
+            `;
+            
+            // Basic properties
+            detailsHtml += `
+                <div class="node-param-group">
+                    <div class="node-param-title">Basic Properties</div>
+                    <div class="node-param">
+                        <label class="param-label">Node Name</label>
+                        <input type="text" class="param-input" value="${nodeData.nodeName || nodeName}" data-field="nodeName" data-node="${nodeName}">
+                    </div>
+                    <div class="node-param">
+                        <label class="param-label">System Instructions</label>
+                        <textarea class="param-textarea" data-field="systemInstructions" data-node="${nodeName}">${nodeData.systemInstructions || ''}</textarea>
+                    </div>
+                    <div class="node-param">
+                        <label class="param-label">User Prompt</label>
+                        <textarea class="param-textarea" data-field="userPrompt" data-node="${nodeName}">${nodeData.userPrompt || ''}</textarea>
+                    </div>
+                </div>
+            `;
+            
+            // Output Schema
+            if (nodeData.outputSchema) {
+                detailsHtml += `
+                    <div class="node-param-group">
+                        <div class="node-param-title">Output Schema</div>
+                `;
+                
+                Object.entries(nodeData.outputSchema).forEach(([key, value]) => {
+                    detailsHtml += `
+                        <div class="node-param">
+                            <label class="param-label">${key}</label>
+                            <input type="text" class="param-input" value="${value}" data-field="outputSchema.${key}" data-node="${nodeName}">
+                        </div>
+                    `;
+                });
+                
+                detailsHtml += `</div>`;
+            }
+
+            // _outputs key and values
+            if (nodeData._outputs) {
+                detailsHtml += `
+                    <div class="node-param-group">
+                        <div class="node-param-title">Output</div>
+                `;
+                Object.entries(nodeData._outputs).forEach(([key, value]) => {
+                    detailsHtml += `
+                        <div class="node-param">
+                            <label class="param-label">${key}</label>
+                            <input type="text" class="param-input" value="${value}" data-field="_outputs.${key}" data-node="${nodeName}">
+                        </div>
+                    `;
+                });
+                detailsHtml += `</div>`;
+            }
+            
+            // Python Code
+            if (nodeData.pythonCode) {
+                detailsHtml += `
+                    <div class="node-param-group">
+                        <div class="node-param-title">Python Code</div>
+                `;
+                
+                // Arguments
+                if (nodeData.pythonCode.argument) {
+                    detailsHtml += `
+                        <div class="node-param">
+                            <div class="param-label">Arguments</div>
+                    `;
+                    
+                    Object.entries(nodeData.pythonCode.argument).forEach(([key, value]) => {
+                        detailsHtml += `
+                            <div class="node-param">
+                                <label class="param-label">${key}</label>
+                                <input type="text" class="param-input" value="${value}" data-field="pythonCode.argument.${key}" data-node="${nodeName}">
+                            </div>
+                        `;
+                    });
+                    
+                    detailsHtml += `</div>`;
+                }
+                
+                // Function Body
+                if (nodeData.pythonCode.function_body) {
+                    detailsHtml += `
+                        <div class="node-param">
+                            <label class="param-label">Function Body</label>
+                            <textarea class="param-textarea" style="height: 150px;" data-field="pythonCode.function_body" data-node="${nodeName}">${nodeData.pythonCode.function_body}</textarea>
+                        </div>
+                    `;
+                }
+                
+                detailsHtml += `</div>`;
+            }
+            
+            // Parents
+            if (nodeData._parents && nodeData._parents.length > 0) {
+                detailsHtml += `
+                    <div class="node-param-group">
+                        <div class="node-param-title">Parents</div>
+                        <div class="node-param">
+                `;
+                
+                nodeData._parents.forEach(parent => {
+                    detailsHtml += `
+                        <div class="param-input" style="margin-bottom: 5px;">
+                            ${Array.isArray(parent) ? parent.join('.') : parent}
+                        </div>
+                    `;
+                });
+                
+                detailsHtml += `
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Children
+            if (nodeData._children && nodeData._children.length > 0) {
+                detailsHtml += `
+                    <div class="node-param-group">
+                        <div class="node-param-title">Children</div>
+                        <div class="node-param">
+                `;
+                
+                nodeData._children.forEach(child => {
+                    detailsHtml += `
+                        <div class="param-input" style="margin-bottom: 5px;">${child}</div>
+                    `;
+                });
+                
+                detailsHtml += `
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Actions
+            detailsHtml += `
+                <div class="node-param-group">
+                    <div class="form-actions">
+                        <button class="btn btn-success" id="update-node-btn" data-node="${nodeName}">Update Node</button>
+                        <button class="btn btn-danger" id="remove-node-btn" data-node="${nodeName}">Remove Node</button>
+                    </div>
+                </div>
+            `;
+            
+            nodeDetailsContent.innerHTML = detailsHtml;
+            
+            // Add event listeners for update and remove buttons
+            document.getElementById('update-node-btn').addEventListener('click', () => {
+                // TODO: Implement node update functionality
+                alert('Update node functionality not implemented yet');
+            });
+            
+            document.getElementById('remove-node-btn').addEventListener('click', () => {
+                // TODO: Implement node removal functionality
+                alert('Remove node functionality not implemented yet');
+            });
+        }
+
+        // Center the graph
+        function centerGraph() {
+            if (Object.keys(nodes).length === 0) return;
+            
+            // Reset zoom and pan
+            zoomLevel = 1;
+            
+            // Calculate the bounds of all nodes
+            let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+            
+            Object.values(nodes).forEach(node => {
+                const left = node.position.x;
+                const top = node.position.y;
+                const right = left + node.element.offsetWidth;
+                const bottom = top + node.element.offsetHeight;
+                
+                minX = Math.min(minX, left);
+                minY = Math.min(minY, top);
+                maxX = Math.max(maxX, right);
+                maxY = Math.max(maxY, bottom);
+            });
+            
+            // Calculate the center of the graph
+            const graphCenterX = (minX + maxX) / 2;
+            const graphCenterY = (minY + maxY) / 2;
+            
+            // Calculate the center of the view
+            const viewCenterX = graphEl.parentElement.offsetWidth / 2;
+            const viewCenterY = graphEl.parentElement.offsetHeight / 2;
+            
+            // Calculate the pan offsets
+            panX = viewCenterX - graphCenterX;
+            panY = viewCenterY - graphCenterY;
+            
+            // Apply the pan
+            graphEl.style.transform = `translate(${panX}px, ${panY}px) scale(${zoomLevel})`;
+        }
+
+        // Show tooltip
+        function showTooltip(text, element) {
+            tooltip.textContent = text;
+            tooltip.style.opacity = '1';
+            
+            const rect = element.getBoundingClientRect();
+            const graphRect = graphEl.parentElement.getBoundingClientRect();
+            
+            tooltip.style.left = `${rect.left + rect.width / 2 - tooltip.offsetWidth / 2}px`;
+            tooltip.style.top = `${rect.top - tooltip.offsetHeight - 10}px`;
+        }
+
+        // Hide tooltip
+        function hideTooltip() {
+            tooltip.style.opacity = '0';
+        }
+
+        // Show loading spinner
+        function showLoading() {
+            loading.style.display = 'flex';
+        }
+
+        // Hide loading spinner
+        function hideLoading() {
+            loading.style.display = 'none';
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Mouse events for dragging nodes
+            document.addEventListener('mousemove', (e) => {
+                if (draggingNode) {
+                    const x = e.clientX - offsetX;
+                    const y = e.clientY - offsetY;
+                    
+                    // Get position within the graph
+                    const graphRect = graphEl.getBoundingClientRect();
+                    const graphX = x - graphRect.left + graphEl.scrollLeft - panX;
+                    const graphY = y - graphRect.top + graphEl.scrollTop - panY;
+                    
+                    draggingNode.style.left = `${graphX / zoomLevel}px`;
+                    draggingNode.style.top = `${graphY / zoomLevel}px`;
+                    
+                    // Update the node position data
+                    const nodeName = draggingNode.id.replace('node-', '');
+                    if (nodes[nodeName]) {
+                        nodes[nodeName].position.x = parseInt(draggingNode.style.left);
+                        nodes[nodeName].position.y = parseInt(draggingNode.style.top);
+                    }
+                    
+                    // Update all connected edges
+                    updateConnectedEdges(nodeName);
+                }
+            });
+            
+            document.addEventListener('mouseup', () => {
+                if (draggingNode) {
+                    draggingNode.style.zIndex = '';
+                    draggingNode = null;
+                }
+            });
+            
+            // New session modal
+            newSessionBtn.addEventListener('click', () => {
+                newSessionModal.style.display = 'flex';
+            });
+            
+            newSessionClose.addEventListener('click', () => {
+                newSessionModal.style.display = 'none';
+            });
+            
+            newSessionCancel.addEventListener('click', () => {
+                newSessionModal.style.display = 'none';
+            });
+            
+            newSessionForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const sessionId = document.getElementById('session-id').value.trim();
+                
+                if (!sessionId) {
+                    alert('Please enter a session ID');
+                    return;
+                }
+                
+                showLoading();
+                try {
+                    const response = await fetch(`${API_BASE_URL}/create-session`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ session_id: sessionId })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (response.ok) {
+                        newSessionModal.style.display = 'none';
+                        document.getElementById('session-id').value = '';
+                        loadSessions();
+                        
+                        // Open the new session
+                        setTimeout(() => {
+                            openSession(sessionId);
+                        }, 500);
+                    } else {
+                        alert(`Error: ${data.error || 'Failed to create session'}`);
+                    }
+                } catch (error) {
+                    console.error('Error creating session:', error);
+                    alert('Error creating session. Check console for details.');
+                } finally {
+                    hideLoading();
+                }
+            });
+            
+            // Delete session modal
+            deleteSessionBtn.addEventListener('click', () => {
+                deleteSessionModal.style.display = 'flex';
+            });
+            
+            deleteSessionClose.addEventListener('click', () => {
+                deleteSessionModal.style.display = 'none';
+            });
+            
+            deleteSessionCancel.addEventListener('click', () => {
+                deleteSessionModal.style.display = 'none';
+            });
+            
+            deleteSessionForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const sessionId = deleteSessionIdSelect.value;
+                
+                if (!sessionId) {
+                    alert('Please select a session to delete');
+                    return;
+                }
+                
+                showLoading();
+                try {
+                    const response = await fetch(`${API_BASE_URL}/delete-session`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ session_id: sessionId })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (response.ok && data.success) {
+                        deleteSessionModal.style.display = 'none';
+                        
+                        // If the deleted session is the current session, clear the graph
+                        if (sessionId === currentSessionId) {
+                            currentSessionId = null;
+                            graphData = null;
+                            graphEl.innerHTML = `
+                                <div class="empty-graph">
+                                    <i class="fas fa-project-diagram"></i>
+                                    <p>Select a session to view its graph</p>
+                                </div>
+                            `;
+                            compileBtn.style.display = 'none';
+                        }
+                        
+                        loadSessions();
+                    } else {
+                        alert(`Error: ${data.error || 'Failed to delete session'}`);
+                    }
+                } catch (error) {
+                    console.error('Error deleting session:', error);
+                    alert('Error deleting session. Check console for details.');
+                } finally {
+                    hideLoading();
+                }
+            });
+            
+            // Compile button
+            compileBtn.addEventListener('click', async () => {
+                if (!currentSessionId) {
+                    alert('Please select a session first');
+                    return;
+                }
+                
+                showLoading();
+                try {
+                    const response = await fetch(`${API_BASE_URL}/compile-session`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ session_id: currentSessionId })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (response.ok) {
+                        alert('Graph compiled successfully');
+                        openSession(currentSessionId);
+                    } else {
+                        alert(`Error: ${data.error || 'Failed to compile graph'}`);
+                    }
+                } catch (error) {
+                    console.error('Error compiling graph:', error);
+                    alert('Error compiling graph. Check console for details.');
+                } finally {
+                    hideLoading();
+                }
+            });
+            
+            // Center graph button
+            centerGraphBtn.addEventListener('click', centerGraph);
+            
+            // Close node details panel
+            detailClose.addEventListener('click', () => {
+                nodeDetailPanel.style.display = 'none';
+            });
+            
+            // Tab switching
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const tabName = tab.dataset.tab;
+                    
+                    // Update tab active state
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    
+                    // Update tab content visibility
+                    tabContents.forEach(content => {
+                        content.style.display = content.id === `${tabName}-tab` ? 'block' : 'none';
+                    });
+                });
+            });
+        }
+
+        // Update connected edges when a node moves
+        function updateConnectedEdges(nodeName) {
+            const nodeData = graphData.nodes[nodeName];
+            
+            // Update edges where this node is the source
+            if (nodeData && nodeData._children) {
+                nodeData._children.forEach(childName => {
+                    updateEdge(nodeName, childName);
+                });
+            }
+            
+            // Update edges where this node is the target
+            Object.entries(graphData.nodes).forEach(([parentName, parentData]) => {
+                if (parentData._children && parentData._children.includes(nodeName)) {
+                    updateEdge(parentName, nodeName);
+                }
+            });
+        }
+
+        // Update JSON view
+        function updateJsonView(data) {
+            jsonView.textContent = JSON.stringify(data, null, 2);
+        }
+    </script>
+</body>
+</html>
