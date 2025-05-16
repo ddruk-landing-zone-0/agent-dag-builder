@@ -1,0 +1,180 @@
+{
+    "graph_id": "df8f4fd83c0e0df9fafb251da61c0dbaf71d9d7d1466c565131d636277896a2b",
+    "nodes": {
+        "inputs": {
+            "nodeName": "inputs",
+            "systemInstructions": "Input node",
+            "userPrompt": "Input node",
+            "pythonCode": {},
+            "outputSchema": {
+                "input1": "10",
+                "input2": "9087",
+                "input3": "41"
+            },
+            "kwargs": {
+                "input1": "10",
+                "input2": "9087",
+                "input3": "41"
+            },
+            "id": "3fd17954c1a176d602bee5795ca1640dc0f676261ba7abafdb7cb0e0f7dfa1dc",
+            "_compiled": true,
+            "_parents": [],
+            "_children": [
+                "node1",
+                "node3",
+                "node2"
+            ],
+            "_inputs": {},
+            "_outputs": {
+                "input1": "10",
+                "input2": "9087",
+                "input3": "41"
+            },
+            "status": "completed"
+        },
+        "node2": {
+            "nodeName": "node2",
+            "systemInstructions": "This is a test system instruction for Node2.",
+            "userPrompt": "Calculate the product of @[inputs.input1] and @[inputs.input2] and @[inputs.input3]",
+            "pythonCode": {
+                "argument": {
+                    "arg1": "10",
+                    "arg2": "12",
+                    "arg3": "41"
+                },
+                "function_body": "import time; \ndef function(arg1, arg2, arg3):\n    time.sleep(5)\n    return {'output1': int(arg1) * int(arg2) * int(arg3)}"
+            },
+            "outputSchema": {
+                "output1": "This is the output1 of Node2 , product of input1, input2 and input3"
+            },
+            "kwargs": {},
+            "id": "73a34200194b669165205c2635ce6f74c56216aa8b6d717a5417dd43ad7fda7f",
+            "_compiled": true,
+            "_parents": [
+                [
+                    "inputs",
+                    "input1"
+                ],
+                [
+                    "inputs",
+                    "input2"
+                ],
+                [
+                    "inputs",
+                    "input3"
+                ]
+            ],
+            "_children": [
+                "node3"
+            ],
+            "_inputs": {},
+            "_outputs": {
+                "output1": "4920"
+            },
+            "status": "completed"
+        },
+        "node5": {
+            "nodeName": "node5",
+            "systemInstructions": "this is node1's system instruction",
+            "userPrompt": "this is node1's User Prompt",
+            "pythonCode": {
+                "argument": {
+                    "arg1": "10",
+                    "arg2": "12"
+                },
+                "function_body": "def function(arg1, arg2):\n    # Your code here\n    return {'output1': f\"{arg1}{arg2}\"}"
+            },
+            "outputSchema": {
+                "output1": "f\"{arg1}{arg2}\" concatenation of arg1 and arg2"
+            },
+            "kwargs": {},
+            "id": "3a4273ddb19b7cde4456ebebc7bdeeaddce5c19f36d1179bb6ee1dc2531dcbc5",
+            "_compiled": true,
+            "_parents": [],
+            "_children": [],
+            "_inputs": {},
+            "_outputs": {},
+            "status": "pending"
+        },
+        "node3": {
+            "nodeName": "node3",
+            "systemInstructions": "This is a test system instruction for Node3.",
+            "userPrompt": "Calculate the sum of @[node1.output1] and @[node2.output1] and @[inputs.input1]",
+            "pythonCode": {
+                "argument": {
+                    "arg1": "22",
+                    "arg2": "787899889",
+                    "arg3": "10"
+                },
+                "function_body": "def function(arg1, arg2, arg3):\n    return {'output1': int(arg1) + int(arg2) + int(arg3)}"
+            },
+            "outputSchema": {
+                "output1": "This is the output1 of Node3 , sum of node1.output1, node2.output1 and input1"
+            },
+            "kwargs": {},
+            "id": "884545b2f182a56494f7430315c3191ad296d278560678c3c034bedb89f0d1c6",
+            "_compiled": true,
+            "_parents": [
+                [
+                    "node1",
+                    "output1"
+                ],
+                [
+                    "node2",
+                    "output1"
+                ],
+                [
+                    "inputs",
+                    "input1"
+                ]
+            ],
+            "_children": [],
+            "_inputs": {},
+            "_outputs": {
+                "output1": "787899921"
+            },
+            "status": "completed"
+        },
+        "node1": {
+            "nodeName": "node1",
+            "systemInstructions": "This is a test system instruction for Node1.",
+            "userPrompt": "Calculate the sum of @[inputs.input1] and @[inputs.input2] and @[inputs.input1]^2",
+            "pythonCode": {
+                "argument": {
+                    "arg1": "10",
+                    "arg2": "80980"
+                },
+                "function_body": "def function(arg1, arg2):\n    return {'output1': int(arg1) + int(arg2), 'output2': int(arg1)**2}"
+            },
+            "outputSchema": {
+                "output1": "This is the output1 of Node1 , sum of input1 and input2",
+                "output2": "This is the output2 of Node1 , square of input1"
+            },
+            "kwargs": {},
+            "id": "fdb3376fcb9e8ca9cb0015366631d0ae6a95c38c773278d32ec9a6ba77a1bb57",
+            "_compiled": true,
+            "_parents": [
+                [
+                    "inputs",
+                    "input1"
+                ],
+                [
+                    "inputs",
+                    "input2"
+                ]
+            ],
+            "_children": [
+                "node3"
+            ],
+            "_inputs": {},
+            "_outputs": {
+                "output1": "80990",
+                "output2": "100"
+            },
+            "status": "completed"
+        }
+    },
+    "venv_path": "./runner_envs/venv",
+    "python_packages": [],
+    "create_env": false
+}
