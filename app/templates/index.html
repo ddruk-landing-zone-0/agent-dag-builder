@@ -3,1128 +3,1319 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Agent DAG Workflow</title>
-    <link rel="stylesheet" href="styles.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.23.0/cytoscape.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.36.1/min/vs/loader.min.js"></script>
+    <title>Agent DAG UI</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .session-controls {
+            display: flex;
+            gap: 10px;
+        }
+        .session-list {
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .session-item {
+            padding: 10px;
+            margin: 5px 0;
+            background-color: #e9f7fe;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .session-item:hover {
+            background-color: #d0edfb;
+        }
+        .session-item.active {
+            background-color: #bbdfff;
+            font-weight: bold;
+        }
+        .node-controls {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        .button {
+            padding: 8px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .button:hover {
+            background-color: #45a049;
+        }
+        .button.delete {
+            background-color: #f44336;
+        }
+        .button.delete:hover {
+            background-color: #d32f2f;
+        }
+        .button.compile {
+            background-color: #2196F3;
+        }
+        .button.compile:hover {
+            background-color: #0b7dda;
+        }
+        .button.run {
+            background-color: #ff9800;
+        }
+        .button.run:hover {
+            background-color: #e68a00;
+        }
+        .nodes-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .node-card {
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            padding: 15px;
+            position: relative;
+        }
+        .node-card.pending {
+            border-left: 5px solid #ff9800;
+        }
+        .node-card.running {
+            border-left: 5px solid #2196F3;
+        }
+        .node-card.completed {
+            border-left: 5px solid #4CAF50;
+        }
+        .node-card.waiting {
+            border-left: 5px solid #9E9E9E;
+        }
+        .node-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+        .node-title {
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .node-actions {
+            display: flex;
+            gap: 5px;
+        }
+        .node-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        .node-section {
+            margin-bottom: 15px;
+        }
+        .node-section h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 16px;
+            color: #555;
+        }
+        .form-group {
+            margin-bottom: 10px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #666;
+        }
+        .form-control {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: inherit;
+            font-size: 14px;
+            resize: vertical;
+            min-height: 50px;
+        }
+        .code-editor {
+            font-family: monospace;
+            background-color: #f8f8f8;
+            min-height: 150px;
+        }
+        .property-list {
+            background-color: #f9f9f9;
+            padding: 10px;
+            border-radius: 4px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .property-item {
+            display: flex;
+            margin-bottom: 5px;
+        }
+        .property-key {
+            font-weight: bold;
+            margin-right: 5px;
+            min-width: 100px;
+        }
+        .property-value {
+            flex: 1;
+            word-break: break-all;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+        .modal-content {
+            background-color: #fff;
+            margin: 50px auto;
+            padding: 20px;
+            border-radius: 5px;
+            max-width: 800px;
+            position: relative;
+        }
+        .close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 24px;
+            cursor: pointer;
+        }
+        .tab-container {
+            margin-top: 20px;
+        }
+        .tab-buttons {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+        .tab-button {
+            padding: 8px 15px;
+            background-color: #f0f0f0;
+            border: none;
+            border-radius: 4px 4px 0 0;
+            cursor: pointer;
+        }
+        .tab-button.active {
+            background-color: #e0e0e0;
+            font-weight: bold;
+        }
+        .tab-content {
+            display: none;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 0 4px 4px 4px;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .json-display {
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        .status-badge {
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 12px;
+            color: white;
+        }
+        .status-pending {
+            background-color: #ff9800;
+        }
+        .status-running {
+            background-color: #2196F3;
+        }
+        .status-completed {
+            background-color: #4CAF50;
+        }
+        .status-waiting {
+            background-color: #9E9E9E;
+        }
+        .input-fields-container {
+            margin-top: 10px;
+        }
+        .input-field-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .add-field-btn {
+            margin-top: 10px;
+        }
+        .code-area {
+            min-height: 150px;
+            font-family: monospace;
+        }
+        .output-schema-container {
+            margin-top: 10px;
+        }
+        .output-schema-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .python-arg-container {
+            margin-top: 10px;
+        }
+        .python-arg-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+    </style>
 </head>
 <body>
-    <div class="app-container">
-        <div class="sidebar">
-            <div class="logo">
-                <h1>Agent DAG</h1>
-            </div>
-            <div class="session-management">
-                <h2>Sessions</h2>
-                <div class="session-controls">
-                    <input type="text" id="session-name-input" placeholder="Enter session name">
-                    <button id="create-session-btn" class="btn primary">Create Session</button>
-                </div>
-                <div class="session-list-container">
-                    <h3>Available Sessions</h3>
-                    <ul id="session-list" class="session-list"></ul>
-                </div>
+    <div class="container">
+        <div class="header">
+            <h1>Agent DAG UI</h1>
+            <div class="session-controls">
+                <button id="createSessionBtn" class="button">Create Session</button>
+                <button id="compileBtn" class="button compile" disabled>Compile Session</button>
+                <button id="deleteSessionBtn" class="button delete" disabled>Delete Session</button>
             </div>
         </div>
 
-        <div class="main-content">
-            <div class="no-session-selected" id="no-session-view">
-                <div class="welcome-message">
-                    <h2>Welcome to Agent DAG Workflow</h2>
-                    <p>Create a new session or select an existing one to start building your workflow.</p>
-                </div>
-            </div>
-
-            <div class="session-view hidden" id="session-view">
-                <div class="session-header">
-                    <h2 id="current-session-name">Session: <span></span></h2>
-                    <div class="session-actions">
-                        <button id="modify-inputs-btn" class="btn secondary">Modify Inputs</button>
-                        <button id="add-node-btn" class="btn secondary">Add Node</button>
-                        <button id="compile-btn" class="btn primary">Compile Graph</button>
-                        <button id="delete-session-btn" class="btn danger">Delete Session</button>
-                    </div>
-                </div>
-
-                <div class="graph-workspace">
-                    <div id="cy" class="graph-container"></div>
-                    
-                    <div id="node-details" class="node-details hidden">
-                        <div class="node-details-header">
-                            <h3 id="node-detail-title">Node Details</h3>
-                            <div class="node-actions">
-                                <button id="update-node-btn" class="btn secondary">Update</button>
-                                <button id="remove-node-btn" class="btn danger">Remove</button>
-                                <button id="execute-node-btn" class="btn primary">Execute</button>
-                                <button id="close-details-btn" class="btn text">Close</button>
-                            </div>
-                        </div>
-                        <div class="node-form">
-                            <div class="form-group">
-                                <label for="node-name">Node Name</label>
-                                <input type="text" id="node-name" disabled>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Status</label>
-                                <div id="node-status" class="status-badge">pending</div>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="system-instructions">System Instructions</label>
-                                <textarea id="system-instructions" rows="3"></textarea>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="user-prompt">User Prompt</label>
-                                <textarea id="user-prompt" rows="3"></textarea>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Python Code</label>
-                                <div class="code-editors">
-                                    <div class="code-editor-container">
-                                        <label>Arguments</label>
-                                        <div id="arguments-editor" class="code-editor"></div>
-                                    </div>
-                                    <div class="code-editor-container">
-                                        <label>Function Body</label>
-                                        <div id="function-body-editor" class="code-editor"></div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Output Schema</label>
-                                <div id="output-schema-editor" class="code-editor"></div>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Node Outputs</label>
-                                <div id="node-outputs-editor" class="code-editor"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div class="session-list">
+            <h2>Available Sessions</h2>
+            <div id="sessionsList"></div>
         </div>
+
+        <div class="node-controls">
+            <button id="createNodeBtn" class="button" disabled>Create Node</button>
+            <button id="refreshGraphBtn" class="button" disabled>Refresh Graph</button>
+        </div>
+
+        <div id="nodesContainer" class="nodes-container"></div>
     </div>
 
-    <!-- Modals -->
-    <div id="inputs-modal" class="modal">
+    <!-- Session Modal -->
+    <div id="sessionModal" class="modal">
         <div class="modal-content">
-            <div class="modal-header">
-                <h2>Modify Input Fields</h2>
-                <span class="close-modal">&times;</span>
+            <span class="close" id="closeSessionModal">&times;</span>
+            <h2>Create New Session</h2>
+            <div class="form-group">
+                <label for="sessionIdInput">Session ID:</label>
+                <input type="text" id="sessionIdInput" class="form-control" placeholder="Enter session ID">
             </div>
-            <div class="modal-body">
-                <div id="input-fields-container">
-                    <div class="input-field-row">
-                        <input type="text" class="input-key" placeholder="Key">
-                        <input type="text" class="input-value" placeholder="Value">
-                        <button class="remove-input-btn">&times;</button>
-                    </div>
-                </div>
-                <button id="add-input-field-btn" class="btn secondary">Add Input Field</button>
-            </div>
-            <div class="modal-footer">
-                <button id="save-inputs-btn" class="btn primary">Save Inputs</button>
-                <button class="btn cancel-btn">Cancel</button>
-            </div>
+            <button id="submitSessionBtn" class="button">Create Session</button>
         </div>
     </div>
 
-    <div id="add-node-modal" class="modal">
-        <div class="modal-content wide-modal">
-            <div class="modal-header">
-                <h2 id="node-modal-title">Add New Node</h2>
-                <span class="close-modal">&times;</span>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label for="new-node-name">Node Name</label>
-                    <input type="text" id="new-node-name" placeholder="Enter unique node name">
-                </div>
-                <div class="form-group">
-                    <label for="new-system-instructions">System Instructions</label>
-                    <textarea id="new-system-instructions" rows="3" placeholder="System instructions for the node"></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="new-user-prompt">User Prompt</label>
-                    <textarea id="new-user-prompt" rows="3" placeholder="User prompt (use @[node.output] to reference other nodes)"></textarea>
-                </div>
-                <div class="form-group">
-                    <label>Python Code</label>
-                    <div class="code-editors">
-                        <div class="code-editor-container">
-                            <label>Arguments (JSON)</label>
-                            <div id="new-arguments-editor" class="code-editor"></div>
-                        </div>
-                        <div class="code-editor-container">
-                            <label>Function Body</label>
-                            <div id="new-function-body-editor" class="code-editor"></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>Output Schema (JSON)</label>
-                    <div id="new-output-schema-editor" class="code-editor"></div>
+    <!-- Input Node Modal -->
+    <div id="inputsModal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="closeInputsModal">&times;</span>
+            <h2>Add Inputs</h2>
+            <div class="input-fields-container" id="inputFieldsContainer">
+                <div class="input-field-row">
+                    <input type="text" class="form-control input-key" placeholder="Input Key">
+                    <input type="text" class="form-control input-value" placeholder="Input Value">
+                    <button class="button delete remove-input-field">X</button>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button id="save-node-btn" class="btn primary">Save Node</button>
-                <button class="btn cancel-btn">Cancel</button>
-            </div>
+            <button id="addInputFieldBtn" class="button add-field-btn">Add Field</button>
+            <button id="submitInputsBtn" class="button">Submit Inputs</button>
         </div>
     </div>
 
-    <div id="spinner-overlay" class="hidden">
-        <div class="spinner"></div>
+    <!-- Node Modal -->
+    <div id="nodeModal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="closeNodeModal">&times;</span>
+            <h2 id="nodeModalTitle">Create New Node</h2>
+            <div class="form-group">
+                <label for="nodeName">Node Name:</label>
+                <input type="text" id="nodeName" class="form-control" placeholder="Enter node name">
+            </div>
+            <div class="form-group">
+                <label for="systemInstructions">System Instructions:</label>
+                <textarea id="systemInstructions" class="form-control" placeholder="Enter system instructions"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="userPrompt">User Prompt:</label>
+                <textarea id="userPrompt" class="form-control" placeholder="Enter user prompt"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label>Python Code Arguments:</label>
+                <div class="python-arg-container" id="pythonArgContainer">
+                    <div class="python-arg-row">
+                        <input type="text" class="form-control arg-key" placeholder="Argument Key">
+                        <input type="text" class="form-control arg-value" placeholder="Argument Value">
+                        <button class="button delete remove-arg">X</button>
+                    </div>
+                </div>
+                <button id="addArgBtn" class="button add-field-btn">Add Argument</button>
+            </div>
+            
+            <div class="form-group">
+                <label for="functionBody">Function Body:</label>
+                <textarea id="functionBody" class="form-control code-editor code-area" placeholder="def function(arg1, arg2):
+    # Your code here
+    return {'output1': result1, 'output2': result2}"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label>Output Schema:</label>
+                <div class="output-schema-container" id="outputSchemaContainer">
+                    <div class="output-schema-row">
+                        <input type="text" class="form-control output-key" placeholder="Output Key">
+                        <input type="text" class="form-control output-desc" placeholder="Output Description">
+                        <button class="button delete remove-output">X</button>
+                    </div>
+                </div>
+                <button id="addOutputBtn" class="button add-field-btn">Add Output</button>
+            </div>
+            
+            <button id="submitNodeBtn" class="button">Create Node</button>
+        </div>
     </div>
 
     <script>
-        // Base API URL
-        const API_BASE_URL = 'http://127.0.0.1:8080';
-        let currentSessionId = null;
-        let currentGraph = null;
-        let selectedNode = null;
-        let cyInstance = null;
-        let monaco = null;
-        let argEditor = null;
-        let funcBodyEditor = null;
-        let outputSchemaEditor = null;
-        let nodeOutputsEditor = null;
-        let newArgEditor = null;
-        let newFuncBodyEditor = null;
-        let newOutputSchemaEditor = null;
-        let isEditingNode = false;
+        // Global state
+        const state = {
+            currentSession: null,
+            sessions: [],
+            graph: null
+        };
 
-        // Initialize Monaco editor
-        require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.36.1/min/vs' }});
-        require(['vs/editor/editor.main'], function() {
-            monaco = window.monaco;
-            
-            // Initialize code editors when needed
-            if (document.getElementById('node-details').classList.contains('hidden')) {
-                initializeEditors();
-            }
-        });
+        // DOM Elements
+        const createSessionBtn = document.getElementById('createSessionBtn');
+        const compileBtn = document.getElementById('compileBtn');
+        const deleteSessionBtn = document.getElementById('deleteSessionBtn');
+        const createNodeBtn = document.getElementById('createNodeBtn');
+        const refreshGraphBtn = document.getElementById('refreshGraphBtn');
+        const sessionsList = document.getElementById('sessionsList');
+        const nodesContainer = document.getElementById('nodesContainer');
+        
+        // Modal Elements
+        const sessionModal = document.getElementById('sessionModal');
+        const closeSessionModal = document.getElementById('closeSessionModal');
+        const sessionIdInput = document.getElementById('sessionIdInput');
+        const submitSessionBtn = document.getElementById('submitSessionBtn');
+        
+        const inputsModal = document.getElementById('inputsModal');
+        const closeInputsModal = document.getElementById('closeInputsModal');
+        const inputFieldsContainer = document.getElementById('inputFieldsContainer');
+        const addInputFieldBtn = document.getElementById('addInputFieldBtn');
+        const submitInputsBtn = document.getElementById('submitInputsBtn');
+        
+        const nodeModal = document.getElementById('nodeModal');
+        const closeNodeModal = document.getElementById('closeNodeModal');
+        const nodeModalTitle = document.getElementById('nodeModalTitle');
+        const nodeName = document.getElementById('nodeName');
+        const systemInstructions = document.getElementById('systemInstructions');
+        const userPrompt = document.getElementById('userPrompt');
+        const pythonArgContainer = document.getElementById('pythonArgContainer');
+        const addArgBtn = document.getElementById('addArgBtn');
+        const functionBody = document.getElementById('functionBody');
+        const outputSchemaContainer = document.getElementById('outputSchemaContainer');
+        const addOutputBtn = document.getElementById('addOutputBtn');
+        const submitNodeBtn = document.getElementById('submitNodeBtn');
 
-        // Initialize when DOM is loaded
-        document.addEventListener('DOMContentLoaded', () => {
-            // Initialize UI
-            initializeListeners();
-            fetchSessions();
-        });
-
-        function initializeEditors() {
-            if (!monaco) return;
-            
-            // Node detail editors
-            argEditor = monaco.editor.create(document.getElementById('arguments-editor'), {
-                value: '{\n  "arg1": "@[inputs.input1]"\n}',
-                language: 'json',
-                theme: 'vs-dark',
-                minimap: { enabled: false },
-                automaticLayout: true,
-                scrollBeyondLastLine: false,
-                lineNumbers: 'on',
-                glyphMargin: false,
-                folding: true,
-                lineDecorationsWidth: 10
-            });
-
-            funcBodyEditor = monaco.editor.create(document.getElementById('function-body-editor'), {
-                value: 'def function(arg1):\n    return {"output1": arg1}',
-                language: 'python',
-                theme: 'vs-dark',
-                minimap: { enabled: false },
-                automaticLayout: true,
-                scrollBeyondLastLine: false
-            });
-
-            outputSchemaEditor = monaco.editor.create(document.getElementById('output-schema-editor'), {
-                value: '{\n  "output1": "Description of output1"\n}',
-                language: 'json',
-                theme: 'vs-dark',
-                minimap: { enabled: false },
-                automaticLayout: true,
-                scrollBeyondLastLine: false
-            });
-            
-            nodeOutputsEditor = monaco.editor.create(document.getElementById('node-outputs-editor'), {
-                value: '{}',
-                language: 'json',
-                theme: 'vs-dark',
-                minimap: { enabled: false },
-                automaticLayout: true,
-                scrollBeyondLastLine: false,
-                readOnly: true
-            });
-
-            // New node modal editors
-            newArgEditor = monaco.editor.create(document.getElementById('new-arguments-editor'), {
-                value: '{\n  "arg1": "@[inputs.input1]"\n}',
-                language: 'json',
-                theme: 'vs-dark',
-                minimap: { enabled: false },
-                automaticLayout: true,
-                scrollBeyondLastLine: false
-            });
-
-            newFuncBodyEditor = monaco.editor.create(document.getElementById('new-function-body-editor'), {
-                value: 'def function(arg1):\n    return {"output1": arg1}',
-                language: 'python',
-                theme: 'vs-dark',
-                minimap: { enabled: false },
-                automaticLayout: true,
-                scrollBeyondLastLine: false
-            });
-
-            newOutputSchemaEditor = monaco.editor.create(document.getElementById('new-output-schema-editor'), {
-                value: '{\n  "output1": "Description of output1"\n}',
-                language: 'json',
-                theme: 'vs-dark',
-                minimap: { enabled: false },
-                automaticLayout: true,
-                scrollBeyondLastLine: false
-            });
-        }
-
-        function initializeListeners() {
-            // Session management
-            document.getElementById('create-session-btn').addEventListener('click', createSession);
-            document.getElementById('delete-session-btn').addEventListener('click', deleteSession);
-            
-            // Graph management
-            document.getElementById('compile-btn').addEventListener('click', compileSession);
-            document.getElementById('modify-inputs-btn').addEventListener('click', openInputsModal);
-            document.getElementById('add-node-btn').addEventListener('click', openAddNodeModal);
-            
-            // Node details
-            document.getElementById('close-details-btn').addEventListener('click', closeNodeDetails);
-            document.getElementById('update-node-btn').addEventListener('click', updateNode);
-            document.getElementById('remove-node-btn').addEventListener('click', removeNode);
-            document.getElementById('execute-node-btn').addEventListener('click', executeNode);
-            
-            // Input modal
-            document.getElementById('add-input-field-btn').addEventListener('click', addInputField);
-            document.getElementById('save-inputs-btn').addEventListener('click', saveInputs);
-            
-            // Node modal
-            document.getElementById('save-node-btn').addEventListener('click', saveNode);
-            
-            // Close modals
-            document.querySelectorAll('.close-modal, .cancel-btn').forEach(el => {
-                el.addEventListener('click', closeModals);
-            });
-        }
-
+        // API Functions
         async function fetchSessions() {
-            showSpinner();
             try {
-                const response = await fetch(`${API_BASE_URL}/compile-session`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ session_id: currentSessionId })
-                });
-                
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || 'Failed to compile session');
-                }
-                
-                showNotification('Session compiled successfully', 'success');
-                await fetchSessionGraph();
-            } catch (error) {
-                console.error('Error compiling session:', error);
-                showNotification(error.message, 'error');
-            } finally {
-                hideSpinner();
-            }
-        }
-
-        function openInputsModal() {
-            const modal = document.getElementById('inputs-modal');
-            const container = document.getElementById('input-fields-container');
-            
-            // Clear existing inputs
-            container.innerHTML = '';
-            
-            // Populate with current inputs if available
-            if (currentGraph && currentGraph.nodes && currentGraph.nodes.inputs) {
-                const inputFields = currentGraph.nodes.inputs.kwargs || {};
-                
-                Object.entries(inputFields).forEach(([key, value]) => {
-                    addInputFieldToModal(key, value);
-                });
-            }
-            
-            // Add an empty field if none exist
-            if (container.children.length === 0) {
-                addInputFieldToModal('', '');
-            }
-            
-            modal.classList.add('show');
-        }
-        
-        function addInputField() {
-            addInputFieldToModal('', '');
-        }
-        
-        function addInputFieldToModal(key, value) {
-            const container = document.getElementById('input-fields-container');
-            const row = document.createElement('div');
-            row.classList.add('input-field-row');
-            
-            const keyInput = document.createElement('input');
-            keyInput.type = 'text';
-            keyInput.classList.add('input-key');
-            keyInput.placeholder = 'Key';
-            keyInput.value = key;
-            
-            const valueInput = document.createElement('input');
-            valueInput.type = 'text';
-            valueInput.classList.add('input-value');
-            valueInput.placeholder = 'Value';
-            valueInput.value = value;
-            
-            const removeBtn = document.createElement('button');
-            removeBtn.classList.add('remove-input-btn');
-            removeBtn.innerHTML = '&times;';
-            removeBtn.addEventListener('click', () => {
-                container.removeChild(row);
-            });
-            
-            row.appendChild(keyInput);
-            row.appendChild(valueInput);
-            row.appendChild(removeBtn);
-            container.appendChild(row);
-        }
-        
-        async function saveInputs() {
-            if (!currentSessionId) return;
-            
-            const inputFields = {};
-            const rows = document.querySelectorAll('#input-fields-container .input-field-row');
-            
-            rows.forEach(row => {
-                const key = row.querySelector('.input-key').value.trim();
-                const value = row.querySelector('.input-value').value.trim();
-                
-                if (key) {
-                    inputFields[key] = value;
-                }
-            });
-            
-            if (Object.keys(inputFields).length === 0) {
-                showNotification('At least one input field is required', 'warning');
-                return;
-            }
-            
-            showSpinner();
-            try {
-                const response = await fetch(`${API_BASE_URL}/add-input`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        session_id: currentSessionId,
-                        input_fields: inputFields
-                    })
-                });
-                
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || 'Failed to update inputs');
-                }
-                
-                showNotification('Input fields updated successfully', 'success');
-                closeModals();
-                await fetchSessionGraph();
-            } catch (error) {
-                console.error('Error updating inputs:', error);
-                showNotification(error.message, 'error');
-            } finally {
-                hideSpinner();
-            }
-        }
-
-        function openAddNodeModal(node = null) {
-            const modal = document.getElementById('add-node-modal');
-            const modalTitle = document.getElementById('node-modal-title');
-            
-            isEditingNode = !!node;
-            
-            if (isEditingNode) {
-                modalTitle.textContent = 'Edit Node';
-                document.getElementById('new-node-name').value = node.nodeName;
-                document.getElementById('new-node-name').disabled = true;
-                document.getElementById('new-system-instructions').value = node.systemInstructions || '';
-                document.getElementById('new-user-prompt').value = node.userPrompt || '';
-                
-                if (monaco) {
-                    const pythonCode = node.pythonCode || {};
-                    newArgEditor.setValue(JSON.stringify(pythonCode.argument || {}, null, 2));
-                    newFuncBodyEditor.setValue(pythonCode.function_body || 'def function():\n    return {}');
-                    newOutputSchemaEditor.setValue(JSON.stringify(node.outputSchema || {}, null, 2));
-                }
-            } else {
-                modalTitle.textContent = 'Add New Node';
-                document.getElementById('new-node-name').value = '';
-                document.getElementById('new-node-name').disabled = false;
-                document.getElementById('new-system-instructions').value = '';
-                document.getElementById('new-user-prompt').value = '';
-                
-                if (monaco) {
-                    newArgEditor.setValue('{\n  "arg1": "@[inputs.input1]"\n}');
-                    newFuncBodyEditor.setValue('def function(arg1):\n    return {"output1": arg1}');
-                    newOutputSchemaEditor.setValue('{\n  "output1": "Description of output1"\n}');
-                }
-            }
-            
-            modal.classList.add('show');
-        }
-        
-        async function saveNode() {
-            if (!currentSessionId) return;
-            
-            const nodeName = document.getElementById('new-node-name').value.trim();
-            if (!nodeName) {
-                showNotification('Node name is required', 'warning');
-                return;
-            }
-            
-            const systemInstructions = document.getElementById('new-system-instructions').value;
-            const userPrompt = document.getElementById('new-user-prompt').value;
-            
-            let pythonCode = {};
-            if (monaco) {
-                try {
-                    pythonCode = {
-                        argument: JSON.parse(newArgEditor.getValue()),
-                        function_body: newFuncBodyEditor.getValue()
-                    };
-                } catch (e) {
-                    showNotification(`Invalid JSON in arguments: ${e.message}`, 'error');
-                    return;
-                }
-            }
-            
-            let outputSchema = {};
-            if (monaco) {
-                try {
-                    outputSchema = JSON.parse(newOutputSchemaEditor.getValue());
-                } catch (e) {
-                    showNotification(`Invalid JSON in output schema: ${e.message}`, 'error');
-                    return;
-                }
-            }
-            
-            showSpinner();
-            try {
-                const endpoint = isEditingNode ? '/update-node' : '/add-node';
-                
-                const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        session_id: currentSessionId,
-                        node_name: nodeName,
-                        system_instructions: systemInstructions,
-                        user_prompt: userPrompt,
-                        python_code: pythonCode,
-                        output_schema: outputSchema
-                    })
-                });
-                
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || `Failed to ${isEditingNode ? 'update' : 'add'} node`);
-                }
-                
-                showNotification(`Node "${nodeName}" ${isEditingNode ? 'updated' : 'added'} successfully`, 'success');
-                closeModals();
-                await fetchSessionGraph();
-            } catch (error) {
-                console.error(`Error ${isEditingNode ? 'updating' : 'adding'} node:`, error);
-                showNotification(error.message, 'error');
-            } finally {
-                hideSpinner();
-            }
-        }
-
-        function closeModals() {
-            document.querySelectorAll('.modal').forEach(modal => {
-                modal.classList.remove('show');
-            });
-        }
-
-        function showNotification(message, type = 'info') {
-            // Create notification element
-            const notification = document.createElement('div');
-            notification.classList.add('notification', type);
-            notification.textContent = message;
-            
-            document.body.appendChild(notification);
-            
-            // Show animation
-            setTimeout(() => notification.classList.add('show'), 10);
-            
-            // Auto hide after 3 seconds
-            setTimeout(() => {
-                notification.classList.remove('show');
-                setTimeout(() => notification.remove(), 300);
-            }, 3000);
-        }
-
-        function showSpinner() {
-            document.getElementById('spinner-overlay').classList.remove('hidden');
-        }
-        
-        function hideSpinner() {
-            document.getElementById('spinner-overlay').classList.add('hidden');
-        }
-
-        // Handle clicks outside of modals to close them
-        window.addEventListener('click', (e) => {
-            document.querySelectorAll('.modal').forEach(modal => {
-                if (e.target === modal) {
-                    modal.classList.remove('show');
-                }
-            });
-        });
-    </script>
-</body>
-</html>BASE_URL}/list-sessions`);
-                if (!response.ok) throw new Error('Failed to fetch sessions');
-                
+                const response = await fetch('/list-sessions');
                 const data = await response.json();
-                renderSessionList(data.sessions || []);
+                state.sessions = data.sessions || [];
+                renderSessions();
             } catch (error) {
                 console.error('Error fetching sessions:', error);
-                showNotification('Failed to fetch sessions', 'error');
-            } finally {
-                hideSpinner();
+                alert('Failed to fetch sessions');
             }
         }
 
-        function renderSessionList(sessions) {
-            const sessionList = document.getElementById('session-list');
-            sessionList.innerHTML = '';
-            
-            if (sessions.length === 0) {
-                const listItem = document.createElement('li');
-                listItem.classList.add('no-sessions');
-                listItem.textContent = 'No sessions available';
-                sessionList.appendChild(listItem);
-                return;
-            }
-            
-            sessions.forEach(sessionId => {
-                const listItem = document.createElement('li');
-                listItem.classList.add('session-item');
-                if (sessionId === currentSessionId) {
-                    listItem.classList.add('active');
-                }
-                
-                listItem.textContent = sessionId;
-                listItem.addEventListener('click', () => loadSession(sessionId));
-                sessionList.appendChild(listItem);
-            });
-        }
-
-        async function createSession() {
-            const sessionNameInput = document.getElementById('session-name-input');
-            const sessionId = sessionNameInput.value.trim();
-            
-            if (!sessionId) {
-                showNotification('Please enter a session name', 'warning');
-                return;
-            }
-            
-            showSpinner();
+        async function createSession(sessionId) {
             try {
-                const response = await fetch(`${API_BASE_URL}/create-session`, {
+                const response = await fetch('/create-session', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
                     body: JSON.stringify({ session_id: sessionId })
                 });
                 
                 const data = await response.json();
                 
-                if (!response.ok) {
-                    throw new Error(data.error || 'Failed to create session');
+                if (response.ok) {
+                    alert('Session created successfully');
+                    fetchSessions();
+                    selectSession(sessionId);
+                } else {
+                    alert(`Failed to create session: ${data.error || 'Unknown error'}`);
                 }
-                
-                showNotification(`Session "${sessionId}" created successfully`, 'success');
-                sessionNameInput.value = '';
-                await fetchSessions();
-                loadSession(sessionId);
             } catch (error) {
                 console.error('Error creating session:', error);
-                showNotification(error.message, 'error');
-            } finally {
-                hideSpinner();
+                alert('Failed to create session');
             }
         }
 
-        async function deleteSession() {
-            if (!currentSessionId) return;
-            
-            if (!confirm(`Are you sure you want to delete session "${currentSessionId}"?`)) {
-                return;
-            }
-            
-            showSpinner();
+        async function deleteSession(sessionId) {
             try {
-                const response = await fetch(`${API_BASE_URL}/delete-session`, {
+                const response = await fetch('/delete-session', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ session_id: currentSessionId })
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ session_id: sessionId })
                 });
                 
                 const data = await response.json();
                 
-                if (!response.ok) {
-                    throw new Error(data.error || 'Failed to delete session');
+                if (response.ok) {
+                    alert('Session deleted successfully');
+                    if (state.currentSession === sessionId) {
+                        state.currentSession = null;
+                        state.graph = null;
+                        updateUIState();
+                    }
+                    fetchSessions();
+                } else {
+                    alert(`Failed to delete session: ${data.error || 'Unknown error'}`);
                 }
-                
-                showNotification(`Session "${currentSessionId}" deleted successfully`, 'success');
-                closeSession();
-                await fetchSessions();
             } catch (error) {
                 console.error('Error deleting session:', error);
-                showNotification(error.message, 'error');
-            } finally {
-                hideSpinner();
+                alert('Failed to delete session');
             }
         }
 
-        async function loadSession(sessionId) {
-            showSpinner();
-            currentSessionId = sessionId;
-            
+        async function fetchSessionGraph(sessionId) {
             try {
-                // Update UI to show active session
-                document.getElementById('current-session-name').querySelector('span').textContent = sessionId;
-                document.querySelectorAll('.session-item').forEach(item => {
-                    item.classList.toggle('active', item.textContent === sessionId);
-                });
-                
-                // Show session view
-                document.getElementById('no-session-view').classList.add('hidden');
-                document.getElementById('session-view').classList.remove('hidden');
-                
-                // Fetch session graph
-                await fetchSessionGraph();
-            } catch (error) {
-                console.error('Error loading session:', error);
-                showNotification(`Failed to load session: ${error.message}`, 'error');
-                closeSession();
-            } finally {
-                hideSpinner();
-            }
-        }
-
-        function closeSession() {
-            currentSessionId = null;
-            currentGraph = null;
-            selectedNode = null;
-            
-            // Hide session view
-            document.getElementById('no-session-view').classList.remove('hidden');
-            document.getElementById('session-view').classList.add('hidden');
-            
-            // Clear node details
-            closeNodeDetails();
-            
-            // Destroy cytoscape instance if exists
-            if (cyInstance) {
-                cyInstance.destroy();
-                cyInstance = null;
-            }
-        }
-
-        async function fetchSessionGraph() {
-            if (!currentSessionId) return;
-            
-            try {
-                const response = await fetch(`${API_BASE_URL}/get-session-graph`, {
+                const response = await fetch('/get-session-graph', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ session_id: currentSessionId })
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ session_id: sessionId })
                 });
-                
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || 'Failed to fetch session graph');
-                }
                 
                 const data = await response.json();
-                currentGraph = data.graph;
                 
-                renderGraph();
+                if (response.ok) {
+                    state.graph = data.graph;
+                    renderGraph();
+                } else {
+                    alert(`Failed to fetch graph: ${data.error || 'Unknown error'}`);
+                }
             } catch (error) {
-                console.error('Error fetching session graph:', error);
-                showNotification(`Failed to fetch graph: ${error.message}`, 'error');
+                console.error('Error fetching graph:', error);
+                alert('Failed to fetch graph');
             }
         }
 
-        function renderGraph() {
-            if (!currentGraph || !currentGraph.nodes) return;
-            
-            const container = document.getElementById('cy');
-            
-            // Create elements for cytoscape
-            const elements = {
-                nodes: [],
-                edges: []
-            };
-            
-            // Process nodes
-            Object.entries(currentGraph.nodes).forEach(([nodeName, nodeData]) => {
-                // Add node
-                elements.nodes.push({
-                    data: {
-                        id: nodeName,
-                        label: nodeName,
-                        status: nodeData.status || 'pending',
-                        compiled: nodeData._compiled || false
-                    }
+        async function compileSession(sessionId) {
+            try {
+                const response = await fetch('/compile-session', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ session_id: sessionId })
                 });
                 
-                // Add edges based on children
-                if (nodeData._children && Array.isArray(nodeData._children)) {
-                    nodeData._children.forEach(childName => {
-                        elements.edges.push({
-                            data: {
-                                id: `${nodeName}-${childName}`,
-                                source: nodeName,
-                                target: childName
-                            }
-                        });
-                    });
+                const data = await response.json();
+                
+                if (response.ok) {
+                    alert('Session compiled successfully');
+                    fetchSessionGraph(sessionId);
+                } else {
+                    alert(`Failed to compile session: ${data.error || 'Unknown error'}`);
                 }
-            });
-            
-            // Initialize or update cytoscape
-            if (cyInstance) {
-                cyInstance.destroy();
-            }
-            
-            cyInstance = cytoscape({
-                container: container,
-                elements: elements,
-                style: [
-                    {
-                        selector: 'node',
-                        style: {
-                            'background-color': 'data(color)',
-                            'label': 'data(label)',
-                            'color': '#fff',
-                            'text-valign': 'center',
-                            'text-halign': 'center',
-                            'font-size': '12px',
-                            'width': '60px',
-                            'height': '60px',
-                            'border-width': '3px',
-                            'border-color': '#fff'
-                        }
-                    },
-                    {
-                        selector: 'edge',
-                        style: {
-                            'width': 2,
-                            'line-color': '#ccc',
-                            'target-arrow-color': '#ccc',
-                            'target-arrow-shape': 'triangle',
-                            'curve-style': 'bezier'
-                        }
-                    },
-                    {
-                        selector: 'node[status="completed"]',
-                        style: {
-                            'background-color': '#4CAF50'
-                        }
-                    },
-                    {
-                        selector: 'node[status="running"]',
-                        style: {
-                            'background-color': '#2196F3'
-                        }
-                    },
-                    {
-                        selector: 'node[status="waiting"]',
-                        style: {
-                            'background-color': '#FF9800'
-                        }
-                    },
-                    {
-                        selector: 'node[status="pending"]',
-                        style: {
-                            'background-color': '#9E9E9E'
-                        }
-                    }
-                ],
-                layout: {
-                    name: 'dagre',
-                    rankDir: 'LR',
-                    nodeSep: 80,
-                    rankSep: 100,
-                    padding: 50
-                }
-            });
-            
-            // Update node colors based on status
-            cyInstance.nodes().forEach(node => {
-                const nodeId = node.id();
-                const nodeData = currentGraph.nodes[nodeId];
-                let color = '#9E9E9E'; // Default color for pending
-                
-                if (nodeData) {
-                    switch (nodeData.status) {
-                        case 'completed':
-                            color = '#4CAF50';
-                            break;
-                        case 'running':
-                            color = '#2196F3';
-                            break;
-                        case 'waiting':
-                            color = '#FF9800';
-                            break;
-                    }
-                }
-                
-                node.data('color', color);
-            });
-            
-            // Add event listeners
-            cyInstance.on('tap', 'node', function(evt) {
-                const node = evt.target;
-                selectNode(node.id());
-            });
-        }
-
-        function selectNode(nodeId) {
-            if (!currentGraph || !currentGraph.nodes[nodeId]) return;
-            
-            selectedNode = currentGraph.nodes[nodeId];
-            
-            // Update UI to show node details
-            document.getElementById('node-details').classList.remove('hidden');
-            document.getElementById('node-detail-title').textContent = `Node: ${nodeId}`;
-            document.getElementById('node-name').value = nodeId;
-            
-            const statusBadge = document.getElementById('node-status');
-            statusBadge.textContent = selectedNode.status || 'pending';
-            statusBadge.className = 'status-badge';
-            statusBadge.classList.add(selectedNode.status || 'pending');
-            
-            // Inputs node has special handling
-            const isInputsNode = nodeId === 'inputs';
-            document.getElementById('system-instructions').value = selectedNode.systemInstructions || '';
-            document.getElementById('system-instructions').disabled = isInputsNode;
-            document.getElementById('user-prompt').value = selectedNode.userPrompt || '';
-            document.getElementById('user-prompt').disabled = isInputsNode;
-            
-            // Hide python code for inputs node
-            document.querySelector('.code-editors').style.display = isInputsNode ? 'none' : 'flex';
-            
-            // Update code editors if initialized
-            if (monaco) {
-                if (!isInputsNode) {
-                    const pythonCode = selectedNode.pythonCode || {};
-                    const args = pythonCode.argument || {};
-                    
-                    argEditor.setValue(JSON.stringify(args, null, 2));
-                    funcBodyEditor.setValue(pythonCode.function_body || 'def function():\n    return {}');
-                }
-                
-                outputSchemaEditor.setValue(JSON.stringify(selectedNode.outputSchema || {}, null, 2));
-                nodeOutputsEditor.setValue(JSON.stringify(selectedNode._outputs || {}, null, 2));
-            }
-            
-            // Update button states
-            document.getElementById('remove-node-btn').disabled = isInputsNode;
-            document.getElementById('update-node-btn').disabled = false;
-            document.getElementById('execute-node-btn').disabled = false;
-        }
-
-        function closeNodeDetails() {
-            document.getElementById('node-details').classList.add('hidden');
-            selectedNode = null;
-        }
-
-        async function updateNode() {
-            if (!selectedNode || !currentSessionId) return;
-            
-            const nodeName = document.getElementById('node-name').value;
-            if (nodeName === 'inputs') {
-                openInputsModal();
-                return;
-            }
-            
-            showSpinner();
-            try {
-                const systemInstructions = document.getElementById('system-instructions').value;
-                const userPrompt = document.getElementById('user-prompt').value;
-                
-                let pythonCode = {};
-                if (monaco) {
-                    try {
-                        pythonCode = {
-                            argument: JSON.parse(argEditor.getValue()),
-                            function_body: funcBodyEditor.getValue()
-                        };
-                    } catch (e) {
-                        throw new Error(`Invalid JSON in arguments: ${e.message}`);
-                    }
-                }
-                
-                let outputSchema = {};
-                if (monaco) {
-                    try {
-                        outputSchema = JSON.parse(outputSchemaEditor.getValue());
-                    } catch (e) {
-                        throw new Error(`Invalid JSON in output schema: ${e.message}`);
-                    }
-                }
-                
-                const response = await fetch(`${API_BASE_URL}/update-node`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        session_id: currentSessionId,
-                        node_name: nodeName,
-                        system_instructions: systemInstructions,
-                        user_prompt: userPrompt,
-                        python_code: pythonCode,
-                        output_schema: outputSchema
-                    })
-                });
-                
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || 'Failed to update node');
-                }
-                
-                showNotification(`Node "${nodeName}" updated successfully`, 'success');
-                await fetchSessionGraph();
             } catch (error) {
-                console.error('Error updating node:', error);
-                showNotification(error.message, 'error');
-            } finally {
-                hideSpinner();
+                console.error('Error compiling session:', error);
+                alert('Failed to compile session');
             }
         }
 
-        async function removeNode() {
-            if (!selectedNode || !currentSessionId) return;
-            
-            const nodeName = document.getElementById('node-name').value;
-            if (nodeName === 'inputs') {
-                showNotification('Cannot remove inputs node', 'warning');
-                return;
-            }
-            
-            if (!confirm(`Are you sure you want to remove node "${nodeName}"?`)) {
-                return;
-            }
-            
-            showSpinner();
+        async function executeNode(sessionId, nodeName) {
             try {
-                const response = await fetch(`${API_BASE_URL}/remove-node`, {
+                const response = await fetch('/execute-session', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        session_id: currentSessionId,
-                        node_name: nodeName
-                    })
-                });
-                
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || 'Failed to remove node');
-                }
-                
-                showNotification(`Node "${nodeName}" removed successfully`, 'success');
-                closeNodeDetails();
-                await fetchSessionGraph();
-            } catch (error) {
-                console.error('Error removing node:', error);
-                showNotification(error.message, 'error');
-            } finally {
-                hideSpinner();
-            }
-        }
-
-        async function executeNode() {
-            if (!selectedNode || !currentSessionId) return;
-            
-            const nodeName = document.getElementById('node-name').value;
-            
-            showSpinner();
-            try {
-                const response = await fetch(`${API_BASE_URL}/execute-session`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        session_id: currentSessionId,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ 
+                        session_id: sessionId,
                         start_node: nodeName
                     })
                 });
                 
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || 'Failed to execute node');
+                const data = await response.json();
+                
+                if (response.ok) {
+                    alert(`Execution started from node ${nodeName}`);
+                    // After a short delay, refresh the graph to show updated status
+                    setTimeout(() => fetchSessionGraph(sessionId), 1000);
+                } else {
+                    alert(`Failed to execute: ${data.error || 'Unknown error'}`);
                 }
-                
-                showNotification(`Execution started from node "${nodeName}"`, 'success');
-                
-                // Poll for updates until execution completes
-                pollGraphStatus();
             } catch (error) {
                 console.error('Error executing node:', error);
-                showNotification(error.message, 'error');
-                hideSpinner();
+                alert('Failed to execute node');
             }
         }
 
-        let pollInterval = null;
-        
-        function pollGraphStatus() {
-            clearInterval(pollInterval);
-            
-            pollInterval = setInterval(async () => {
-                try {
-                    await fetchSessionGraph();
-                    
-                    // Check if all nodes are in a non-running state
-                    let allCompleted = true;
-                    if (currentGraph && currentGraph.nodes) {
-                        Object.values(currentGraph.nodes).forEach(node => {
-                            if (node.status === 'running' || node.status === 'waiting') {
-                                allCompleted = false;
-                            }
-                        });
-                    }
-                    
-                    if (allCompleted) {
-                        clearInterval(pollInterval);
-                        hideSpinner();
-                        showNotification('Execution completed', 'success');
-                    }
-                } catch (error) {
-                    console.error('Error polling graph status:', error);
-                    clearInterval(pollInterval);
-                    hideSpinner();
+        async function addInputs(sessionId, inputFields) {
+            try {
+                const response = await fetch('/add-input', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ 
+                        session_id: sessionId,
+                        input_fields: inputFields
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    alert('Inputs added successfully');
+                    fetchSessionGraph(sessionId);
+                } else {
+                    alert(`Failed to add inputs: ${data.error || 'Unknown error'}`);
                 }
-            }, 2000);
+            } catch (error) {
+                console.error('Error adding inputs:', error);
+                alert('Failed to add inputs');
+            }
         }
 
-        async function compileSession() {
-            if (!currentSessionId) return;
-            
-            showSpinner();
+        async function addNode(sessionId, nodeData) {
             try {
-                const response = await fetch(`${API_
+                const response = await fetch('/add-node', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ 
+                        session_id: sessionId,
+                        ...nodeData
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    alert('Node added successfully');
+                    fetchSessionGraph(sessionId);
+                } else {
+                    alert(`Failed to add node: ${data.error || 'Unknown error'}`);
+                }
+            } catch (error) {
+                console.error('Error adding node:', error);
+                alert('Failed to add node');
+            }
+        }
+
+        async function updateNode(sessionId, nodeData) {
+            try {
+                const response = await fetch('/update-node', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ 
+                        session_id: sessionId,
+                        ...nodeData
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    alert('Node updated successfully');
+                    fetchSessionGraph(sessionId);
+                } else {
+                    alert(`Failed to update node: ${data.error || 'Unknown error'}`);
+                }
+            } catch (error) {
+                console.error('Error updating node:', error);
+                alert('Failed to update node');
+            }
+        }
+
+        async function removeNode(sessionId, nodeName) {
+            try {
+                const response = await fetch('/remove-node', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ 
+                        session_id: sessionId,
+                        node_name: nodeName
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    alert('Node removed successfully');
+                    fetchSessionGraph(sessionId);
+                } else {
+                    alert(`Failed to remove node: ${data.error || 'Unknown error'}`);
+                }
+            } catch (error) {
+                console.error('Error removing node:', error);
+                alert('Failed to remove node');
+            }
+        }
+
+        // Rendering Functions
+        function renderSessions() {
+            sessionsList.innerHTML = '';
+            
+            if (state.sessions.length === 0) {
+                sessionsList.innerHTML = '<p>No sessions available. Create a new session to get started.</p>';
+                return;
+            }
+            
+            state.sessions.forEach(session => {
+                const sessionItem = document.createElement('div');
+                sessionItem.className = `session-item ${state.currentSession === session ? 'active' : ''}`;
+                sessionItem.textContent = session;
+                sessionItem.addEventListener('click', () => selectSession(session));
+                sessionsList.appendChild(sessionItem);
+            });
+        }
+
+        function renderGraph() {
+            nodesContainer.innerHTML = '';
+            
+            if (!state.graph || !state.graph.nodes) {
+                nodesContainer.innerHTML = '<p>No nodes in this session. Add inputs or create nodes to get started.</p>';
+                return;
+            }
+            
+            // First render inputs node if it exists
+            if (state.graph.nodes.inputs) {
+                renderInputsNode(state.graph.nodes.inputs);
+            }
+            
+            // Then render all other nodes
+            Object.entries(state.graph.nodes).forEach(([nodeName, nodeData]) => {
+                if (nodeName !== 'inputs') {
+                    renderNodeCard(nodeName, nodeData);
+                }
+            });
+        }
+
+        function renderInputsNode(nodeData) {
+            const nodeCard = document.createElement('div');
+            nodeCard.className = `node-card ${nodeData.status || 'pending'}`;
+            
+            const headerHtml = `
+                <div class="node-header">
+                    <div class="node-title">Inputs Node</div>
+                    <div class="node-actions">
+                        <button class="button edit-inputs-btn">Edit Inputs</button>
+                    </div>
+                </div>
+            `;
+            
+            let inputsHtml = '<div class="node-section"><h3>Input Fields:</h3>';
+            
+            if (nodeData.kwargs && Object.keys(nodeData.kwargs).length > 0) {
+                inputsHtml += '<div class="property-list">';
+                Object.entries(nodeData.kwargs).forEach(([key, value]) => {
+                    inputsHtml += `
+                        <div class="property-item">
+                            <div class="property-key">${key}:</div>
+                            <div class="property-value">${value}</div>
+                        </div>
+                    `;
+                });
+                inputsHtml += '</div>';
+            } else {
+                inputsHtml += '<p>No input fields defined.</p>';
+            }
+            
+            inputsHtml += '</div>';
+            
+            let statusHtml = '';
+            if (nodeData.status) {
+                statusHtml = `
+                    <div class="node-section">
+                        <h3>Status: <span class="status-badge status-${nodeData.status}">${nodeData.status}</span></h3>
+                    </div>
+                `;
+            }
+            
+            let childrenHtml = '';
+            if (nodeData._children && nodeData._children.length > 0) {
+                childrenHtml = `
+                    <div class="node-section">
+                        <h3>Children:</h3>
+                        <div class="property-list">
+                            ${nodeData._children.map(child => `<div class="property-item">${child}</div>`).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            let outputsHtml = '';
+            if (nodeData._outputs && Object.keys(nodeData._outputs).length > 0) {
+                outputsHtml = `
+                    <div class="node-section">
+                        <h3>Outputs:</h3>
+                        <div class="property-list">
+                            ${Object.entries(nodeData._outputs).map(([key, value]) => `
+                                <div class="property-item">
+                                    <div class="property-key">${key}:</div>
+                                    <div class="property-value">${value}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            nodeCard.innerHTML = `
+                ${headerHtml}
+                <div class="node-content">
+                    <div>
+                        ${inputsHtml}
+                        ${statusHtml}
+                    </div>
+                    <div>
+                        ${childrenHtml}
+                        ${outputsHtml}
+                    </div>
+                </div>
+            `;
+            
+            nodeCard.querySelector('.edit-inputs-btn').addEventListener('click', () => {
+                openInputsModal();
+            });
+            
+            nodesContainer.appendChild(nodeCard);
+        }
+
+        function renderNodeCard(nodeName, nodeData) {
+            const nodeCard = document.createElement('div');
+            nodeCard.className = `node-card ${nodeData.status || 'pending'}`;
+            
+            const headerHtml = `
+                <div class="node-header">
+                    <div class="node-title">${nodeName}</div>
+                    <div class="node-actions">
+                        <button class="button run" data-node="${nodeName}">Run</button>
+                        <button class="button" data-node="${nodeName}" data-action="edit">Edit</button>
+                        <button class="button delete" data-node="${nodeName}" data-action="delete">Delete</button>
+                    </div>
+                </div>
+            `;
+            
+            let statusHtml = '';
+            if (nodeData.status) {
+                statusHtml = `
+                    <div class="node-section">
+                        <h3>Status: <span class="status-badge status-${nodeData.status}">${nodeData.status}</span></h3>
+                    </div>
+                `;
+            }
+            
+            let instructionsHtml = '';
+            if (nodeData.systemInstructions) {
+                instructionsHtml = `
+                    <div class="node-section">
+                        <h3>System Instructions:</h3>
+                        <div class="property-list">
+                            ${nodeData.systemInstructions}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            let promptHtml = '';
+            if (nodeData.userPrompt) {
+                promptHtml = `
+                    <div class="node-section">
+                        <h3>User Prompt:</h3>
+                        <div class="property-list">
+                            ${nodeData.userPrompt}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            let pythonCodeHtml = '';
+            if (nodeData.pythonCode) {
+                let argsHtml = '';
+                if (nodeData.pythonCode.argument && Object.keys(nodeData.pythonCode.argument).length > 0) {
+                    argsHtml = `
+                        <h4>Arguments:</h4>
+                        <div class="property-list">
+                            ${Object.entries(nodeData.pythonCode.argument).map(([key, value]) => `
+                                <div class="property-item">
+                                    <div class="property-key">${key}:</div>
+                                    <div class="property-value">${value}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                }
+                
+                let functionHtml = '';
+                if (nodeData.pythonCode.function_body) {
+                    functionHtml = `
+                        <h4>Function Body:</h4>
+                        <pre class="code-editor">${nodeData.pythonCode.function_body}</pre>
+                    `;
+                }
+                
+                pythonCodeHtml = `
+                    <div class="node-section">
+                        <h3>Python Code:</h3>
+                        ${argsHtml}
+                        ${functionHtml}
+                    </div>
+                `;
+            }
+            
+            let outputSchemaHtml = '';
+            if (nodeData.outputSchema && Object.keys(nodeData.outputSchema).length > 0) {
+                outputSchemaHtml = `
+                    <div class="node-section">
+                        <h3>Output Schema:</h3>
+                        <div class="property-list">
+                            ${Object.entries(nodeData.outputSchema).map(([key, value]) => `
+                                <div class="property-item">
+                                    <div class="property-key">${key}:</div>
+                                    <div class="property-value">${value}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            let parentsHtml = '';
+            if (nodeData._parents && nodeData._parents.length > 0) {
+                parentsHtml = `
+                    <div class="node-section">
+                        <h3>Parents:</h3>
+                        <div class="property-list">
+                            ${nodeData._parents.map(parent => `
+                                <div class="property-item">
+                                    <div class="property-value">${Array.isArray(parent) ? parent.join('.') : parent}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            let childrenHtml = '';
+            if (nodeData._children && nodeData._children.length > 0) {
+                childrenHtml = `
+                    <div class="node-section">
+                        <h3>Children:</h3>
+                        <div class="property-list">
+                            ${nodeData._children.map(child => `<div class="property-item">${child}</div>`).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            let outputsHtml = '';
+            if (nodeData._outputs && Object.keys(nodeData._outputs).length > 0) {
+                outputsHtml = `
+                    <div class="node-section">
+                        <h3>Outputs:</h3>
+                        <div class="property-list">
+                            ${Object.entries(nodeData._outputs).map(([key, value]) => `
+                                <div class="property-item">
+                                    <div class="property-key">${key}:</div>
+                                    <div class="property-value">${value}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            nodeCard.innerHTML = `
+                ${headerHtml}
+                <div class="node-content">
+                    <div>
+                        ${statusHtml}
+                        ${instructionsHtml}
+                        ${promptHtml}
+                        ${pythonCodeHtml}
+                    </div>
+                    <div>
+                        ${outputSchemaHtml}
+                        ${parentsHtml}
+                        ${childrenHtml}
+                        ${outputsHtml}
+                    </div>
+                </div>
+            `;
+            
+            // Add event listeners
+            nodeCard.querySelector(`button[data-node="${nodeName}"][data-action="edit"]`).addEventListener('click', () => {
+                openNodeEditModal(nodeName, nodeData);
+            });
+            
+            nodeCard.querySelector(`button[data-node="${nodeName}"][data-action="delete"]`).addEventListener('click', () => {
+                if (confirm(`Are you sure you want to delete the node "${nodeName}"?`)) {
+                    removeNode(state.currentSession, nodeName);
+                }
+            });
+            
+            nodeCard.querySelector(`button.run[data-node="${nodeName}"]`).addEventListener('click', () => {
+                executeNode(state.currentSession, nodeName);
+            });
+            
+            nodesContainer.appendChild(nodeCard);
+        }
+
+        // UI Functions
+        function selectSession(sessionId) {
+            state.currentSession = sessionId;
+            updateUIState();
+            fetchSessionGraph(sessionId);
+        }
+
+        function updateUIState() {
+            const hasActiveSession = !!state.currentSession;
+            
+            compileBtn.disabled = !hasActiveSession;
+            deleteSessionBtn.disabled = !hasActiveSession;
+            createNodeBtn.disabled = !hasActiveSession;
+            refreshGraphBtn.disabled = !hasActiveSession;
+            
+            // Update session list active states
+            const sessionItems = document.querySelectorAll('.session-item');
+            sessionItems.forEach(item => {
+                item.classList.toggle('active', item.textContent === state.currentSession);
+            });
+        }
+
+        function openSessionModal() {
+            sessionIdInput.value = '';
+            sessionModal.style.display = 'block';
+        }
+
+        function closeSessionModalFun() {
+            sessionModal.style.display = 'none';
+        }
+
+        function openInputsModal() {
+            // Clear existing fields
+            inputFieldsContainer.innerHTML = '';
+            
+            // If we have existing inputs, populate them
+            if (state.graph && state.graph.nodes && state.graph.nodes.inputs && state.graph.nodes.inputs.kwargs) {
+                Object.entries(state.graph.nodes.inputs.kwargs).forEach(([key, value]) => {
+                    addInputField(key, value);
+                });
+            } else {
+                // Add a default empty field
+                addInputField();
+            }
+            
+            inputsModal.style.display = 'block';
+        }
+
+        function closeInputsModalFun() {
+            inputsModal.style.display = 'none';
+        }
+
+        function addInputField(key = '', value = '') {
+            const fieldRow = document.createElement('div');
+            fieldRow.className = 'input-field-row';
+            
+            fieldRow.innerHTML = `
+                <input type="text" class="form-control input-key" placeholder="Input Key" value="${key}">
+                <input type="text" class="form-control input-value" placeholder="Input Value" value="${value}">
+                <button class="button delete remove-input-field">X</button>
+            `;
+            
+            fieldRow.querySelector('.remove-input-field').addEventListener('click', () => {
+                fieldRow.remove();
+            });
+            
+            inputFieldsContainer.appendChild(fieldRow);
+        }
+
+        function openNodeModal(isEdit = false, nodeData = null) {
+            // Reset the form
+            nodeName.value = '';
+            systemInstructions.value = '';
+            userPrompt.value = '';
+            pythonArgContainer.innerHTML = '';
+            addPythonArg();
+            functionBody.value = 'def function(arg1, arg2):\n    # Your code here\n    return {\'output1\': result1, \'output2\': result2}';
+            outputSchemaContainer.innerHTML = '';
+            addOutputField();
+            
+            if (isEdit && nodeData) {
+                nodeModalTitle.textContent = 'Edit Node';
+                submitNodeBtn.textContent = 'Update Node';
+                
+                // Populate form with existing data
+                nodeName.value = nodeData.nodeName;
+                nodeName.disabled = true; // Can't change node name when editing
+                
+                systemInstructions.value = nodeData.systemInstructions || '';
+                userPrompt.value = nodeData.userPrompt || '';
+                
+                // Python arguments
+                pythonArgContainer.innerHTML = '';
+                if (nodeData.pythonCode && nodeData.pythonCode.argument) {
+                    Object.entries(nodeData.pythonCode.argument).forEach(([key, value]) => {
+                        addPythonArg(key, value);
+                    });
+                } else {
+                    addPythonArg();
+                }
+                
+                // Function body
+                if (nodeData.pythonCode && nodeData.pythonCode.function_body) {
+                    functionBody.value = nodeData.pythonCode.function_body;
+                }
+                
+                // Output schema
+                outputSchemaContainer.innerHTML = '';
+                if (nodeData.outputSchema) {
+                    Object.entries(nodeData.outputSchema).forEach(([key, value]) => {
+                        addOutputField(key, value);
+                    });
+                } else {
+                    addOutputField();
+                }
+            } else {
+                nodeModalTitle.textContent = 'Create New Node';
+                submitNodeBtn.textContent = 'Create Node';
+                nodeName.disabled = false;
+            }
+            
+            nodeModal.style.display = 'block';
+        }
+
+        function openNodeEditModal(nodeName, nodeData) {
+            openNodeModal(true, { ...nodeData, nodeName });
+        }
+
+        function closeNodeModalFun() {
+            nodeModal.style.display = 'none';
+        }
+
+        function addPythonArg(key = '', value = '') {
+            const argRow = document.createElement('div');
+            argRow.className = 'python-arg-row';
+            
+            argRow.innerHTML = `
+                <input type="text" class="form-control arg-key" placeholder="Argument Key" value="${key}">
+                <input type="text" class="form-control arg-value" placeholder="Argument Value" value="${value}">
+                <button class="button delete remove-arg">X</button>
+            `;
+            
+            argRow.querySelector('.remove-arg').addEventListener('click', () => {
+                argRow.remove();
+            });
+            
+            pythonArgContainer.appendChild(argRow);
+        }
+
+        function addOutputField(key = '', value = '') {
+            const outputRow = document.createElement('div');
+            outputRow.className = 'output-schema-row';
+            
+            outputRow.innerHTML = `
+                <input type="text" class="form-control output-key" placeholder="Output Key" value="${key}">
+                <input type="text" class="form-control output-desc" placeholder="Output Description" value="${value}">
+                <button class="button delete remove-output">X</button>
+            `;
+            
+            outputRow.querySelector('.remove-output').addEventListener('click', () => {
+                outputRow.remove();
+            });
+            
+            outputSchemaContainer.appendChild(outputRow);
+        }
+
+        function getInputFieldsData() {
+            const inputData = {};
+            const inputRows = inputFieldsContainer.querySelectorAll('.input-field-row');
+            
+            inputRows.forEach(row => {
+                const key = row.querySelector('.input-key').value.trim();
+                const value = row.querySelector('.input-value').value.trim();
+                
+                if (key) {
+                    inputData[key] = value;
+                }
+            });
+            
+            return inputData;
+        }
+
+        function getNodeFormData() {
+            // Get arguments
+            const args = {};
+            pythonArgContainer.querySelectorAll('.python-arg-row').forEach(row => {
+                const key = row.querySelector('.arg-key').value.trim();
+                const value = row.querySelector('.arg-value').value.trim();
+                
+                if (key) {
+                    args[key] = value;
+                }
+            });
+            
+            // Get output schema
+            const outputSchema = {};
+            outputSchemaContainer.querySelectorAll('.output-schema-row').forEach(row => {
+                const key = row.querySelector('.output-key').value.trim();
+                const desc = row.querySelector('.output-desc').value.trim();
+                
+                if (key) {
+                    outputSchema[key] = desc;
+                }
+            });
+            
+            return {
+                node_name: nodeName.value.trim(),
+                system_instructions: systemInstructions.value.trim(),
+                user_prompt: userPrompt.value.trim(),
+                python_code: {
+                    argument: args,
+                    function_body: functionBody.value.trim()
+                },
+                output_schema: outputSchema
+            };
+        }
+
+        // Event Listeners
+        createSessionBtn.addEventListener('click', openSessionModal);
+        closeSessionModal.addEventListener('click', closeSessionModalFun);
+        
+        submitSessionBtn.addEventListener('click', () => {
+            const sessionId = sessionIdInput.value.trim();
+            if (sessionId) {
+                createSession(sessionId);
+                closeSessionModalFun();
+            } else {
+                alert('Please enter a session ID');
+            }
+        });
+        
+        compileBtn.addEventListener('click', () => {
+            if (state.currentSession) {
+                compileSession(state.currentSession);
+            }
+        });
+        
+        deleteSessionBtn.addEventListener('click', () => {
+            if (state.currentSession && confirm(`Are you sure you want to delete the session "${state.currentSession}"?`)) {
+                deleteSession(state.currentSession);
+            }
+        });
+        
+        createNodeBtn.addEventListener('click', () => {
+            openNodeModal();
+        });
+        
+        refreshGraphBtn.addEventListener('click', () => {
+            if (state.currentSession) {
+                fetchSessionGraph(state.currentSession);
+            }
+        });
+        
+        closeInputsModal.addEventListener('click', closeInputsModalFun);
+        
+        addInputFieldBtn.addEventListener('click', () => {
+            addInputField();
+        });
+        
+        submitInputsBtn.addEventListener('click', () => {
+            const inputFields = getInputFieldsData();
+            
+            if (Object.keys(inputFields).length === 0) {
+                alert('Please add at least one input field');
+                return;
+            }
+            
+            addInputs(state.currentSession, inputFields);
+            closeInputsModalFun();
+        });
+        
+        closeNodeModal.addEventListener('click', closeNodeModalFun);
+        
+        addArgBtn.addEventListener('click', () => {
+            addPythonArg();
+        });
+        
+        addOutputBtn.addEventListener('click', () => {
+            addOutputField();
+        });
+        
+        submitNodeBtn.addEventListener('click', () => {
+            const formData = getNodeFormData();
+            
+            if (!formData.node_name) {
+                alert('Please enter a node name');
+                return;
+            }
+            
+            if (submitNodeBtn.textContent === 'Update Node') {
+                updateNode(state.currentSession, formData);
+            } else {
+                addNode(state.currentSession, formData);
+            }
+            
+            closeNodeModalFun();
+        });
+
+        // Initial load
+        fetchSessions();
+
+        // Close modals when clicking outside
+        window.addEventListener('click', (event) => {
+            if (event.target === sessionModal) {
+                closeSessionModalFun();
+            }
+            if (event.target === inputsModal) {
+                closeInputsModalFun();
+            }
+            if (event.target === nodeModal) {
+                closeNodeModalFun();
+            }
+        });
+    </script>
+</body>
+</html>

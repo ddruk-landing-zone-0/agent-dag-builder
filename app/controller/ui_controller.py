@@ -4,14 +4,12 @@ from app.service.hello_service import get_hello_message
 ui_controller_blueprint = Blueprint('ui_controller', __name__)
 
 
-@ui_controller_blueprint.route('/ui/hello')
 @ui_controller_blueprint.route('/ui/')
 def hello():
     """
     Render the hello page.
     """
-    message = get_hello_message()
-    return "From UI " + message
+    return render_template('index.html')
 
 @ui_controller_blueprint.route('/ui/view')
 def index():
