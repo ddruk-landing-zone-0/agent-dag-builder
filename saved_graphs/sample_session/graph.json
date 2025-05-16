@@ -176,5 +176,5 @@
     },
     "venv_path": "./runner_envs/venv",
     "python_packages": [],
-    "create_env": false
+    "create_env": true
 }
