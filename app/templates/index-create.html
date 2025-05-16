@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent DAG - Create Node</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <style>
+        .code-area {
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+        }
+        .node-box {
+            transition: all 0.3s ease;
+        }
+        .status-pending {
+            background-color: #e5e7eb;
+        }
+        .status-running {
+            background-color: #fef3c7;
+        }
+        .status-completed {
+            background-color: #d1fae5;
+        }
+        .status-waiting {
+            background-color: #dbeafe;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <div class="flex justify-between items-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-800">Agent DAG - Node Creation</h1>
+            <div class="flex space-x-4">
+                <button id="viewGraphBtn" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md transition">
+                    View Graph
+                </button>
+                <button id="refreshBtn" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md transition">
+                    Refresh
+                </button>
+            </div>
+        </div>
+
+        <!-- Session Selection -->
+        <div class="bg-white p-6 rounded-lg shadow-md mb-8">
+            <h2 class="text-xl font-semibold mb-4">Session Management</h2>
+            <div class="flex flex-wrap gap-4">
+                <div class="flex-1">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Select Session</label>
+                    <div class="flex space-x-2">
+                        <select id="sessionSelect" class="border border-gray-300 rounded-md px-3 py-2 w-full">
+                            <option value="">Select a session</option>
+                        </select>
+                        <button id="loadSessionBtn" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md transition">
+                            Load
+                        </button>
+                    </div>
+                </div>
+                <div class="flex-1">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Create New Session</label>
+                    <div class="flex space-x-2">
+                        <input type="text" id="newSessionInput" class="border border-gray-300 rounded-md px-3 py-2 w-full" placeholder="Enter session name">
+                        <button id="createSessionBtn" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md transition">
+                            Create
+                        </button>
+                    </div>
+                </div>
+                <div class="flex-1">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Delete Session</label>
+                    <div class="flex space-x-2">
+                        <select id="deleteSessionSelect" class="border border-gray-300 rounded-md px-3 py-2 w-full">
+                            <option value="">Select a session</option>
+                        </select>
+                        <button id="deleteSessionBtn" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md transition">
+                            Delete
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Current Session Info -->
+        <div id="currentSessionInfo" class="bg-blue-50 p-4 rounded-lg shadow-md mb-8 hidden">
+            <h2 class="text-lg font-semibold text-blue-800">Current Session: <span id="currentSessionName"></span></h2>
+        </div>
+
+        <!-- Input Node Editor -->
+        <div id="inputNodeEditor" class="bg-white p-6 rounded-lg shadow-md mb-8 hidden">
+            <h2 class="text-xl font-semibold mb-4">Input Node</h2>
+            <div id="inputFields" class="space-y-4">
+                <!-- Input fields will be added here dynamically -->
+            </div>
+            <div class="flex justify-between mt-6">
+                <button id="addInputFieldBtn" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md transition">
+                    Add Input Field
+                </button>
+                <button id="updateInputsBtn" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md transition">
+                    Update Inputs
+                </button>
+            </div>
+        </div>
+
+        <!-- Create Node Form -->
+        <div id="nodeCreationForm" class="bg-white p-6 rounded-lg shadow-md mb-8 hidden">
+            <h2 class="text-xl font-semibold mb-4">Create Node</h2>
+            <div class="space-y-6">
+                <!-- Node Name -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Node Name</label>
+                    <input type="text" id="nodeName" class="border border-gray-300 rounded-md px-3 py-2 w-full" placeholder="Enter node name">
+                </div>
+
+                <!-- System Instructions -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">System Instructions</label>
+                    <textarea id="systemInstructions" class="border border-gray-300 rounded-md px-3 py-2 w-full h-24" placeholder="Enter system instructions"></textarea>
+                </div>
+
+                <!-- User Prompt -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">User Prompt</label>
+                    <textarea id="userPrompt" class="border border-gray-300 rounded-md px-3 py-2 w-full h-24" placeholder="Enter user prompt"></textarea>
+                    <p class="text-sm text-gray-500 mt-1">Use @[inputs.input1] or @[node1.output1] to reference inputs or outputs from other nodes</p>
+                </div>
+
+                <!-- Python Code -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Python Code</label>
+                    <div class="border border-gray-300 rounded-md p-4 bg-gray-50">
+                        <h3 class="text-sm font-medium mb-2">Arguments</h3>
+                        <div id="codeArguments" class="space-y-2 mb-4">
+                            <div class="flex space-x-2">
+                                <input type="text" class="arg-name border border-gray-300 rounded-md px-3 py-2 w-1/3" placeholder="Argument name">
+                                <input type="text" class="arg-value border border-gray-300 rounded-md px-3 py-2 w-2/3" placeholder="Value or reference (e.g., @[inputs.input1])">
+                                <button class="remove-arg-btn bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md transition">
+                                    X
+                                </button>
+                            </div>
+                        </div>
+                        <button id="addArgumentBtn" class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md text-sm transition mb-4">
+                            Add Argument
+                        </button>
+
+                        <h3 class="text-sm font-medium mb-2">Function Body</h3>
+                        <textarea id="functionBody" class="code-area border border-gray-300 rounded-md px-3 py-2 w-full h-48">def function(arg1, arg2):
+    # Your code here
+    return {'output1': value}</textarea>
+                    </div>
+                </div>
+
+                <!-- Output Schema -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Output Schema</label>
+                    <div id="outputSchema" class="space-y-2">
+                        <div class="flex space-x-2">
+                            <input type="text" class="output-name border border-gray-300 rounded-md px-3 py-2 w-1/3" placeholder="Output name">
+                            <input type="text" class="output-desc border border-gray-300 rounded-md px-3 py-2 w-2/3" placeholder="Output description">
+                            <button class="remove-output-btn bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md transition">
+                                X
+                            </button>
+                        </div>
+                    </div>
+                    <button id="addOutputBtn" class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md text-sm transition mt-2">
+                        Add Output
+                    </button>
+                </div>
+
+                <div class="flex justify-end space-x-4">
+                    <button id="resetNodeFormBtn" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md transition">
+                        Reset Form
+                    </button>
+                    <button id="addNodeBtn" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md transition">
+                        Add Node
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Status Messages -->
+        <div id="statusMessage" class="hidden p-4 rounded-lg shadow-md mb-8">
+            <!-- Status messages will appear here -->
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Global variables
+            let currentSession = null;
+            let sessionGraph = null;
+            
+            // DOM Elements
+            const sessionSelect = document.getElementById('sessionSelect');
+            const deleteSessionSelect = document.getElementById('deleteSessionSelect');
+            const loadSessionBtn = document.getElementById('loadSessionBtn');
+            const createSessionBtn = document.getElementById('createSessionBtn');
+            const deleteSessionBtn = document.getElementById('deleteSessionBtn');
+            const newSessionInput = document.getElementById('newSessionInput');
+            const currentSessionInfo = document.getElementById('currentSessionInfo');
+            const currentSessionName = document.getElementById('currentSessionName');
+            const inputNodeEditor = document.getElementById('inputNodeEditor');
+            const nodeCreationForm = document.getElementById('nodeCreationForm');
+            const viewGraphBtn = document.getElementById('viewGraphBtn');
+            const statusMessage = document.getElementById('statusMessage');
+            
+            // Input node elements
+            const inputFields = document.getElementById('inputFields');
+            const addInputFieldBtn = document.getElementById('addInputFieldBtn');
+            const updateInputsBtn = document.getElementById('updateInputsBtn');
+            
+            // Node creation elements
+            const nodeName = document.getElementById('nodeName');
+            const systemInstructions = document.getElementById('systemInstructions');
+            const userPrompt = document.getElementById('userPrompt');
+            const functionBody = document.getElementById('functionBody');
+            const addArgumentBtn = document.getElementById('addArgumentBtn');
+            const codeArguments = document.getElementById('codeArguments');
+            const outputSchema = document.getElementById('outputSchema');
+            const addOutputBtn = document.getElementById('addOutputBtn');
+            const addNodeBtn = document.getElementById('addNodeBtn');
+            const resetNodeFormBtn = document.getElementById('resetNodeFormBtn');
+            
+            // Initialize
+            loadSessions();
+            
+            // Event Listeners
+            loadSessionBtn.addEventListener('click', loadSelectedSession);
+            createSessionBtn.addEventListener('click', createNewSession);
+            deleteSessionBtn.addEventListener('click', deleteSelectedSession);
+            addInputFieldBtn.addEventListener('click', addInputField);
+            updateInputsBtn.addEventListener('click', updateInputNode);
+            addArgumentBtn.addEventListener('click', addCodeArgument);
+            addOutputBtn.addEventListener('click', addOutputField);
+            addNodeBtn.addEventListener('click', addNode);
+            resetNodeFormBtn.addEventListener('click', resetNodeForm);
+            viewGraphBtn.addEventListener('click', goToViewGraph);
+            document.getElementById('refreshBtn').addEventListener('click', refreshCurrentSession);
+            
+            // Functions
+            function loadSessions() {
+                fetch('/list-sessions')
+                    .then(response => response.json())
+                    .then(data => {
+                        populateSessionDropdowns(data.sessions);
+                    })
+                    .catch(error => {
+                        showStatus('Failed to load sessions: ' + error.message, 'error');
+                    });
+            }
+            
+            function populateSessionDropdowns(sessions) {
+                // Clear existing options except the first one
+                sessionSelect.innerHTML = '<option value="">Select a session</option>';
+                deleteSessionSelect.innerHTML = '<option value="">Select a session</option>';
+                
+                // Add session options
+                sessions.forEach(session => {
+                    const option1 = document.createElement('option');
+                    option1.value = session;
+                    option1.textContent = session;
+                    sessionSelect.appendChild(option1);
+                    
+                    const option2 = document.createElement('option');
+                    option2.value = session;
+                    option2.textContent = session;
+                    deleteSessionSelect.appendChild(option2);
+                });
+            }
+            
+            function createNewSession() {
+                const sessionId = newSessionInput.value.trim();
+                if (!sessionId) {
+                    showStatus('Please enter a session name', 'error');
+                    return;
+                }
+                
+                fetch('/create-session', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ session_id: sessionId })
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(data => {
+                            throw new Error(data.error || 'Failed to create session');
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    showStatus(`Session "${sessionId}" created successfully`, 'success');
+                    newSessionInput.value = '';
+                    loadSessions();
+                    // Auto-select and load the new session
+                    setTimeout(() => {
+                        sessionSelect.value = sessionId;
+                        loadSelectedSession();
+                    }, 500);
+                })
+                .catch(error => {
+                    showStatus(error.message, 'error');
+                });
+            }
+            
+            function deleteSelectedSession() {
+                const sessionId = deleteSessionSelect.value;
+                if (!sessionId) {
+                    showStatus('Please select a session to delete', 'error');
+                    return;
+                }
+                
+                if (!confirm(`Are you sure you want to delete session "${sessionId}"?`)) {
+                    return;
+                }
+                
+                fetch('/delete-session', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ session_id: sessionId })
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(data => {
+                            throw new Error(data.error || 'Failed to delete session');
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    showStatus(`Session "${sessionId}" deleted successfully`, 'success');
+                    loadSessions();
+                    
+                    // If the deleted session was the current session, clear UI
+                    if (currentSession === sessionId) {
+                        currentSession = null;
+                        hideSessionUI();
+                    }
+                })
+                .catch(error => {
+                    showStatus(error.message, 'error');
+                });
+            }
+            
+            function loadSelectedSession() {
+                const sessionId = sessionSelect.value;
+                if (!sessionId) {
+                    showStatus('Please select a session', 'error');
+                    return;
+                }
+                
+                currentSession = sessionId;
+                currentSessionName.textContent = sessionId;
+                currentSessionInfo.classList.remove('hidden');
+                loadSessionGraph();
+            }
+            
+            function loadSessionGraph() {
+                if (!currentSession) return;
+                
+                fetch('/get-session-graph', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ session_id: currentSession })
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(data => {
+                            throw new Error(data.error || 'Failed to load session graph');
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    sessionGraph = data.graph;
+                    showSessionUI();
+                    populateInputFields();
+                })
+                .catch(error => {
+                    showStatus(error.message, 'error');
+                });
+            }
+            
+            function hideSessionUI() {
+                currentSessionInfo.classList.add('hidden');
+                inputNodeEditor.classList.add('hidden');
+                nodeCreationForm.classList.add('hidden');
+            }
+            
+            function showSessionUI() {
+                inputNodeEditor.classList.remove('hidden');
+                nodeCreationForm.classList.remove('hidden');
+            }
+            
+            function populateInputFields() {
+                inputFields.innerHTML = '';
+                
+                if (sessionGraph && sessionGraph.nodes.inputs) {
+                    const inputs = sessionGraph.nodes.inputs.kwargs || {};
+                    
+                    Object.entries(inputs).forEach(([key, value]) => {
+                        addInputField(key, value);
+                    });
+                    
+                    // Add an empty field if there are no inputs
+                    if (Object.keys(inputs).length === 0) {
+                        addInputField();
+                    }
+                } else {
+                    addInputField();
+                }
+            }
+            
+            function addInputField(name = '', value = '') {
+                const inputRow = document.createElement('div');
+                inputRow.className = 'flex space-x-2';
+                inputRow.innerHTML = `
+                    <input type="text" class="input-name border border-gray-300 rounded-md px-3 py-2 w-1/3" placeholder="Input name" value="${name}">
+                    <input type="text" class="input-value border border-gray-300 rounded-md px-3 py-2 w-2/3" placeholder="Input value" value="${value}">
+                    <button class="remove-input-btn bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md transition">
+                        X
+                    </button>
+                `;
+                
+                inputRow.querySelector('.remove-input-btn').addEventListener('click', function() {
+                    inputRow.remove();
+                });
+                
+                inputFields.appendChild(inputRow);
+            }
+            
+            function updateInputNode() {
+                if (!currentSession) {
+                    showStatus('No session selected', 'error');
+                    return;
+                }
+                
+                const inputFieldsObj = {};
+                const rows = inputFields.querySelectorAll('.flex');
+                
+                rows.forEach(row => {
+                    const name = row.querySelector('.input-name').value.trim();
+                    const value = row.querySelector('.input-value').value.trim();
+                    
+                    if (name && value) {
+                        inputFieldsObj[name] = value;
+                    }
+                });
+                
+                if (Object.keys(inputFieldsObj).length === 0) {
+                    showStatus('Please add at least one input field', 'error');
+                    return;
+                }
+                
+                fetch('/add-input', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        session_id: currentSession,
+                        input_fields: inputFieldsObj
+                    })
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(data => {
+                            throw new Error(data.error || 'Failed to update inputs');
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    showStatus('Inputs updated successfully', 'success');
+                    loadSessionGraph(); // Refresh the graph
+                })
+                .catch(error => {
+                    showStatus(error.message, 'error');
+                });
+            }
+            
+            function addCodeArgument(name = '', value = '') {
+                const argRow = document.createElement('div');
+                argRow.className = 'flex space-x-2';
+                argRow.innerHTML = `
+                    <input type="text" class="arg-name border border-gray-300 rounded-md px-3 py-2 w-1/3" placeholder="Argument name" value="${name}">
+                    <input type="text" class="arg-value border border-gray-300 rounded-md px-3 py-2 w-2/3" placeholder="Value or reference (e.g., @[inputs.input1])" value="${value}">
+                    <button class="remove-arg-btn bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md transition">
+                        X
+                    </button>
+                `;
+                
+                argRow.querySelector('.remove-arg-btn').addEventListener('click', function() {
+                    argRow.remove();
+                });
+                
+                codeArguments.appendChild(argRow);
+            }
+            
+            function addOutputField(name = '', desc = '') {
+                const outputRow = document.createElement('div');
+                outputRow.className = 'flex space-x-2';
+                outputRow.innerHTML = `
+                    <input type="text" class="output-name border border-gray-300 rounded-md px-3 py-2 w-1/3" placeholder="Output name" value="${name}">
+                    <input type="text" class="output-desc border border-gray-300 rounded-md px-3 py-2 w-2/3" placeholder="Output description" value="${desc}">
+                    <button class="remove-output-btn bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md transition">
+                        X
+                    </button>
+                `;
+                
+                outputRow.querySelector('.remove-output-btn').addEventListener('click', function() {
+                    outputRow.remove();
+                });
+                
+                outputSchema.appendChild(outputRow);
+            }
+            
+            function addNode() {
+                if (!currentSession) {
+                    showStatus('No session selected', 'error');
+                    return;
+                }
+                
+                // Validate form
+                const nodeNameValue = nodeName.value.trim();
+                if (!nodeNameValue) {
+                    showStatus('Please enter a node name', 'error');
+                    return;
+                }
+                
+                // Collect arguments
+                const argumentObj = {};
+                const argRows = codeArguments.querySelectorAll('.flex');
+                argRows.forEach(row => {
+                    const name = row.querySelector('.arg-name').value.trim();
+                    const value = row.querySelector('.arg-value').value.trim();
+                    if (name && value) {
+                        argumentObj[name] = value;
+                    }
+                });
+                
+                // Collect output schema
+                const outputSchemaObj = {};
+                const outputRows = outputSchema.querySelectorAll('.flex');
+                outputRows.forEach(row => {
+                    const name = row.querySelector('.output-name').value.trim();
+                    const desc = row.querySelector('.output-desc').value.trim();
+                    if (name && desc) {
+                        outputSchemaObj[name] = desc;
+                    }
+                });
+                
+                if (Object.keys(outputSchemaObj).length === 0) {
+                    showStatus('Please add at least one output field', 'error');
+                    return;
+                }
+                
+                // Prepare the request body
+                const nodeData = {
+                    session_id: currentSession,
+                    node_name: nodeNameValue,
+                    system_instructions: systemInstructions.value.trim(),
+                    user_prompt: userPrompt.value.trim(),
+                    python_code: {
+                        argument: argumentObj,
+                        function_body: functionBody.value.trim()
+                    },
+                    output_schema: outputSchemaObj
+                };
+                
+                fetch('/add-node', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(nodeData)
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(data => {
+                            throw new Error(data.error || 'Failed to add node');
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    showStatus(`Node "${nodeNameValue}" added successfully`, 'success');
+                    resetNodeForm();
+                    loadSessionGraph(); // Refresh the graph
+                })
+                .catch(error => {
+                    showStatus(error.message, 'error');
+                });
+            }
+            
+            function resetNodeForm() {
+                nodeName.value = '';
+                systemInstructions.value = '';
+                userPrompt.value = '';
+                functionBody.value = 'def function(arg1, arg2):\n    # Your code here\n    return {\'output1\': value}';
+                
+                // Clear arguments except one
+                codeArguments.innerHTML = '';
+                addCodeArgument();
+                
+                // Clear output schema except one
+                outputSchema.innerHTML = '';
+                addOutputField();
+            }
+            
+            function refreshCurrentSession() {
+                if (currentSession) {
+                    loadSessionGraph();
+                } else {
+                    loadSessions();
+                }
+            }
+            
+            function goToViewGraph() {
+                if (currentSession) {
+                    window.location.href = `index-view.html?session=${currentSession}`;
+                } else {
+                    window.location.href = 'index-view.html';
+                }
+            }
+            
+            function showStatus(message, type = 'info') {
+                statusMessage.textContent = message;
+                statusMessage.classList.remove('hidden', 'bg-green-100', 'text-green-800', 'bg-red-100', 'text-red-800', 'bg-blue-100', 'text-blue-800');
+                
+                switch(type) {
+                    case 'success':
+                        statusMessage.classList.add('bg-green-100', 'text-green-800');
+                        break;
+                    case 'error':
+                        statusMessage.classList.add('bg-red-100', 'text-red-800');
+                        break;
+                    default:
+                        statusMessage.classList.add('bg-blue-100', 'text-blue-800');
+                }
+                
+                statusMessage.classList.remove('hidden');
+                
+                // Hide after 5 seconds
+                setTimeout(() => {
+                    statusMessage.classList.add('hidden');
+                }, 5000);
+            }
+            
+            // Initialize form with empty rows
+            addCodeArgument();
+            addOutputField();
+        });
+    </script>
+</body>
+</html>
