@@ -517,61 +517,82 @@
         <div class="header">
             <div class="logo">Agent DAG</div>
             <div class="header-actions">
-                <a href="index-create.html" class="btn btn-primary" id="create-node-btn">Create Node</a>
+                <button class="btn btn-primary" id="create-node-btn">Create Node</button>
+                <button class="btn btn-primary" id="modify-inputs-btn">Modify Inputs</button>
                 <button class="btn btn-secondary" id="compile-btn">Compile Graph</button>
             </div>
         </div>
 
-        <div class="panel">
-            <div class="panel-header">
-                <div class="panel-title">Sessions</div>
-                <div class="panel-actions">
-                    <button class="btn btn-primary btn-sm" id="new-session-btn">New Session</button>
-                    <button class="btn btn-danger btn-sm" id="delete-session-btn">Delete Session</button>
+        <div class="main-content">
+            <div class="sidebar">
+                <div class="panel">
+                    <div class="panel-header">
+                        <div class="panel-title">Sessions</div>
+                        <div class="panel-actions">
+                            <button class="btn btn-primary btn-sm" id="new-session-btn">
+                                <i class="fas fa-plus"></i> New
+                            </button>
+                            <button class="btn btn-danger btn-sm" id="delete-session-btn">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </div>
+                    </div>
+                    <div class="session-list" id="session-list">
+                        <!-- Sessions will be loaded here -->
+                        <div class="no-sessions">No sessions available</div>
+                    </div>
                 </div>
             </div>
-            <div class="session-list" id="session-list">
-                <!-- Sessions will be loaded here -->
-                <div class="no-sessions">No sessions available</div>
-            </div>
-        </div>
 
-        <div class="tabs">
-            <div class="tab active" data-tab="graph">Graph View</div>
-            <div class="tab" data-tab="json">JSON View</div>
-        </div>
-
-        <div class="tab-content" id="graph-tab">
-            <div class="graph-container">
-                <div class="controls">
-                    <button class="btn btn-sm" id="center-graph-btn">
-                        <i class="fas fa-compress-arrows-alt"></i> Center
-                    </button>
+            <div class="content">
+                <div class="tabs">
+                    <div class="tab active" data-tab="graph">Graph View</div>
+                    <div class="tab" data-tab="json">JSON View</div>
                 </div>
-                <div class="graph-wrapper">
-                    <div class="graph" id="graph">
-                        <!-- Graph will be rendered here -->
-                        <div class="empty-graph">
-                            <i class="fas fa-project-diagram"></i>
-                            <p>Select a session to view its graph</p>
+
+                <div class="tab-content" id="graph-tab">
+                    <div class="graph-container">
+                        <div class="controls">
+                            <button class="btn btn-sm" id="center-graph-btn">
+                                <i class="fas fa-compress-arrows-alt"></i> Center
+                            </button>
+                            <button class="btn btn-sm" id="zoom-in-btn">
+                                <i class="fas fa-search-plus"></i>
+                            </button>
+                            <button class="btn btn-sm" id="zoom-out-btn">
+                                <i class="fas fa-search-minus"></i>
+                            </button>
+                        </div>
+                        <div class="graph-wrapper">
+                            <div class="graph" id="graph">
+                                <!-- Graph will be rendered here -->
+                                <div class="empty-graph">
+                                    <i class="fas fa-project-diagram"></i>
+                                    <p>Select a session to view its graph</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="node-detail-panel" id="node-detail-panel">
-                    <div class="node-detail-header">
-                        <h3 id="detail-node-name">Node Details</h3>
-                        <span class="detail-close" id="detail-close">&times;</span>
-                    </div>
-                    <div id="node-details-content">
-                        <!-- Node details will be loaded here -->
+
+                <div class="tab-content" id="json-tab" style="display:none;">
+                    <div class="panel">
+                        <pre id="json-view" class="code-preview"></pre>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
 
-        <div class="tab-content" id="json-tab" style="display:none;">
-            <div class="panel">
-                <pre id="json-view" style="max-height: 600px; overflow: auto;"></pre>
+    <!-- Node Detail Panel -->
+    <div class="node-detail-panel" id="node-detail-panel">
+        <div class="node-detail-header">
+            <h3 id="detail-node-name">Node Details</h3>
+            <span class="detail-close" id="detail-close">&times;</span>
+        </div>
+        <div class="node-detail-scroll">
+            <div id="node-details-content">
+                <!-- Node details will be loaded here -->
             </div>
         </div>
     </div>
@@ -613,6 +634,91 @@
                 <div class="form-actions">
                     <button type="button" class="btn" id="delete-session-cancel">Cancel</button>
                     <button type="submit" class="btn btn-danger">Delete</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Create Node Modal -->
+    <div class="modal modal-large" id="create-node-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Create Node</h3>
+                <span class="close" id="create-node-close">&times;</span>
+            </div>
+            <form id="create-node-form">
+                <div class="form-group">
+                    <label class="form-label" for="node-name">Node Name</label>
+                    <input type="text" class="form-control" id="node-name" placeholder="Enter node name" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="system-instructions">System Instructions</label>
+                    <textarea class="form-control" id="system-instructions" placeholder="Enter system instructions"></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="user-prompt">User Prompt</label>
+                    <textarea class="form-control" id="user-prompt" placeholder="Enter user prompt with @[inputs.inputX] references"></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Python Code</label>
+                    <div class="code-section">
+                        <div class="code-subsection">
+                            <label class="form-label">Arguments</label>
+                            <div id="python-arguments">
+                                <div class="argument-row">
+                                    <input type="text" class="form-control argument-key" placeholder="arg name">
+                                    <input type="text" class="form-control argument-value" placeholder="@[inputs.inputX]">
+                                    <button type="button" class="btn btn-sm remove-arg-btn"><i class="fas fa-minus"></i></button>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-sm add-arg-btn" id="add-arg-btn"><i class="fas fa-plus"></i> Add Argument</button>
+                        </div>
+                        <div class="code-subsection">
+                            <label class="form-label" for="function-body">Function Body</label>
+                            <div id="code-editor-container" class="code-editor-container">
+                                <textarea id="function-body" class="code-editor"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Output Schema</label>
+                    <div id="output-schema">
+                        <div class="schema-row">
+                            <input type="text" class="form-control schema-key" placeholder="output name">
+                            <input type="text" class="form-control schema-value" placeholder="description">
+                            <button type="button" class="btn btn-sm remove-schema-btn"><i class="fas fa-minus"></i></button>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-sm add-schema-btn" id="add-schema-btn"><i class="fas fa-plus"></i> Add Output</button>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn" id="create-node-cancel">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create Node</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modify Inputs Modal -->
+    <div class="modal" id="modify-inputs-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Modify Inputs</h3>
+                <span class="close" id="modify-inputs-close">&times;</span>
+            </div>
+            <form id="modify-inputs-form">
+                <div id="input-fields">
+                    <div class="input-row">
+                        <input type="text" class="form-control input-key" placeholder="input name">
+                        <input type="text" class="form-control input-value" placeholder="value">
+                        <button type="button" class="btn btn-sm remove-input-btn"><i class="fas fa-minus"></i></button>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-sm add-input-btn" id="add-input-btn"><i class="fas fa-plus"></i> Add Input</button>
+                <div class="form-actions">
+                    <button type="button" class="btn" id="modify-inputs-cancel">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Update Inputs</button>
                 </div>
             </form>
         </div>

@@ -1,0 +1,1130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent DAG Workflow</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.23.0/cytoscape.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.36.1/min/vs/loader.min.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <div class="sidebar">
+            <div class="logo">
+                <h1>Agent DAG</h1>
+            </div>
+            <div class="session-management">
+                <h2>Sessions</h2>
+                <div class="session-controls">
+                    <input type="text" id="session-name-input" placeholder="Enter session name">
+                    <button id="create-session-btn" class="btn primary">Create Session</button>
+                </div>
+                <div class="session-list-container">
+                    <h3>Available Sessions</h3>
+                    <ul id="session-list" class="session-list"></ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="no-session-selected" id="no-session-view">
+                <div class="welcome-message">
+                    <h2>Welcome to Agent DAG Workflow</h2>
+                    <p>Create a new session or select an existing one to start building your workflow.</p>
+                </div>
+            </div>
+
+            <div class="session-view hidden" id="session-view">
+                <div class="session-header">
+                    <h2 id="current-session-name">Session: <span></span></h2>
+                    <div class="session-actions">
+                        <button id="modify-inputs-btn" class="btn secondary">Modify Inputs</button>
+                        <button id="add-node-btn" class="btn secondary">Add Node</button>
+                        <button id="compile-btn" class="btn primary">Compile Graph</button>
+                        <button id="delete-session-btn" class="btn danger">Delete Session</button>
+                    </div>
+                </div>
+
+                <div class="graph-workspace">
+                    <div id="cy" class="graph-container"></div>
+                    
+                    <div id="node-details" class="node-details hidden">
+                        <div class="node-details-header">
+                            <h3 id="node-detail-title">Node Details</h3>
+                            <div class="node-actions">
+                                <button id="update-node-btn" class="btn secondary">Update</button>
+                                <button id="remove-node-btn" class="btn danger">Remove</button>
+                                <button id="execute-node-btn" class="btn primary">Execute</button>
+                                <button id="close-details-btn" class="btn text">Close</button>
+                            </div>
+                        </div>
+                        <div class="node-form">
+                            <div class="form-group">
+                                <label for="node-name">Node Name</label>
+                                <input type="text" id="node-name" disabled>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Status</label>
+                                <div id="node-status" class="status-badge">pending</div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="system-instructions">System Instructions</label>
+                                <textarea id="system-instructions" rows="3"></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="user-prompt">User Prompt</label>
+                                <textarea id="user-prompt" rows="3"></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Python Code</label>
+                                <div class="code-editors">
+                                    <div class="code-editor-container">
+                                        <label>Arguments</label>
+                                        <div id="arguments-editor" class="code-editor"></div>
+                                    </div>
+                                    <div class="code-editor-container">
+                                        <label>Function Body</label>
+                                        <div id="function-body-editor" class="code-editor"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Output Schema</label>
+                                <div id="output-schema-editor" class="code-editor"></div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Node Outputs</label>
+                                <div id="node-outputs-editor" class="code-editor"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div id="inputs-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Modify Input Fields</h2>
+                <span class="close-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div id="input-fields-container">
+                    <div class="input-field-row">
+                        <input type="text" class="input-key" placeholder="Key">
+                        <input type="text" class="input-value" placeholder="Value">
+                        <button class="remove-input-btn">&times;</button>
+                    </div>
+                </div>
+                <button id="add-input-field-btn" class="btn secondary">Add Input Field</button>
+            </div>
+            <div class="modal-footer">
+                <button id="save-inputs-btn" class="btn primary">Save Inputs</button>
+                <button class="btn cancel-btn">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="add-node-modal" class="modal">
+        <div class="modal-content wide-modal">
+            <div class="modal-header">
+                <h2 id="node-modal-title">Add New Node</h2>
+                <span class="close-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="new-node-name">Node Name</label>
+                    <input type="text" id="new-node-name" placeholder="Enter unique node name">
+                </div>
+                <div class="form-group">
+                    <label for="new-system-instructions">System Instructions</label>
+                    <textarea id="new-system-instructions" rows="3" placeholder="System instructions for the node"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="new-user-prompt">User Prompt</label>
+                    <textarea id="new-user-prompt" rows="3" placeholder="User prompt (use @[node.output] to reference other nodes)"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Python Code</label>
+                    <div class="code-editors">
+                        <div class="code-editor-container">
+                            <label>Arguments (JSON)</label>
+                            <div id="new-arguments-editor" class="code-editor"></div>
+                        </div>
+                        <div class="code-editor-container">
+                            <label>Function Body</label>
+                            <div id="new-function-body-editor" class="code-editor"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Output Schema (JSON)</label>
+                    <div id="new-output-schema-editor" class="code-editor"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="save-node-btn" class="btn primary">Save Node</button>
+                <button class="btn cancel-btn">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="spinner-overlay" class="hidden">
+        <div class="spinner"></div>
+    </div>
+
+    <script>
+        // Base API URL
+        const API_BASE_URL = 'http://127.0.0.1:8080';
+        let currentSessionId = null;
+        let currentGraph = null;
+        let selectedNode = null;
+        let cyInstance = null;
+        let monaco = null;
+        let argEditor = null;
+        let funcBodyEditor = null;
+        let outputSchemaEditor = null;
+        let nodeOutputsEditor = null;
+        let newArgEditor = null;
+        let newFuncBodyEditor = null;
+        let newOutputSchemaEditor = null;
+        let isEditingNode = false;
+
+        // Initialize Monaco editor
+        require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.36.1/min/vs' }});
+        require(['vs/editor/editor.main'], function() {
+            monaco = window.monaco;
+            
+            // Initialize code editors when needed
+            if (document.getElementById('node-details').classList.contains('hidden')) {
+                initializeEditors();
+            }
+        });
+
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize UI
+            initializeListeners();
+            fetchSessions();
+        });
+
+        function initializeEditors() {
+            if (!monaco) return;
+            
+            // Node detail editors
+            argEditor = monaco.editor.create(document.getElementById('arguments-editor'), {
+                value: '{\n  "arg1": "@[inputs.input1]"\n}',
+                language: 'json',
+                theme: 'vs-dark',
+                minimap: { enabled: false },
+                automaticLayout: true,
+                scrollBeyondLastLine: false,
+                lineNumbers: 'on',
+                glyphMargin: false,
+                folding: true,
+                lineDecorationsWidth: 10
+            });
+
+            funcBodyEditor = monaco.editor.create(document.getElementById('function-body-editor'), {
+                value: 'def function(arg1):\n    return {"output1": arg1}',
+                language: 'python',
+                theme: 'vs-dark',
+                minimap: { enabled: false },
+                automaticLayout: true,
+                scrollBeyondLastLine: false
+            });
+
+            outputSchemaEditor = monaco.editor.create(document.getElementById('output-schema-editor'), {
+                value: '{\n  "output1": "Description of output1"\n}',
+                language: 'json',
+                theme: 'vs-dark',
+                minimap: { enabled: false },
+                automaticLayout: true,
+                scrollBeyondLastLine: false
+            });
+            
+            nodeOutputsEditor = monaco.editor.create(document.getElementById('node-outputs-editor'), {
+                value: '{}',
+                language: 'json',
+                theme: 'vs-dark',
+                minimap: { enabled: false },
+                automaticLayout: true,
+                scrollBeyondLastLine: false,
+                readOnly: true
+            });
+
+            // New node modal editors
+            newArgEditor = monaco.editor.create(document.getElementById('new-arguments-editor'), {
+                value: '{\n  "arg1": "@[inputs.input1]"\n}',
+                language: 'json',
+                theme: 'vs-dark',
+                minimap: { enabled: false },
+                automaticLayout: true,
+                scrollBeyondLastLine: false
+            });
+
+            newFuncBodyEditor = monaco.editor.create(document.getElementById('new-function-body-editor'), {
+                value: 'def function(arg1):\n    return {"output1": arg1}',
+                language: 'python',
+                theme: 'vs-dark',
+                minimap: { enabled: false },
+                automaticLayout: true,
+                scrollBeyondLastLine: false
+            });
+
+            newOutputSchemaEditor = monaco.editor.create(document.getElementById('new-output-schema-editor'), {
+                value: '{\n  "output1": "Description of output1"\n}',
+                language: 'json',
+                theme: 'vs-dark',
+                minimap: { enabled: false },
+                automaticLayout: true,
+                scrollBeyondLastLine: false
+            });
+        }
+
+        function initializeListeners() {
+            // Session management
+            document.getElementById('create-session-btn').addEventListener('click', createSession);
+            document.getElementById('delete-session-btn').addEventListener('click', deleteSession);
+            
+            // Graph management
+            document.getElementById('compile-btn').addEventListener('click', compileSession);
+            document.getElementById('modify-inputs-btn').addEventListener('click', openInputsModal);
+            document.getElementById('add-node-btn').addEventListener('click', openAddNodeModal);
+            
+            // Node details
+            document.getElementById('close-details-btn').addEventListener('click', closeNodeDetails);
+            document.getElementById('update-node-btn').addEventListener('click', updateNode);
+            document.getElementById('remove-node-btn').addEventListener('click', removeNode);
+            document.getElementById('execute-node-btn').addEventListener('click', executeNode);
+            
+            // Input modal
+            document.getElementById('add-input-field-btn').addEventListener('click', addInputField);
+            document.getElementById('save-inputs-btn').addEventListener('click', saveInputs);
+            
+            // Node modal
+            document.getElementById('save-node-btn').addEventListener('click', saveNode);
+            
+            // Close modals
+            document.querySelectorAll('.close-modal, .cancel-btn').forEach(el => {
+                el.addEventListener('click', closeModals);
+            });
+        }
+
+        async function fetchSessions() {
+            showSpinner();
+            try {
+                const response = await fetch(`${API_BASE_URL}/compile-session`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ session_id: currentSessionId })
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Failed to compile session');
+                }
+                
+                showNotification('Session compiled successfully', 'success');
+                await fetchSessionGraph();
+            } catch (error) {
+                console.error('Error compiling session:', error);
+                showNotification(error.message, 'error');
+            } finally {
+                hideSpinner();
+            }
+        }
+
+        function openInputsModal() {
+            const modal = document.getElementById('inputs-modal');
+            const container = document.getElementById('input-fields-container');
+            
+            // Clear existing inputs
+            container.innerHTML = '';
+            
+            // Populate with current inputs if available
+            if (currentGraph && currentGraph.nodes && currentGraph.nodes.inputs) {
+                const inputFields = currentGraph.nodes.inputs.kwargs || {};
+                
+                Object.entries(inputFields).forEach(([key, value]) => {
+                    addInputFieldToModal(key, value);
+                });
+            }
+            
+            // Add an empty field if none exist
+            if (container.children.length === 0) {
+                addInputFieldToModal('', '');
+            }
+            
+            modal.classList.add('show');
+        }
+        
+        function addInputField() {
+            addInputFieldToModal('', '');
+        }
+        
+        function addInputFieldToModal(key, value) {
+            const container = document.getElementById('input-fields-container');
+            const row = document.createElement('div');
+            row.classList.add('input-field-row');
+            
+            const keyInput = document.createElement('input');
+            keyInput.type = 'text';
+            keyInput.classList.add('input-key');
+            keyInput.placeholder = 'Key';
+            keyInput.value = key;
+            
+            const valueInput = document.createElement('input');
+            valueInput.type = 'text';
+            valueInput.classList.add('input-value');
+            valueInput.placeholder = 'Value';
+            valueInput.value = value;
+            
+            const removeBtn = document.createElement('button');
+            removeBtn.classList.add('remove-input-btn');
+            removeBtn.innerHTML = '&times;';
+            removeBtn.addEventListener('click', () => {
+                container.removeChild(row);
+            });
+            
+            row.appendChild(keyInput);
+            row.appendChild(valueInput);
+            row.appendChild(removeBtn);
+            container.appendChild(row);
+        }
+        
+        async function saveInputs() {
+            if (!currentSessionId) return;
+            
+            const inputFields = {};
+            const rows = document.querySelectorAll('#input-fields-container .input-field-row');
+            
+            rows.forEach(row => {
+                const key = row.querySelector('.input-key').value.trim();
+                const value = row.querySelector('.input-value').value.trim();
+                
+                if (key) {
+                    inputFields[key] = value;
+                }
+            });
+            
+            if (Object.keys(inputFields).length === 0) {
+                showNotification('At least one input field is required', 'warning');
+                return;
+            }
+            
+            showSpinner();
+            try {
+                const response = await fetch(`${API_BASE_URL}/add-input`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        session_id: currentSessionId,
+                        input_fields: inputFields
+                    })
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Failed to update inputs');
+                }
+                
+                showNotification('Input fields updated successfully', 'success');
+                closeModals();
+                await fetchSessionGraph();
+            } catch (error) {
+                console.error('Error updating inputs:', error);
+                showNotification(error.message, 'error');
+            } finally {
+                hideSpinner();
+            }
+        }
+
+        function openAddNodeModal(node = null) {
+            const modal = document.getElementById('add-node-modal');
+            const modalTitle = document.getElementById('node-modal-title');
+            
+            isEditingNode = !!node;
+            
+            if (isEditingNode) {
+                modalTitle.textContent = 'Edit Node';
+                document.getElementById('new-node-name').value = node.nodeName;
+                document.getElementById('new-node-name').disabled = true;
+                document.getElementById('new-system-instructions').value = node.systemInstructions || '';
+                document.getElementById('new-user-prompt').value = node.userPrompt || '';
+                
+                if (monaco) {
+                    const pythonCode = node.pythonCode || {};
+                    newArgEditor.setValue(JSON.stringify(pythonCode.argument || {}, null, 2));
+                    newFuncBodyEditor.setValue(pythonCode.function_body || 'def function():\n    return {}');
+                    newOutputSchemaEditor.setValue(JSON.stringify(node.outputSchema || {}, null, 2));
+                }
+            } else {
+                modalTitle.textContent = 'Add New Node';
+                document.getElementById('new-node-name').value = '';
+                document.getElementById('new-node-name').disabled = false;
+                document.getElementById('new-system-instructions').value = '';
+                document.getElementById('new-user-prompt').value = '';
+                
+                if (monaco) {
+                    newArgEditor.setValue('{\n  "arg1": "@[inputs.input1]"\n}');
+                    newFuncBodyEditor.setValue('def function(arg1):\n    return {"output1": arg1}');
+                    newOutputSchemaEditor.setValue('{\n  "output1": "Description of output1"\n}');
+                }
+            }
+            
+            modal.classList.add('show');
+        }
+        
+        async function saveNode() {
+            if (!currentSessionId) return;
+            
+            const nodeName = document.getElementById('new-node-name').value.trim();
+            if (!nodeName) {
+                showNotification('Node name is required', 'warning');
+                return;
+            }
+            
+            const systemInstructions = document.getElementById('new-system-instructions').value;
+            const userPrompt = document.getElementById('new-user-prompt').value;
+            
+            let pythonCode = {};
+            if (monaco) {
+                try {
+                    pythonCode = {
+                        argument: JSON.parse(newArgEditor.getValue()),
+                        function_body: newFuncBodyEditor.getValue()
+                    };
+                } catch (e) {
+                    showNotification(`Invalid JSON in arguments: ${e.message}`, 'error');
+                    return;
+                }
+            }
+            
+            let outputSchema = {};
+            if (monaco) {
+                try {
+                    outputSchema = JSON.parse(newOutputSchemaEditor.getValue());
+                } catch (e) {
+                    showNotification(`Invalid JSON in output schema: ${e.message}`, 'error');
+                    return;
+                }
+            }
+            
+            showSpinner();
+            try {
+                const endpoint = isEditingNode ? '/update-node' : '/add-node';
+                
+                const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        session_id: currentSessionId,
+                        node_name: nodeName,
+                        system_instructions: systemInstructions,
+                        user_prompt: userPrompt,
+                        python_code: pythonCode,
+                        output_schema: outputSchema
+                    })
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || `Failed to ${isEditingNode ? 'update' : 'add'} node`);
+                }
+                
+                showNotification(`Node "${nodeName}" ${isEditingNode ? 'updated' : 'added'} successfully`, 'success');
+                closeModals();
+                await fetchSessionGraph();
+            } catch (error) {
+                console.error(`Error ${isEditingNode ? 'updating' : 'adding'} node:`, error);
+                showNotification(error.message, 'error');
+            } finally {
+                hideSpinner();
+            }
+        }
+
+        function closeModals() {
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.classList.remove('show');
+            });
+        }
+
+        function showNotification(message, type = 'info') {
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.classList.add('notification', type);
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            // Show animation
+            setTimeout(() => notification.classList.add('show'), 10);
+            
+            // Auto hide after 3 seconds
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        function showSpinner() {
+            document.getElementById('spinner-overlay').classList.remove('hidden');
+        }
+        
+        function hideSpinner() {
+            document.getElementById('spinner-overlay').classList.add('hidden');
+        }
+
+        // Handle clicks outside of modals to close them
+        window.addEventListener('click', (e) => {
+            document.querySelectorAll('.modal').forEach(modal => {
+                if (e.target === modal) {
+                    modal.classList.remove('show');
+                }
+            });
+        });
+    </script>
+</body>
+</html>BASE_URL}/list-sessions`);
+                if (!response.ok) throw new Error('Failed to fetch sessions');
+                
+                const data = await response.json();
+                renderSessionList(data.sessions || []);
+            } catch (error) {
+                console.error('Error fetching sessions:', error);
+                showNotification('Failed to fetch sessions', 'error');
+            } finally {
+                hideSpinner();
+            }
+        }
+
+        function renderSessionList(sessions) {
+            const sessionList = document.getElementById('session-list');
+            sessionList.innerHTML = '';
+            
+            if (sessions.length === 0) {
+                const listItem = document.createElement('li');
+                listItem.classList.add('no-sessions');
+                listItem.textContent = 'No sessions available';
+                sessionList.appendChild(listItem);
+                return;
+            }
+            
+            sessions.forEach(sessionId => {
+                const listItem = document.createElement('li');
+                listItem.classList.add('session-item');
+                if (sessionId === currentSessionId) {
+                    listItem.classList.add('active');
+                }
+                
+                listItem.textContent = sessionId;
+                listItem.addEventListener('click', () => loadSession(sessionId));
+                sessionList.appendChild(listItem);
+            });
+        }
+
+        async function createSession() {
+            const sessionNameInput = document.getElementById('session-name-input');
+            const sessionId = sessionNameInput.value.trim();
+            
+            if (!sessionId) {
+                showNotification('Please enter a session name', 'warning');
+                return;
+            }
+            
+            showSpinner();
+            try {
+                const response = await fetch(`${API_BASE_URL}/create-session`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ session_id: sessionId })
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || 'Failed to create session');
+                }
+                
+                showNotification(`Session "${sessionId}" created successfully`, 'success');
+                sessionNameInput.value = '';
+                await fetchSessions();
+                loadSession(sessionId);
+            } catch (error) {
+                console.error('Error creating session:', error);
+                showNotification(error.message, 'error');
+            } finally {
+                hideSpinner();
+            }
+        }
+
+        async function deleteSession() {
+            if (!currentSessionId) return;
+            
+            if (!confirm(`Are you sure you want to delete session "${currentSessionId}"?`)) {
+                return;
+            }
+            
+            showSpinner();
+            try {
+                const response = await fetch(`${API_BASE_URL}/delete-session`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ session_id: currentSessionId })
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || 'Failed to delete session');
+                }
+                
+                showNotification(`Session "${currentSessionId}" deleted successfully`, 'success');
+                closeSession();
+                await fetchSessions();
+            } catch (error) {
+                console.error('Error deleting session:', error);
+                showNotification(error.message, 'error');
+            } finally {
+                hideSpinner();
+            }
+        }
+
+        async function loadSession(sessionId) {
+            showSpinner();
+            currentSessionId = sessionId;
+            
+            try {
+                // Update UI to show active session
+                document.getElementById('current-session-name').querySelector('span').textContent = sessionId;
+                document.querySelectorAll('.session-item').forEach(item => {
+                    item.classList.toggle('active', item.textContent === sessionId);
+                });
+                
+                // Show session view
+                document.getElementById('no-session-view').classList.add('hidden');
+                document.getElementById('session-view').classList.remove('hidden');
+                
+                // Fetch session graph
+                await fetchSessionGraph();
+            } catch (error) {
+                console.error('Error loading session:', error);
+                showNotification(`Failed to load session: ${error.message}`, 'error');
+                closeSession();
+            } finally {
+                hideSpinner();
+            }
+        }
+
+        function closeSession() {
+            currentSessionId = null;
+            currentGraph = null;
+            selectedNode = null;
+            
+            // Hide session view
+            document.getElementById('no-session-view').classList.remove('hidden');
+            document.getElementById('session-view').classList.add('hidden');
+            
+            // Clear node details
+            closeNodeDetails();
+            
+            // Destroy cytoscape instance if exists
+            if (cyInstance) {
+                cyInstance.destroy();
+                cyInstance = null;
+            }
+        }
+
+        async function fetchSessionGraph() {
+            if (!currentSessionId) return;
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/get-session-graph`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ session_id: currentSessionId })
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Failed to fetch session graph');
+                }
+                
+                const data = await response.json();
+                currentGraph = data.graph;
+                
+                renderGraph();
+            } catch (error) {
+                console.error('Error fetching session graph:', error);
+                showNotification(`Failed to fetch graph: ${error.message}`, 'error');
+            }
+        }
+
+        function renderGraph() {
+            if (!currentGraph || !currentGraph.nodes) return;
+            
+            const container = document.getElementById('cy');
+            
+            // Create elements for cytoscape
+            const elements = {
+                nodes: [],
+                edges: []
+            };
+            
+            // Process nodes
+            Object.entries(currentGraph.nodes).forEach(([nodeName, nodeData]) => {
+                // Add node
+                elements.nodes.push({
+                    data: {
+                        id: nodeName,
+                        label: nodeName,
+                        status: nodeData.status || 'pending',
+                        compiled: nodeData._compiled || false
+                    }
+                });
+                
+                // Add edges based on children
+                if (nodeData._children && Array.isArray(nodeData._children)) {
+                    nodeData._children.forEach(childName => {
+                        elements.edges.push({
+                            data: {
+                                id: `${nodeName}-${childName}`,
+                                source: nodeName,
+                                target: childName
+                            }
+                        });
+                    });
+                }
+            });
+            
+            // Initialize or update cytoscape
+            if (cyInstance) {
+                cyInstance.destroy();
+            }
+            
+            cyInstance = cytoscape({
+                container: container,
+                elements: elements,
+                style: [
+                    {
+                        selector: 'node',
+                        style: {
+                            'background-color': 'data(color)',
+                            'label': 'data(label)',
+                            'color': '#fff',
+                            'text-valign': 'center',
+                            'text-halign': 'center',
+                            'font-size': '12px',
+                            'width': '60px',
+                            'height': '60px',
+                            'border-width': '3px',
+                            'border-color': '#fff'
+                        }
+                    },
+                    {
+                        selector: 'edge',
+                        style: {
+                            'width': 2,
+                            'line-color': '#ccc',
+                            'target-arrow-color': '#ccc',
+                            'target-arrow-shape': 'triangle',
+                            'curve-style': 'bezier'
+                        }
+                    },
+                    {
+                        selector: 'node[status="completed"]',
+                        style: {
+                            'background-color': '#4CAF50'
+                        }
+                    },
+                    {
+                        selector: 'node[status="running"]',
+                        style: {
+                            'background-color': '#2196F3'
+                        }
+                    },
+                    {
+                        selector: 'node[status="waiting"]',
+                        style: {
+                            'background-color': '#FF9800'
+                        }
+                    },
+                    {
+                        selector: 'node[status="pending"]',
+                        style: {
+                            'background-color': '#9E9E9E'
+                        }
+                    }
+                ],
+                layout: {
+                    name: 'dagre',
+                    rankDir: 'LR',
+                    nodeSep: 80,
+                    rankSep: 100,
+                    padding: 50
+                }
+            });
+            
+            // Update node colors based on status
+            cyInstance.nodes().forEach(node => {
+                const nodeId = node.id();
+                const nodeData = currentGraph.nodes[nodeId];
+                let color = '#9E9E9E'; // Default color for pending
+                
+                if (nodeData) {
+                    switch (nodeData.status) {
+                        case 'completed':
+                            color = '#4CAF50';
+                            break;
+                        case 'running':
+                            color = '#2196F3';
+                            break;
+                        case 'waiting':
+                            color = '#FF9800';
+                            break;
+                    }
+                }
+                
+                node.data('color', color);
+            });
+            
+            // Add event listeners
+            cyInstance.on('tap', 'node', function(evt) {
+                const node = evt.target;
+                selectNode(node.id());
+            });
+        }
+
+        function selectNode(nodeId) {
+            if (!currentGraph || !currentGraph.nodes[nodeId]) return;
+            
+            selectedNode = currentGraph.nodes[nodeId];
+            
+            // Update UI to show node details
+            document.getElementById('node-details').classList.remove('hidden');
+            document.getElementById('node-detail-title').textContent = `Node: ${nodeId}`;
+            document.getElementById('node-name').value = nodeId;
+            
+            const statusBadge = document.getElementById('node-status');
+            statusBadge.textContent = selectedNode.status || 'pending';
+            statusBadge.className = 'status-badge';
+            statusBadge.classList.add(selectedNode.status || 'pending');
+            
+            // Inputs node has special handling
+            const isInputsNode = nodeId === 'inputs';
+            document.getElementById('system-instructions').value = selectedNode.systemInstructions || '';
+            document.getElementById('system-instructions').disabled = isInputsNode;
+            document.getElementById('user-prompt').value = selectedNode.userPrompt || '';
+            document.getElementById('user-prompt').disabled = isInputsNode;
+            
+            // Hide python code for inputs node
+            document.querySelector('.code-editors').style.display = isInputsNode ? 'none' : 'flex';
+            
+            // Update code editors if initialized
+            if (monaco) {
+                if (!isInputsNode) {
+                    const pythonCode = selectedNode.pythonCode || {};
+                    const args = pythonCode.argument || {};
+                    
+                    argEditor.setValue(JSON.stringify(args, null, 2));
+                    funcBodyEditor.setValue(pythonCode.function_body || 'def function():\n    return {}');
+                }
+                
+                outputSchemaEditor.setValue(JSON.stringify(selectedNode.outputSchema || {}, null, 2));
+                nodeOutputsEditor.setValue(JSON.stringify(selectedNode._outputs || {}, null, 2));
+            }
+            
+            // Update button states
+            document.getElementById('remove-node-btn').disabled = isInputsNode;
+            document.getElementById('update-node-btn').disabled = false;
+            document.getElementById('execute-node-btn').disabled = false;
+        }
+
+        function closeNodeDetails() {
+            document.getElementById('node-details').classList.add('hidden');
+            selectedNode = null;
+        }
+
+        async function updateNode() {
+            if (!selectedNode || !currentSessionId) return;
+            
+            const nodeName = document.getElementById('node-name').value;
+            if (nodeName === 'inputs') {
+                openInputsModal();
+                return;
+            }
+            
+            showSpinner();
+            try {
+                const systemInstructions = document.getElementById('system-instructions').value;
+                const userPrompt = document.getElementById('user-prompt').value;
+                
+                let pythonCode = {};
+                if (monaco) {
+                    try {
+                        pythonCode = {
+                            argument: JSON.parse(argEditor.getValue()),
+                            function_body: funcBodyEditor.getValue()
+                        };
+                    } catch (e) {
+                        throw new Error(`Invalid JSON in arguments: ${e.message}`);
+                    }
+                }
+                
+                let outputSchema = {};
+                if (monaco) {
+                    try {
+                        outputSchema = JSON.parse(outputSchemaEditor.getValue());
+                    } catch (e) {
+                        throw new Error(`Invalid JSON in output schema: ${e.message}`);
+                    }
+                }
+                
+                const response = await fetch(`${API_BASE_URL}/update-node`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        session_id: currentSessionId,
+                        node_name: nodeName,
+                        system_instructions: systemInstructions,
+                        user_prompt: userPrompt,
+                        python_code: pythonCode,
+                        output_schema: outputSchema
+                    })
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Failed to update node');
+                }
+                
+                showNotification(`Node "${nodeName}" updated successfully`, 'success');
+                await fetchSessionGraph();
+            } catch (error) {
+                console.error('Error updating node:', error);
+                showNotification(error.message, 'error');
+            } finally {
+                hideSpinner();
+            }
+        }
+
+        async function removeNode() {
+            if (!selectedNode || !currentSessionId) return;
+            
+            const nodeName = document.getElementById('node-name').value;
+            if (nodeName === 'inputs') {
+                showNotification('Cannot remove inputs node', 'warning');
+                return;
+            }
+            
+            if (!confirm(`Are you sure you want to remove node "${nodeName}"?`)) {
+                return;
+            }
+            
+            showSpinner();
+            try {
+                const response = await fetch(`${API_BASE_URL}/remove-node`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        session_id: currentSessionId,
+                        node_name: nodeName
+                    })
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Failed to remove node');
+                }
+                
+                showNotification(`Node "${nodeName}" removed successfully`, 'success');
+                closeNodeDetails();
+                await fetchSessionGraph();
+            } catch (error) {
+                console.error('Error removing node:', error);
+                showNotification(error.message, 'error');
+            } finally {
+                hideSpinner();
+            }
+        }
+
+        async function executeNode() {
+            if (!selectedNode || !currentSessionId) return;
+            
+            const nodeName = document.getElementById('node-name').value;
+            
+            showSpinner();
+            try {
+                const response = await fetch(`${API_BASE_URL}/execute-session`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        session_id: currentSessionId,
+                        start_node: nodeName
+                    })
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Failed to execute node');
+                }
+                
+                showNotification(`Execution started from node "${nodeName}"`, 'success');
+                
+                // Poll for updates until execution completes
+                pollGraphStatus();
+            } catch (error) {
+                console.error('Error executing node:', error);
+                showNotification(error.message, 'error');
+                hideSpinner();
+            }
+        }
+
+        let pollInterval = null;
+        
+        function pollGraphStatus() {
+            clearInterval(pollInterval);
+            
+            pollInterval = setInterval(async () => {
+                try {
+                    await fetchSessionGraph();
+                    
+                    // Check if all nodes are in a non-running state
+                    let allCompleted = true;
+                    if (currentGraph && currentGraph.nodes) {
+                        Object.values(currentGraph.nodes).forEach(node => {
+                            if (node.status === 'running' || node.status === 'waiting') {
+                                allCompleted = false;
+                            }
+                        });
+                    }
+                    
+                    if (allCompleted) {
+                        clearInterval(pollInterval);
+                        hideSpinner();
+                        showNotification('Execution completed', 'success');
+                    }
+                } catch (error) {
+                    console.error('Error polling graph status:', error);
+                    clearInterval(pollInterval);
+                    hideSpinner();
+                }
+            }, 2000);
+        }
+
+        async function compileSession() {
+            if (!currentSessionId) return;
+            
+            showSpinner();
+            try {
+                const response = await fetch(`${API_
