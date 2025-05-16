@@ -1,0 +1,110 @@
+{
+    "graph_id": "75cfe88cdda78e8304b4bd3f84441342ad10e9fb20aabd7a97036cc751958633",
+    "nodes": {
+        "inputs": {
+            "nodeName": "inputs",
+            "systemInstructions": "Input node",
+            "userPrompt": "Input node",
+            "pythonCode": {},
+            "outputSchema": {
+                "input1": "100",
+                "input2": "200"
+            },
+            "kwargs": {
+                "input1": "100",
+                "input2": "200"
+            },
+            "id": "db051960d1c57777b5f762ef5ae9dd1e0b3602aa8f2dff6f22b444c2e3ebc5c7",
+            "_compiled": true,
+            "_parents": [],
+            "_children": [],
+            "_inputs": {},
+            "_outputs": {
+                "input1": "100",
+                "input2": "200"
+            },
+            "status": "completed"
+        },
+        "node1": {
+            "nodeName": "node1",
+            "systemInstructions": "node1's system prompt",
+            "userPrompt": "node1's user prompt. Does arg1+arg2",
+            "pythonCode": {
+                "argument": {
+                    "arg1": "10",
+                    "arg2": "20"
+                },
+                "function_body": "def function(arg1, arg2):\n    # Your code here\n    return {'output1': int(arg1)+int(arg2)}"
+            },
+            "outputSchema": {
+                "output1": "int(arg1)+int(arg2)"
+            },
+            "kwargs": {},
+            "id": "103300d97e578289cc677e4076f7a31d324838731a890115d6a2d771f940fd4b",
+            "_compiled": true,
+            "_parents": [],
+            "_children": [
+                "node3"
+            ],
+            "_inputs": {},
+            "_outputs": {
+                "output1": "30"
+            },
+            "status": "completed"
+        },
+        "node2": {
+            "nodeName": "node2",
+            "systemInstructions": "System instruction for node2",
+            "userPrompt": "User instruction for node2",
+            "pythonCode": {
+                "argument": {
+                    "arg1": "10"
+                },
+                "function_body": "def function(arg1):\n    # Your code here\n    return {'output1': int(arg1)**2}"
+            },
+            "outputSchema": {
+                "output1": "int(arg1)**2"
+            },
+            "kwargs": {},
+            "id": "2c0a1e757697df92034dee1372c072f3b3e6b8669d2b19f495f159d2c8c15dc4",
+            "_compiled": true,
+            "_parents": [],
+            "_children": [
+                "node3"
+            ],
+            "_inputs": {},
+            "_outputs": {
+                "output1": "100"
+            },
+            "status": "completed"
+        },
+        "node3": {
+            "nodeName": "node3",
+            "systemInstructions": "node3 sys prompt",
+            "userPrompt": "node3 usr prompt",
+            "pythonCode": {
+                "argument": {
+                    "arg1": "30",
+                    "arg2": "100"
+                },
+                "function_body": "def function(arg1, arg2):\n    # Your code here\n    return {'output1': f\"{arg1}/{arg2}\"}"
+            },
+            "outputSchema": {
+                "output1": "f\"{arg1}/{arg2}\""
+            },
+            "kwargs": {},
+            "id": "889c7491813a17a7b77dca1b6dcd93db5d1730ee42a2ee812fb7e2b0ecf9b310",
+            "_compiled": true,
+            "_parents": [],
+            "_children": [],
+            "_inputs": {},
+            "_outputs": {
+                "output1": "30/100"
+            },
+            "status": "completed"
+        }
+    },
+    "venv_path": "./runner_envs/venv",
+    "python_packages": [],
+    "create_env": false
+}
