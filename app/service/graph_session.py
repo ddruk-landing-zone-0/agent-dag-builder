@@ -57,6 +57,13 @@ class GraphSessionManager:
         ############# Create a new graph and save it to the session directory
         graph = Graph(timeout=self.timeout, venv_path=venv_path, create_env=create_env, python_packages=python_packages, save_dir=f"./saved_graphs/{session_id}/")
         os.makedirs(os.path.join("./saved_graphs/", session_id), exist_ok=True) # create the session directory if it doesn't exist
+
+        # Add a dummy input node to the graph
+        sampleInputFields = {
+            "input1": "<Sample Input>",
+        }
+        graph.addInput(sampleInputFields)
+
         graph.compile() # compile the graph
         
         self.session_metadata[session_id] = {
@@ -79,7 +86,7 @@ class GraphSessionManager:
         graph.compile()
         return new_node
 
-    def add_node_to_session(self, session_id, nodeName, systemInstructions, userPrompt, pythonCode, outputSchema, **kwargs):
+    def add_node_to_session(self, session_id, nodeName, systemInstructions, userPrompt, pythonCode, outputSchema ,useLLM, jsonMode, toolName, toolDescription, **kwargs):
         """
         It is wrapper around the addNode method of the Graph class.
         """
@@ -87,11 +94,11 @@ class GraphSessionManager:
             raise ValueError(f"Session with ID {session_id} does not exist.")
         
         graph = self.session_metadata[session_id]['graph']
-        new_node = graph.addNode(nodeName, systemInstructions, userPrompt, pythonCode, outputSchema, **kwargs)
+        new_node = graph.addNode(nodeName, systemInstructions, userPrompt, pythonCode, outputSchema, useLLM, jsonMode, toolName, toolDescription, **kwargs)
         # graph.compile()
         return new_node
     
-    def update_node_in_session(self, session_id, nodeName, systemInstructions, userPrompt, pythonCode, outputSchema, **kwargs):
+    def update_node_in_session(self, session_id, nodeName, systemInstructions, userPrompt, pythonCode, outputSchema, useLLM, jsonMode, toolName, toolDescription, **kwargs):
         """
         It is wrapper around the updateNode method of the Graph class.
         """
@@ -99,7 +106,7 @@ class GraphSessionManager:
             raise ValueError(f"Session with ID {session_id} does not exist.")
         
         graph = self.session_metadata[session_id]['graph']
-        updated_node = graph.updateNode(nodeName, systemInstructions, userPrompt, pythonCode, outputSchema, **kwargs)
+        updated_node = graph.updateNode(nodeName, systemInstructions, userPrompt, pythonCode, outputSchema ,useLLM, jsonMode, toolName, toolDescription, **kwargs)
         # graph.compile()
         return updated_node
     
@@ -200,7 +207,7 @@ def get_graph_session_manager():
     """
     if not hasattr(get_graph_session_manager, "_instance"):
         get_graph_session_manager._instance = GraphSessionManager(session_root_dir="./saved_graphs/", 
-                                                                    timeout=10, 
+                                                                    timeout=20, 
                                                                     venv_path="./runner_envs/venv", 
                                                                     create_env=True
                                                                     )

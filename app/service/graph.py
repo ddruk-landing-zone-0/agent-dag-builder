@@ -70,12 +70,22 @@ class Graph:
                 raise ValueError(f"Value '{value}' in input fields must be a string")
         
         # Create a new input node with dummy instructions. Only the outputSchema are important. The nodename is fixed as "inputs"
-        new_node = GraphNode("inputs", "Input node", "Input node", {}, {**inputFields}, **inputFields)
+        new_node = GraphNode("inputs", # nodeName
+                                "N/A", # systemInstructions
+                                "N/A", # userPrompt
+                                {}, # pythonCode
+                                {**inputFields}, # outputSchema
+                                False, # useLLM
+                                False, # jsonMode
+                                "N/A", # toolName
+                                "N/A", # toolDescription
+                                **inputFields # kwargs
+                                )
         self.nodePool["inputs"] = new_node # Add the input node to the node pool
         return new_node
 
 
-    def addNode(self, nodeName, systemInstructions, userPrompt, pythonCode, outputSchema, **kwargs):
+    def addNode(self, nodeName, systemInstructions, userPrompt, pythonCode, outputSchema, useLLM=True, jsonMode=False, toolName=None, toolDescription=None, **kwargs):
         """
         Add a new node to the graph.
         nodeName: str
@@ -83,6 +93,10 @@ class Graph:
         userPrompt: str
         pythonCode: A dictionary containing the arguments and function
         outputSchema: A dictionary containing the output schema with output names as keys and their description.
+        useLLM: bool, whether to use LLM for this node
+        jsonMode: bool, whether to use JSON mode for this node
+        toolName: str, name of the tool
+        toolDescription: str, description of the tool
         kwargs: Additional keyword arguments for the node.
 
         Example input for pythonCode:
@@ -109,7 +123,18 @@ class Graph:
         if nodeName in self.nodePool:
             raise ValueError(f"Node with name {nodeName} already exists. Location: Graph.addNode")
         
-        new_node = GraphNode(nodeName, systemInstructions, userPrompt, pythonCode, outputSchema, **kwargs)
+        new_node = GraphNode(
+            nodeName=nodeName,
+            systemInstructions=systemInstructions,
+            userPrompt=userPrompt,
+            pythonCode=pythonCode,
+            outputSchema=outputSchema,
+            useLLM=useLLM,
+            jsonMode=jsonMode,
+            toolName=toolName,
+            toolDescription=toolDescription,
+            **kwargs
+        )
         self.nodePool[nodeName] = new_node
         try:
             self.compile()
@@ -127,33 +152,36 @@ class Graph:
         # Remove a node from the graph
         if nodeName not in self.nodePool:
             raise ValueError(f"Node with name {nodeName} does not exist. Location: Graph.removeNode")
-        
+
+        # Dependency nodes are the nodes which are dependent on this node excluding this node
+        dependency_nodes = self._traverse_nodes(nodeName)
+        dependency_nodes.remove(nodeName)
+
         # Remove the node from its parents
         for parent in self.nodePool[nodeName]._parents:
             parent_node = self.nodePool[parent[0]]
-            if parent[1] in parent_node._children:
+            if nodeName in parent_node._children:
                 parent_node._children.remove(nodeName)
-        
         # Remove the node from its children
         for child in self.nodePool[nodeName]._children:
             child_node = self.nodePool[child]
             for parent in child_node._parents:
                 if parent[0] == nodeName:
                     child_node._parents.remove(parent)
-        
+
+
         # Remove the node from the node pool
         del self.nodePool[nodeName]
         LOGGER.info(f"Node {nodeName} removed from the graph. Location: Graph.removeNode")
         
-        # Uncompile the graph
-        self.reset_compiled_nodes()
-
-        # Save the graph
-        self.save_graph()
+        # Uncompile the graph which are dependent on this node including this node
+        self.reset_compiled_nodes(dependency_nodes)
+        # # Save the graph
+        # self.save_graph()
         LOGGER.info(f"Graph reset after removing node {nodeName}. Location: Graph.removeNode")
         return True
     
-    def updateNode(self, nodeName, systemInstructions, userPrompt, pythonCode, outputSchema, **kwargs):
+    def updateNode(self, nodeName, systemInstructions, userPrompt, pythonCode, outputSchema, useLLM=True, jsonMode=False, toolName=None, toolDescription=None, **kwargs):
         """
         Update an existing node in the graph.
         nodeName: str
@@ -161,7 +189,12 @@ class Graph:
         userPrompt: str
         pythonCode: A dictionary containing the arguments and function
         outputSchema: A dictionary containing the output schema with output names as keys and their description.
+        useLLM: bool, whether to use LLM for this node
+        jsonMode: bool, whether to use JSON mode for this node
+        toolName: str, name of the tool
+        toolDescription: str, description of the tool
         kwargs: Additional keyword arguments for the node.
+
         Example input for pythonCode:
         nodeName: "node1"
         systemInstructions: "This is a test node"
@@ -184,16 +217,36 @@ class Graph:
         # Update an existing node in the graph
         if nodeName not in self.nodePool:
             raise ValueError(f"Node with name {nodeName} does not exist. Location: Graph.updateNode")
-        
+
+        # Dependency nodes are the nodes which are dependent on this node excluding this node
+        dependency_nodes = self._traverse_nodes(nodeName)
+        dependency_nodes.remove(nodeName)
+
         # Dlelete the node from the graph
         self.removeNode(nodeName)
 
         # Add the updated node
-        new_node = GraphNode(nodeName, systemInstructions, userPrompt, pythonCode, outputSchema, **kwargs)
+        new_node = GraphNode(
+            nodeName=nodeName,
+            systemInstructions=systemInstructions,
+            userPrompt=userPrompt,
+            pythonCode=pythonCode,
+            outputSchema=outputSchema,
+            useLLM=useLLM,
+            jsonMode=jsonMode,
+            toolName=toolName,
+            toolDescription=toolDescription,
+            **kwargs
+        )
+
+        # Add the updated node to the node pool
         self.nodePool[nodeName] = new_node
 
-        # Reset the compliation status of the graph
-        self.reset_compiled_nodes()
+        # Reset the compliation status of the graph which are dependent on this node including this node
+        self.reset_compiled_nodes(dependency_nodes)
+
+        # Compile the graph
+        self.compile()
 
         return new_node
     
@@ -220,6 +273,7 @@ class Graph:
         # Compile the graph by checking dependencies and setting parent-child relationships
         for node in self.nodePool.values():
             self.nodePool[node.nodeName].resolve_parent_nodes(self.nodePool)
+            self.nodePool[node.nodeName].resolve_engine()
             node._compiled = True
 
         # Check for circular dependencies
@@ -234,7 +288,7 @@ class Graph:
         # Save the graph
         self.save_graph()
 
-    def reset_compiled_nodes(self):
+    def reset_compiled_nodes(self,nodeNames=None):
         """
         Reset the compiled status of all nodes in the graph.
         This method sets the status of all nodes to "pending" and clears their parent and child relationships.
@@ -243,8 +297,9 @@ class Graph:
         Exception: input node is not reset.
         """
         # Reset the compiled status of all nodes
+        target_node_names = self.nodePool.keys() if nodeNames is None else nodeNames
         for node in self.nodePool.values():
-            if node.nodeName == "inputs":
+            if node.nodeName == "inputs" or node.nodeName not in target_node_names:
                 continue
             node._compiled = False
             node.status = "pending"
@@ -253,6 +308,8 @@ class Graph:
             node._inputs = {}
             node._outputs = {}
         LOGGER.info("All nodes reset to uncompiled state. Location: Graph.reset_compiled_nodes")
+
+        # self.compile() # Recompile the graph
         self.save_graph()
         
     def check_circular_dependency(self):
@@ -326,6 +383,10 @@ class Graph:
                         self.conditions[child].notify_all()
 
     def _traverse_nodes(self, start_node):
+        """
+        Depth-first traversal of the graph starting from a specific node.
+        Returns a list of all visited nodenames
+        """
         visited = set()
         queue = [start_node]
         while queue:
@@ -394,12 +455,12 @@ class Graph:
             LOGGER.error(f"Error during execution: {e}")
             
         finally:
-            # Set the status of all nodes to completed if they are still running
-            for node_name in visited:
-                node = self.nodePool[node_name]
-                if node.status == "running":
-                    node.status = "completed"
-                    LOGGER.info(f"Node {node_name} status set to completed. Location: Graph.execute_from_node")
+            # # Set the status of all nodes to completed if they are still running
+            # for node_name in visited:
+            #     node = self.nodePool[node_name]
+            #     if node.status == "running":
+            #         node.status = "completed"
+            #         LOGGER.info(f"Node {node_name} status set to completed. Location: Graph.execute_from_node")
             LOGGER.info("Execution completed for all nodes. Location: Graph.execute_from_node")
 
         self.save_graph()
@@ -442,14 +503,21 @@ class Graph:
             with open(file_path, "r") as f:
                 data = json.load(f)
                 for node_name, node_data in data["nodes"].items():
+
+                    # Create a new GraphNode object from the loaded data
                     node = GraphNode(
-                        node_data["nodeName"],
-                        node_data["systemInstructions"],
-                        node_data["userPrompt"],
-                        node_data["pythonCode"],
-                        node_data["outputSchema"],
+                        nodeName=node_data["nodeName"],
+                        systemInstructions=node_data["systemInstructions"],
+                        userPrompt=node_data["userPrompt"],
+                        pythonCode=node_data["pythonCode"],
+                        outputSchema=node_data["outputSchema"],
+                        useLLM=node_data["useLLM"],
+                        jsonMode=node_data["jsonMode"],
+                        toolName=node_data["toolName"],
+                        toolDescription=node_data["toolDescription"],
                         **node_data["kwargs"]
                     )
+
                     # Set the node's properties
                   #  print("fasdfasdfafas ",node_data["_inputs"])
                     node._compiled = node_data["_compiled"]

@@ -3,17 +3,26 @@ from .pyenv_manager import PythonEnvironmentManager
 import hashlib
 import re
 
+from ..llms.gemini import GeminiJsonEngine, GeminiSimpleChatEngine
+
 
 
 class GraphNode:
-    def __init__(self, nodeName, systemInstructions, userPrompt, pythonCode, outputSchema, **kwargs):
+    def __init__(self, nodeName, systemInstructions, userPrompt, pythonCode, outputSchema, useLLM, jsonMode, toolName, toolDescription, **kwargs):
         
         self.nodeName = nodeName # str: Name of the node
-        self.systemInstructions = systemInstructions # str: Instructions for the system or the system prompt
-        self.userPrompt = userPrompt # str: User prompt or question can include reference to other nodes
         self.pythonCode = pythonCode # str: Python code to be executed
         self.outputSchema = outputSchema # Dict: Schema for the output of the node. Dictionary to a dictionary with string keys and values
         self.kwargs = kwargs # Additional keyword arguments for flexibility
+
+        # LLM Specific
+        self.useLLM = useLLM # bool: Flag to indicate if the node uses LLM ( Resolved from user input )
+        self.jsonMode = jsonMode # bool: Flag to indicate if the node uses JSON mode ( Resolved from user input )
+        self.toolName = toolName # str: Name of the tool to be used ( Resolved from user input )
+        self.toolDescription = toolDescription # str: Description of the tool to be used ( Resolved from user input )
+        self.systemInstructions = systemInstructions # str: Instructions for the system or the system prompt
+        self.userPrompt = userPrompt # str: User prompt or question can include reference to other nodes
+
 
         self._validate() # Validate the node's properties
         self.id = self.hash() # str: Unique identifier for the node
@@ -25,13 +34,16 @@ class GraphNode:
         self._inputs = {} # It is a mutable mapping of input names to their values where the keys are the output keys of the parent nodes' outputs
         self._outputs = {} # It is a mutable mapping of output names to their values where the keys are the output keys of the current node's outputs
 
-        self.status = "pending" # str: Status of the node, can be "pending", "running" or "completed" or "waiting"
+        self.status = "pending" # str: Status of the node, can be "pending", "running" or "completed" or "waiting" or "error"
 
         # inputs are always set to completed
         if nodeName=="inputs":
             self.status = "running"
-            self._outputs = {**kwargs}
+            self._outputs = {**outputSchema} # It seems weird. But we set the output values to the description of the output schema
             self.status = "completed"
+
+        self.engine = None # LLM Engine object: The LLM engine to be used for generating output ( Resolved while compiling the graph )
+
     
     def _validate(self):
         """
@@ -41,12 +53,6 @@ class GraphNode:
         if not isinstance(self.nodeName, str):
             LOGGER.error("nodeName must be a string. Location: GraphNode._validate")
             raise ValueError("nodeName must be a string")
-        if not isinstance(self.systemInstructions, str):
-            LOGGER.error("systemInstructions must be a string. Location: GraphNode._validate")
-            raise ValueError("systemInstructions must be a string")
-        if not isinstance(self.userPrompt, str):
-            LOGGER.error("userPrompt must be a string. Location: GraphNode._validate")
-            raise ValueError("userPrompt must be a string")
         if not isinstance(self.pythonCode, dict):
             LOGGER.error("pythonCode must be a dict format with a argument and the function_body as the value. Location: GraphNode._validate")
             raise ValueError("pythonCode must be a dict format with a argument and the function_body as the value")
@@ -71,13 +77,37 @@ class GraphNode:
         if not isinstance(self.kwargs, dict):
             LOGGER.error("kwargs must be a dictionary. Location: GraphNode._validate")
             raise ValueError("kwargs must be a dictionary")
+        
+
+
+        # Validate LLM specific properties
+        if not isinstance(self.useLLM, bool):
+            LOGGER.error("useLLM must be a boolean. Location: GraphNode._validate")
+            raise ValueError("useLLM must be a boolean")
+        if not isinstance(self.jsonMode, bool):
+            LOGGER.error("jsonMode must be a boolean. Location: GraphNode._validate")
+            raise ValueError("jsonMode must be a boolean")
+        if not isinstance(self.toolName, str):
+            LOGGER.error("toolName must be a string. Location: GraphNode._validate")
+            raise ValueError("toolName must be a string")
+        if not isinstance(self.toolDescription, str):
+            LOGGER.error("toolDescription must be a string. Location: GraphNode._validate")
+            raise ValueError("toolDescription must be a string")
+        if not isinstance(self.systemInstructions, str):
+            LOGGER.error("systemInstructions must be a string. Location: GraphNode._validate")
+            raise ValueError("systemInstructions must be a string")
+        if not isinstance(self.userPrompt, str):
+            LOGGER.error("userPrompt must be a string. Location: GraphNode._validate")
+            raise ValueError("userPrompt must be a string")
+
+
         for key, value in self.kwargs.items():
             if not isinstance(key, str):
                 LOGGER.error(f"Key '{key}' in kwargs must be a string. Location: GraphNode._validate")
                 raise ValueError(f"Key '{key}' in kwargs must be a string")
-            if not isinstance(value, str):
-                LOGGER.error(f"Value '{value}' in kwargs must be a string. Location: GraphNode._validate")
-                raise ValueError(f"Value '{value}' in kwargs must be a string")
+            # if not isinstance(value, str):
+            #     LOGGER.error(f"Value '{value}' in kwargs must be a string. Location: GraphNode._validate")
+            #     raise ValueError(f"Value '{value}' in kwargs must be a string")
             
     
     def _validate_references(self, parent_list, nodePool):
@@ -119,7 +149,56 @@ class GraphNode:
                 raise ValueError(f"Output key '{key}' has incorrect type. Expected {type(value)}, got {type(result[key])}.")
         return True
 
+    def resolve_engine(self):
+        if self.useLLM:
+            if self.systemInstructions is not None and self.userPrompt is not None and self.systemInstructions != "" and self.userPrompt != "":
+                
+                model_name = self.kwargs.get("model_name", "gemini-2.0-flash-001")
+                temperature = self.kwargs.get("temperature", 0.5)
+                max_output_tokens = self.kwargs.get("max_tokens", 1000)
+                max_retries = self.kwargs.get("max_retries", 5)
+                wait_time = self.kwargs.get("wait_time", 30)
+                deployed_gcp = self.kwargs.get("deployed_gcp", False)
 
+                if len(self.outputSchema.keys()) == 0:
+                    raise ValueError("outputSchema must have at least one key for LLM mode.")
+
+                if self.jsonMode:
+                    if self.toolName is not None and self.toolDescription is not None:
+                        basemodel = {
+                            "tool_name": self.toolName,
+                            "description" : self.toolDescription,
+                            "output_schema": {
+                                **self.outputSchema
+                            }
+                        }
+                        self.engine = GeminiJsonEngine(
+                            model_name=model_name,
+                            basemodel=basemodel,
+                            temperature=temperature,
+                            max_output_tokens=max_output_tokens,
+                            systemInstructions=self.systemInstructions,
+                            max_retries=max_retries,
+                            wait_time=wait_time,
+                            deployed_gcp=deployed_gcp
+                        )
+                    else:
+                        raise ValueError("toolName and toolDescription must be provided for JSON mode.")
+                else:
+                    if len(self.outputSchema.keys()) > 1:
+                        raise ValueError("outputSchema must have only one key for Non JSON LLM mode.")
+                        
+                    self.engine = GeminiSimpleChatEngine(
+                        model_name=model_name,
+                        temperature=temperature,
+                        max_output_tokens=max_output_tokens,
+                        systemInstructions=self.systemInstructions,
+                        max_retries=max_retries,
+                        wait_time=wait_time,
+                        deployed_gcp=deployed_gcp
+                    )
+            else:
+                raise ValueError("systemInstructions and userPrompt must be provided for LLM mode.")
 
     def hash(self):
         # Generate a hash for the node based on its properties
@@ -143,6 +222,7 @@ class GraphNode:
         references += re.findall(pattern, self.userPrompt)
         references += re.findall(pattern, self.pythonCode.get("function_body", ""))
         references += re.findall(pattern, str(self.pythonCode.get("argument", {})))
+
         
         # Check if the references are valid i.e. if the node names and output keys exist in the node pool
         self._validate_references(references, nodePool)
@@ -184,7 +264,6 @@ class GraphNode:
                     parent_key = nodePool[node_name]._outputs[output_key]
                     # Replace the reference with the actual value from the node pool
                     # Add the current node as a child of the referenced node
-                    #print("bbbbb", input_str, " ",node_name," ",output_key)
                     if f"@[{node_name}.{output_key}]" in input_str:
                         self._inputs[f"@[{node_name}.{output_key}]"] = parent_key
 
@@ -192,6 +271,7 @@ class GraphNode:
                 except Exception as e:
                     LOGGER.error(f"Error replacing reference @{node_name}.{output_key}: {e}. Location: GraphNode.resolve_references")
                     # If there's an error, keep the original string
+
         return input_str
     
 
@@ -273,33 +353,67 @@ class GraphNode:
         # Set the status to running
         self.status = "running"
 
-        # Execute the Python code with the resolved arguments
+        try:
+            # Get the current state of the node
+            state = self.get_current_state(nodePool)
+            userPrompt = state["userPrompt"]
+            pythonFunctionBody = state["pythonCode"]["function_body"]
+            pythonCodeArgument = state["pythonCode"]["argument"]
 
-        # Get the current state of the node
-        state = self.get_current_state(nodePool)
-        systemInstructions = state["systemInstructions"]
-        userPrompt = state["userPrompt"]
-        pythonFunctionBody = state["pythonCode"]["function_body"]
-        pythonCodeArgument = state["pythonCode"]["argument"]
+            # Check if the Python code is provided
+            if self.useLLM is False:
+                if pythonFunctionBody != "" and python_env_manager is not None:
+                    # Prepare the arguments for output
+                    result = python_env_manager.execute_python_code(pythonFunctionBody, pythonCodeArgument)
+                    # Check if the result matches the output schema
+                    if not self._validate_output(result):
+                        LOGGER.error(f"Output does not match the schema for {self.nodeName}. Location: GraphNode.execute")
+                        return None
+                    # Store the result in _outputs
+                    self._outputs = result
+            else:
+                if self.engine is None:
+                    self.resolve_engine()
+                
+                # Generate output using LLM
+                engine_result = self.engine.run([
+                    userPrompt
+                ])
+                
+                result = {}
+                if self.jsonMode:
+                    # Parse the JSON output
+                    try:
+                        # In case of JSON mode, the output is expected to be a list of dictionaries
+                        result = engine_result[0]
+                    except Exception as e:
+                        LOGGER.error(f"Error parsing JSON output: {e}. Location: GraphNode.execute")
+                        raise ValueError(f"Error parsing JSON output: {e}")
+                else:
+                    # Parse the output for non-JSON mode
+                    try:
+                        # In case of non-JSON mode, the output is expected to be a string and outputSchema is a dictionary with only one key
+                        result = {output_key: engine_result for output_key in self.outputSchema.keys()}
+                    except Exception as e:
+                        LOGGER.error(f"Error parsing output: {e}. Location: GraphNode.execute")
+                        raise ValueError(f"Error parsing output: {e}")
+                
+                # Check if the result matches the output schema
+                if not self._validate_output(result):
+                    LOGGER.error(f"Output does not match the schema for {self.nodeName}. Location: GraphNode.execute")
+                    return None
+                
+                # Store the result in _outputs
+                self._outputs = result
+                
+            # Set the status to completed
+            self.status = "completed"
 
-        # Check if the Python code is provided
-        if pythonFunctionBody != "" and python_env_manager is not None:
-            # Prepare the arguments for output
-            result = python_env_manager.execute_python_code(pythonFunctionBody, pythonCodeArgument)
-            # Check if the result matches the output schema
-            if not self._validate_output(result):
-                LOGGER.error(f"Output does not match the schema for {self.nodeName}. Location: GraphNode.execute")
-                return None
-            # Store the result in _outputs
-            self._outputs = result
-        else:
-            # If no Python code is provided, use the system instructions and user prompt (TODO: Implement this LLM logic)
-            self._outputs = {
-                k: f"LLM/{userPrompt}" for k, v in self.outputSchema.items()
-            }
-            
-        # Set the status to completed
-        self.status = "completed"
+        except Exception as e:
+            LOGGER.critical(f"Error executing node {self.nodeName}: {e}. Location: GraphNode.execute")
+            self.status = "error"
+            self._outputs = {"error": f"Error executing node {self.nodeName}: {e}. Location: GraphNode.execute"}
+
         return self._outputs
 
     def to_dict(self):
@@ -310,6 +424,10 @@ class GraphNode:
             "userPrompt": self.userPrompt,
             "pythonCode": self.pythonCode,
             "outputSchema": self.outputSchema,
+            "useLLM": self.useLLM,
+            "jsonMode": self.jsonMode,
+            "toolName": self.toolName,
+            "toolDescription": self.toolDescription,
             "kwargs": self.kwargs,
             "id": self.id,
             "_compiled": self._compiled,

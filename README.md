@@ -2,10 +2,20 @@
 
 This document outlines the API endpoints and expected request/response patterns for interacting with the Agent DAG system.
 
+## How to run
+
+Place  `key.json` from GCP in the wordking dir.
+```
+pip install -r requirements.txt
+mkdir saved_graphs
+python3 wsgi.py
+```
+
 ## Base URL
 
 ```
 http://127.0.0.1:8080
+https://d8d1-202-168-85-34.ngrok-free.app
 ```
 
 ---
@@ -122,7 +132,11 @@ http://127.0.0.1:8080
     "output_schema": {
         "output1": "This is the output1 of Node1 , sum of input1 and input2",
         "output2": "This is the output2 of Node1 , square of input1"
-    }
+    },
+   "use_LLM": true,
+   "json_mode": false,
+   "tool_name": "",
+   "tool_description": ""
 }
 ```
 

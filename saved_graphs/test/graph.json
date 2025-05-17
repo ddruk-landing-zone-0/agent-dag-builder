@@ -1,0 +1,135 @@
+{
+    "graph_id": "20b7fa19f3a912b50a4c5dcdf34882bf89cf12ca76320464652b6f39ec889dc0",
+    "nodes": {
+        "inputs": {
+            "nodeName": "inputs",
+            "systemInstructions": "N/A",
+            "userPrompt": "N/A",
+            "pythonCode": {},
+            "outputSchema": {
+                "userText": "I am angry today"
+            },
+            "useLLM": false,
+            "jsonMode": false,
+            "toolName": "N/A",
+            "toolDescription": "N/A",
+            "kwargs": {
+                "userText": "I am angry today"
+            },
+            "id": "fabbab96650ee928b2a1ff4450e9df691a9d322b738f0e110725bf0a5756000e",
+            "_compiled": true,
+            "_parents": [],
+            "_children": [
+                "csdas"
+            ],
+            "_inputs": {},
+            "_outputs": {
+                "userText": "I am angry today"
+            },
+            "status": "completed"
+        },
+        "SamplePythonConcatenation": {
+            "nodeName": "SamplePythonConcatenation",
+            "systemInstructions": "Concatenation",
+            "userPrompt": "Concatenation",
+            "pythonCode": {
+                "argument": {
+                    "anger": "@[csdas.anger]",
+                    "joy": "@[csdas.joy]",
+                    "sadness": "@[csdas.sadness]"
+                },
+                "function_body": "def function(anger,joy,sadness):\n return {\"output\":anger+joy+sadness}"
+            },
+            "outputSchema": {
+                "output": "anger+joy+sadness"
+            },
+            "useLLM": false,
+            "jsonMode": false,
+            "toolName": "",
+            "toolDescription": "",
+            "kwargs": {
+                "model_name": "gemini-2.0-flash-001",
+                "temperature": 0.5,
+                "max_output_tokens": 1000,
+                "max_retries": 5,
+                "wait_time": 30,
+                "deployed_gcp": false
+            },
+            "id": "433977ef55a09045bed78cd08ee76eac6f9438a058c404caeeeeaac9f2177fcb",
+            "_compiled": true,
+            "_parents": [
+                [
+                    "csdas",
+                    "anger"
+                ],
+                [
+                    "csdas",
+                    "joy"
+                ],
+                [
+                    "csdas",
+                    "sadness"
+                ]
+            ],
+            "_children": [],
+            "_inputs": {
+                "@[csdas.anger]": "High",
+                "@[csdas.joy]": "Low",
+                "@[csdas.sadness]": "Low"
+            },
+            "_outputs": {
+                "output": "HighLowLow"
+            },
+            "status": "completed"
+        },
+        "csdas": {
+            "nodeName": "csdas",
+            "systemInstructions": "You are a sentiment analysis engine.  You must use `Sentiemnt` tool to analyze the sentiment of the text.",
+            "userPrompt": "This is the user's speech.\n    User: @[inputs.userText]\n    Your task is to analyze the sentiment of the user's speech and provide a summary of the sentiment. You should use `Sentiement` tool to analyze the sentiment. The summary should include the following information: anger, joy, and sadness. The summary should be in JSON format. The sentiment analysis should be based on the user's speech. You should not include any other information in the summary. The summary should be in JSON format.",
+            "pythonCode": {
+                "argument": {},
+                "function_body": ""
+            },
+            "outputSchema": {
+                "anger": "The anger sentiment score of the text. High / Low",
+                "joy": "The joy sentiment score of the text. High / Low",
+                "sadness": "The sadness sentiment score of the text. High / Low"
+            },
+            "useLLM": true,
+            "jsonMode": true,
+            "toolName": "Sentiment",
+            "toolDescription": "This tool is designed to analyze the sentiment of a given text",
+            "kwargs": {
+                "model_name": "gemini-2.0-flash-001",
+                "temperature": 0.5,
+                "max_output_tokens": 1000,
+                "max_retries": 5,
+                "wait_time": 30,
+                "deployed_gcp": false
+            },
+            "id": "a54b4b3b65304e0e25cc0ca5672382522b5d268be2e6de49d5cb51f4219d7e21",
+            "_compiled": true,
+            "_parents": [
+                [
+                    "inputs",
+                    "userText"
+                ]
+            ],
+            "_children": [
+                "SamplePythonConcatenation"
+            ],
+            "_inputs": {
+                "@[inputs.userText]": "I am angry today"
+            },
+            "_outputs": {
+                "joy": "Low",
+                "sadness": "Low",
+                "anger": "High"
+            },
+            "status": "completed"
+        }
+    },
+    "venv_path": "./runner_envs/venv",
+    "python_packages": [],
+    "create_env": true
+}
