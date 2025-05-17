@@ -187,7 +187,6 @@ class GraphNode:
                     #print("bbbbb", input_str, " ",node_name," ",output_key)
                     if f"@[{node_name}.{output_key}]" in input_str:
                         self._inputs[f"@[{node_name}.{output_key}]"] = parent_key
-                        print("aaaaa",self._inputs)
 
                     input_str = input_str.replace(f"@[{node_name}.{output_key}]", parent_key)
                 except Exception as e:

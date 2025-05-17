@@ -1,5 +1,5 @@
 {
-    "graph_id": "896c47b6b45ca13d862f65250f4bb439750d1573c5abca593fe68389236515fa",
+    "graph_id": "3965d4dd71e140c1ee5dc7a45ae15e91614a964a0ee92ce3c5913ccf0a31c22b",
     "nodes": {
         "inputs": {
             "nodeName": "inputs",
@@ -9,14 +9,14 @@
             "outputSchema": {
                 "input1": "1",
                 "input2": "2",
-                "input3": "10"
+                "input3": "100"
             },
             "kwargs": {
                 "input1": "1",
                 "input2": "2",
-                "input3": "10"
+                "input3": "100"
             },
-            "id": "87b3d82187f540697ff904ef163ddc73568d53432a71c9ce82038bd5262c4fa2",
+            "id": "16aedcac66f2cf753157c8f986457f55ba9add3a6496e797f1c60ed32d7a0720",
             "_compiled": true,
             "_parents": [],
             "_children": [
@@ -28,7 +28,7 @@
             "_outputs": {
                 "input1": "1",
                 "input2": "2",
-                "input3": "10"
+                "input3": "100"
             },
             "status": "completed"
         },
@@ -49,12 +49,77 @@
             },
             "kwargs": {},
             "id": "71840c4f47d738a1f675eb38806f06c641004e7ce6c65e3fb170972b10e2b4fa",
-            "_compiled": false,
-            "_parents": [],
+            "_compiled": true,
+            "_parents": [
+                [
+                    "node1",
+                    "output1"
+                ],
+                [
+                    "node2",
+                    "output1"
+                ],
+                [
+                    "inputs",
+                    "input1"
+                ]
+            ],
             "_children": [],
-            "_inputs": {},
-            "_outputs": {},
-            "status": "pending"
+            "_inputs": {
+                "@[node1.output1]": "101",
+                "@[node2.output1]": "300",
+                "@[inputs.input1]": "1"
+            },
+            "_outputs": {
+                "output1": "402"
+            },
+            "status": "completed"
+        },
+        "node1": {
+            "nodeName": "node1",
+            "systemInstructions": "This is a test system instruction for Node1.",
+            "userPrompt": "Calculate the sum of @[inputs.input1] and @[inputs.input2] and @[inputs.input1]^2",
+            "pythonCode": {
+                "argument": {
+                    "arg1": "@[inputs.input1]",
+                    "arg2": "@[inputs.input3]"
+                },
+                "function_body": "import time\ndef function(arg1, arg2):\n    time.sleep(10)\n    return {'output1': int(arg1) + int(arg2), 'output2': int(arg1)**3}"
+            },
+            "outputSchema": {
+                "output1": "This is the output1 of Node1 , sum of input1 and input2",
+                "output2": "This is the output2 of Node1 , square of input1"
+            },
+            "kwargs": {},
+            "id": "bebb58b224c453ef838f68eb8e786d40e0d4787eb73d636f2746b36d9e8be806",
+            "_compiled": true,
+            "_parents": [
+                [
+                    "inputs",
+                    "input1"
+                ],
+                [
+                    "inputs",
+                    "input2"
+                ],
+                [
+                    "inputs",
+                    "input3"
+                ]
+            ],
+            "_children": [
+                "node3"
+            ],
+            "_inputs": {
+                "@[inputs.input1]": "1",
+                "@[inputs.input2]": "2",
+                "@[inputs.input3]": "100"
+            },
+            "_outputs": {
+                "output1": "101",
+                "output2": "1"
+            },
+            "status": "completed"
         },
         "node2": {
             "nodeName": "node2",
@@ -66,43 +131,40 @@
                     "arg2": "@[inputs.input2]",
                     "arg3": "@[inputs.input3]"
                 },
-                "function_body": "import time; \ndef function(arg1, arg2, arg3):\n    return {'output1': int(arg1) * int(arg2) * int(arg3)}"
+                "function_body": "import time; \ndef function(arg1, arg2, arg3):\n    time.sleep(10)\n    return {'output1': int(arg1) * int(arg2) * int(arg3) + int(arg3)}"
             },
             "outputSchema": {
                 "output1": "This is the output1 of Node2 , product of input1, input2 and input3"
             },
             "kwargs": {},
-            "id": "e841ff169ac9f0dc7831615e12571fe2e57ae0e04e3a6a2e7b8a00bf865b22e7",
-            "_compiled": false,
-            "_parents": [],
-            "_children": [],
-            "_inputs": {},
-            "_outputs": {},
-            "status": "pending"
-        },
-        "node1": {
-            "nodeName": "node1",
-            "systemInstructions": "This is a test system instruction for Node1.",
-            "userPrompt": "Calculate the sum of @[inputs.input1] and @[inputs.input2] and @[inputs.input1]^2",
-            "pythonCode": {
-                "argument": {
-                    "arg1": "@[inputs.input1]",
-                    "arg2": "@[inputs.input2]"
-                },
-                "function_body": "def function(arg1, arg2):\n    return {'output1': int(arg1) + int(arg2), 'output2': int(arg1)**3}"
+            "id": "d9e508ce19575231f92beb906187f84edab50b21789272cf28aa36c31bdf05b9",
+            "_compiled": true,
+            "_parents": [
+                [
+                    "inputs",
+                    "input1"
+                ],
+                [
+                    "inputs",
+                    "input2"
+                ],
+                [
+                    "inputs",
+                    "input3"
+                ]
+            ],
+            "_children": [
+                "node3"
+            ],
+            "_inputs": {
+                "@[inputs.input1]": "1",
+                "@[inputs.input2]": "2",
+                "@[inputs.input3]": "100"
             },
-            "outputSchema": {
-                "output1": "This is the output1 of Node1 , sum of input1 and input2",
-                "output2": "This is the output2 of Node1 , square of input1"
+            "_outputs": {
+                "output1": "300"
             },
-            "kwargs": {},
-            "id": "1595769aeb4e9e5c55c42feefd20f3bd779bfcfbde33277a2042f678944efb31",
-            "_compiled": false,
-            "_parents": [],
-            "_children": [],
-            "_inputs": {},
-            "_outputs": {},
-            "status": "pending"
+            "status": "completed"
         }
     },
     "venv_path": "./runner_envs/venv",
