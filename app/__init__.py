@@ -1,9 +1,13 @@
+import os
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "key.json"
+os.environ["GOOGLE_CLOUD_PROJECT"] = "openserve-0"
+os.environ["GOOGLE_CLOUD_LOCATION"] = "us-central1" 
+
 from flask import Flask
 from flask_cors import CORS
 from app.controller.hello_controller import hello_blueprint
 from app.controller.session_controller import session_controller_blueprint
 from app.controller.ui_controller import ui_controller_blueprint
-
 
 app = Flask(__name__)
 CORS(app)

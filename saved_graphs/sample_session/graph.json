@@ -1,168 +1,160 @@
 {
-    "graph_id": "3965d4dd71e140c1ee5dc7a45ae15e91614a964a0ee92ce3c5913ccf0a31c22b",
+    "graph_id": "716d9528c75b8b98d19485744cbc07dec2d81d6eb2114e31d358c07fbef8b127",
     "nodes": {
         "inputs": {
             "nodeName": "inputs",
-            "systemInstructions": "Input node",
-            "userPrompt": "Input node",
+            "systemInstructions": "N/A",
+            "userPrompt": "N/A",
             "pythonCode": {},
             "outputSchema": {
-                "input1": "1",
-                "input2": "2",
-                "input3": "100"
+                "cont1": "asia",
+                "cont2": "africa"
             },
+            "useLLM": false,
+            "jsonMode": false,
+            "toolName": "N/A",
+            "toolDescription": "N/A",
             "kwargs": {
-                "input1": "1",
-                "input2": "2",
-                "input3": "100"
+                "cont1": "asia",
+                "cont2": "africa"
             },
-            "id": "16aedcac66f2cf753157c8f986457f55ba9add3a6496e797f1c60ed32d7a0720",
+            "id": "e468b82ef661a4a6079f1856fcc6c5ea67a14051086044622def952ede36cd0e",
             "_compiled": true,
             "_parents": [],
             "_children": [
-                "node1",
-                "node2",
-                "node3"
+                "CountryCapital2",
+                "CountryCapital1"
             ],
             "_inputs": {},
             "_outputs": {
-                "input1": "1",
-                "input2": "2",
-                "input3": "100"
+                "cont1": "asia",
+                "cont2": "africa"
             },
             "status": "completed"
         },
-        "node3": {
-            "nodeName": "node3",
-            "systemInstructions": "This is a test system instruction for Node3.",
-            "userPrompt": "Calculate the sum of @[node1.output1] and @[node2.output1] and @[inputs.input1]",
+        "CountryCapital1": {
+            "nodeName": "CountryCapital1",
+            "systemInstructions": "You are an AI assistant. Your task is to assist the user in their tasks.",
+            "userPrompt": "Tell me a conutry name and its capital city in @[inputs.cont1]",
             "pythonCode": {
-                "argument": {
-                    "arg1": "@[node1.output1]",
-                    "arg2": "@[node2.output1]",
-                    "arg3": "@[inputs.input1]"
-                },
-                "function_body": "def function(arg1, arg2, arg3):\n    return {'output1': int(arg1) + int(arg2) + int(arg3)}"
+                "argument": {},
+                "function_body": ""
             },
             "outputSchema": {
-                "output1": "This is the output1 of Node3 , sum of node1.output1, node2.output1 and input1"
+                "country_capital": "A country and its capital city from a particular continent."
             },
-            "kwargs": {},
-            "id": "71840c4f47d738a1f675eb38806f06c641004e7ce6c65e3fb170972b10e2b4fa",
+            "useLLM": true,
+            "jsonMode": false,
+            "toolName": "",
+            "toolDescription": "",
+            "kwargs": {
+                "model_name": "gemini-2.0-flash-001",
+                "temperature": 0.5,
+                "max_output_tokens": 1000,
+                "max_retries": 5,
+                "wait_time": 30,
+                "deployed_gcp": false
+            },
+            "id": "7d06e4275e889ff81572699e5b3b1dff971cba36d571adcfe8416b8466ee90f3",
             "_compiled": true,
             "_parents": [
                 [
-                    "node1",
-                    "output1"
-                ],
-                [
-                    "node2",
-                    "output1"
-                ],
+                    "inputs",
+                    "cont1"
+                ]
+            ],
+            "_children": [
+                "PlaceRelationship"
+            ],
+            "_inputs": {
+                "@[inputs.cont1]": "asia"
+            },
+            "_outputs": {
+                "country_capital": "Okay, here's a country in Asia and its capital city:\n\n*   **Country:** Japan\n*   **Capital City:** Tokyo"
+            },
+            "status": "completed"
+        },
+        "CountryCapital2": {
+            "nodeName": "CountryCapital2",
+            "systemInstructions": "You are an AI assistant. Your task is to assist the user in their tasks.",
+            "userPrompt": "Tell me a conutry name and its capital city in @[inputs.cont2]",
+            "pythonCode": {
+                "argument": {},
+                "function_body": ""
+            },
+            "outputSchema": {
+                "country_capital": "A country and its capital city from a particular continent."
+            },
+            "useLLM": true,
+            "jsonMode": false,
+            "toolName": "",
+            "toolDescription": "",
+            "kwargs": {
+                "model_name": "gemini-2.0-flash-001",
+                "temperature": 0.5,
+                "max_output_tokens": 1000,
+                "max_retries": 5,
+                "wait_time": 30,
+                "deployed_gcp": false
+            },
+            "id": "19bf7b6b4f1aa80cc87a2bc5727599628e105fbd880622c2e25f465e231c0074",
+            "_compiled": true,
+            "_parents": [
                 [
                     "inputs",
-                    "input1"
+                    "cont2"
+                ]
+            ],
+            "_children": [
+                "PlaceRelationship"
+            ],
+            "_inputs": {
+                "@[inputs.cont2]": "africa"
+            },
+            "_outputs": {
+                "country_capital": "Okay, here's one:\n\n*   **Country:** Nigeria\n*   **Capital City:** Abuja\n"
+            },
+            "status": "completed"
+        },
+        "PlaceRelationship": {
+            "nodeName": "PlaceRelationship",
+            "systemInstructions": "You are an AI assistant. Your task is to assist the user in their tasks.",
+            "userPrompt": "Tell me the relationship between @[CountryCapital1.country_capital] and @[CountryCapital2.country_capital]. Mainly focus on the cities mentioned. How their ecomocic relationships are",
+            "pythonCode": {},
+            "outputSchema": {
+                "relationship": "Relationship between two countries"
+            },
+            "useLLM": true,
+            "jsonMode": false,
+            "toolName": "",
+            "toolDescription": "",
+            "kwargs": {
+                "model_name": "gemini-2.0-flash-001",
+                "temperature": 0.5,
+                "max_output_tokens": 1000,
+                "max_retries": 5,
+                "wait_time": 30,
+                "deployed_gcp": false
+            },
+            "id": "842a224976ac49bc28676c50b9ccfd51e69bc4ce7e90cbba9d59ada9df250da1",
+            "_compiled": true,
+            "_parents": [
+                [
+                    "CountryCapital1",
+                    "country_capital"
+                ],
+                [
+                    "CountryCapital2",
+                    "country_capital"
                 ]
             ],
             "_children": [],
             "_inputs": {
-                "@[node1.output1]": "101",
-                "@[node2.output1]": "300",
-                "@[inputs.input1]": "1"
+                "@[CountryCapital1.country_capital]": "Okay, here's a country in Asia and its capital city:\n\n*   **Country:** Japan\n*   **Capital City:** Tokyo",
+                "@[CountryCapital2.country_capital]": "Okay, here's one:\n\n*   **Country:** Nigeria\n*   **Capital City:** Abuja\n"
             },
             "_outputs": {
-                "output1": "402"
-            },
-            "status": "completed"
-        },
-        "node1": {
-            "nodeName": "node1",
-            "systemInstructions": "This is a test system instruction for Node1.",
-            "userPrompt": "Calculate the sum of @[inputs.input1] and @[inputs.input2] and @[inputs.input1]^2",
-            "pythonCode": {
-                "argument": {
-                    "arg1": "@[inputs.input1]",
-                    "arg2": "@[inputs.input3]"
-                },
-                "function_body": "import time\ndef function(arg1, arg2):\n    time.sleep(10)\n    return {'output1': int(arg1) + int(arg2), 'output2': int(arg1)**3}"
-            },
-            "outputSchema": {
-                "output1": "This is the output1 of Node1 , sum of input1 and input2",
-                "output2": "This is the output2 of Node1 , square of input1"
-            },
-            "kwargs": {},
-            "id": "bebb58b224c453ef838f68eb8e786d40e0d4787eb73d636f2746b36d9e8be806",
-            "_compiled": true,
-            "_parents": [
-                [
-                    "inputs",
-                    "input1"
-                ],
-                [
-                    "inputs",
-                    "input2"
-                ],
-                [
-                    "inputs",
-                    "input3"
-                ]
-            ],
-            "_children": [
-                "node3"
-            ],
-            "_inputs": {
-                "@[inputs.input1]": "1",
-                "@[inputs.input2]": "2",
-                "@[inputs.input3]": "100"
-            },
-            "_outputs": {
-                "output1": "101",
-                "output2": "1"
-            },
-            "status": "completed"
-        },
-        "node2": {
-            "nodeName": "node2",
-            "systemInstructions": "This is a test system instruction for Node2.",
-            "userPrompt": "Calculate the product of @[inputs.input1] and @[inputs.input2] and @[inputs.input3]",
-            "pythonCode": {
-                "argument": {
-                    "arg1": "@[inputs.input1]",
-                    "arg2": "@[inputs.input2]",
-                    "arg3": "@[inputs.input3]"
-                },
-                "function_body": "import time; \ndef function(arg1, arg2, arg3):\n    time.sleep(10)\n    return {'output1': int(arg1) * int(arg2) * int(arg3) + int(arg3)}"
-            },
-            "outputSchema": {
-                "output1": "This is the output1 of Node2 , product of input1, input2 and input3"
-            },
-            "kwargs": {},
-            "id": "d9e508ce19575231f92beb906187f84edab50b21789272cf28aa36c31bdf05b9",
-            "_compiled": true,
-            "_parents": [
-                [
-                    "inputs",
-                    "input1"
-                ],
-                [
-                    "inputs",
-                    "input2"
-                ],
-                [
-                    "inputs",
-                    "input3"
-                ]
-            ],
-            "_children": [
-                "node3"
-            ],
-            "_inputs": {
-                "@[inputs.input1]": "1",
-                "@[inputs.input2]": "2",
-                "@[inputs.input3]": "100"
-            },
-            "_outputs": {
-                "output1": "300"
+                "relationship": "Okay, I understand. You want me to analyze the economic relationship between Tokyo and Abuja, focusing on their roles as capital cities of Japan and Nigeria, respectively. Here's a breakdown:\n\n**Tokyo, Japan:**\n\n*   **Economic Powerhouse:** Tokyo is one of the world's leading financial centers. It houses the headquarters of major Japanese corporations, banks, and insurance companies. It's a hub for innovation, technology, and manufacturing.\n*   **Highly Developed Economy:** Japan has a highly developed, market-oriented economy. Tokyo benefits from this, attracting significant foreign investment and trade.\n*   **Global Trade and Investment:** Tokyo plays a crucial role in Japan's international trade, with significant exports in automobiles, electronics, and machinery. It's also a major destination for foreign investment.\n*   **Advanced Infrastructure:** Tokyo boasts world-class infrastructure, including transportation, communication networks, and technological infrastructure, which facilitates economic activity.\n\n**Abuja, Nigeria:**\n\n*   **Political and Administrative Center:** Abuja is primarily the political and administrative capital of Nigeria. Its economy is heavily reliant on government activities and services.\n*   **Developing Economy:** Nigeria is a developing economy, heavily dependent on oil exports. While Abuja is growing, it faces challenges related to infrastructure development, diversification, and attracting significant foreign investment outside of the oil sector.\n*   **Growing Financial Sector:** Abuja's financial sector is growing, but it is still relatively small compared to Lagos, the commercial capital of Nigeria.\n*   **Focus on Government Spending:** A significant portion of Abuja's economic activity is driven by government spending and related services.\n\n**Economic Relationship and Key Differences:**\n\nThe economic relationship between Tokyo and Abuja is not direct or substantial in terms of trade or investment. Here's why:\n\n*   **Asymmetrical Economic Power:** Tokyo represents a highly developed, diversified, and technologically advanced economy. Abuja represents a developing economy heavily reliant on a single commodity (oil). This creates a significant power imbalance.\n*   **Limited Direct Trade:** Direct trade between Japan and Nigeria exists, but it's not primarily focused on Tokyo and Abuja. Japan imports oil and gas from Nigeria, while Nigeria imports manufactured goods from Japan. These activities are more likely to be handled through major ports and commercial centers like Lagos (Nigeria) and ports near manufacturing hubs in Japan.\n*   **Investment Flows:** Japanese investment in Nigeria is primarily focused on the oil and gas sector, and to a lesser extent, infrastructure projects. These investments are not necessarily concentrated in Abuja.\n*   **Development Assistance:** Japan provides development assistance to Nigeria, which may indirectly benefit Abuja through infrastructure projects and capacity building.\n\n**In summary:**\n\nWhile both are capital cities, Tokyo and Abuja operate on vastly different economic scales. Tokyo is a global economic powerhouse driving a highly developed economy. Abuja is a developing capital city whose economy is heavily influenced by government activities and the oil sector. Their direct economic relationship is limited, primarily involving broader trade and investment between Japan and Nigeria, rather than specific interactions between the two cities themselves. The flow of economic activity is largely one way, with Japan being a major exporter to Nigeria.\n"
             },
             "status": "completed"
         }

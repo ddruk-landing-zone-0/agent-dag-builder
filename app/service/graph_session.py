@@ -79,7 +79,7 @@ class GraphSessionManager:
         graph.compile()
         return new_node
 
-    def add_node_to_session(self, session_id, nodeName, systemInstructions, userPrompt, pythonCode, outputSchema, **kwargs):
+    def add_node_to_session(self, session_id, nodeName, systemInstructions, userPrompt, pythonCode, outputSchema ,useLLM, jsonMode, toolName, toolDescription, **kwargs):
         """
         It is wrapper around the addNode method of the Graph class.
         """
@@ -87,11 +87,11 @@ class GraphSessionManager:
             raise ValueError(f"Session with ID {session_id} does not exist.")
         
         graph = self.session_metadata[session_id]['graph']
-        new_node = graph.addNode(nodeName, systemInstructions, userPrompt, pythonCode, outputSchema, **kwargs)
+        new_node = graph.addNode(nodeName, systemInstructions, userPrompt, pythonCode, outputSchema, useLLM, jsonMode, toolName, toolDescription, **kwargs)
         # graph.compile()
         return new_node
     
-    def update_node_in_session(self, session_id, nodeName, systemInstructions, userPrompt, pythonCode, outputSchema, **kwargs):
+    def update_node_in_session(self, session_id, nodeName, systemInstructions, userPrompt, pythonCode, outputSchema, useLLM, jsonMode, toolName, toolDescription, **kwargs):
         """
         It is wrapper around the updateNode method of the Graph class.
         """
@@ -99,7 +99,7 @@ class GraphSessionManager:
             raise ValueError(f"Session with ID {session_id} does not exist.")
         
         graph = self.session_metadata[session_id]['graph']
-        updated_node = graph.updateNode(nodeName, systemInstructions, userPrompt, pythonCode, outputSchema, **kwargs)
+        updated_node = graph.updateNode(nodeName, systemInstructions, userPrompt, pythonCode, outputSchema ,useLLM, jsonMode, toolName, toolDescription, **kwargs)
         # graph.compile()
         return updated_node
     

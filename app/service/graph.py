@@ -70,12 +70,22 @@ class Graph:
                 raise ValueError(f"Value '{value}' in input fields must be a string")
         
         # Create a new input node with dummy instructions. Only the outputSchema are important. The nodename is fixed as "inputs"
-        new_node = GraphNode("inputs", "Input node", "Input node", {}, {**inputFields}, **inputFields)
+        new_node = GraphNode("inputs", # nodeName
+                                "N/A", # systemInstructions
+                                "N/A", # userPrompt
+                                {}, # pythonCode
+                                {**inputFields}, # outputSchema
+                                False, # useLLM
+                                False, # jsonMode
+                                "N/A", # toolName
+                                "N/A", # toolDescription
+                                **inputFields # kwargs
+                                )
         self.nodePool["inputs"] = new_node # Add the input node to the node pool
         return new_node
 
 
-    def addNode(self, nodeName, systemInstructions, userPrompt, pythonCode, outputSchema, **kwargs):
+    def addNode(self, nodeName, systemInstructions, userPrompt, pythonCode, outputSchema, useLLM=True, jsonMode=False, toolName=None, toolDescription=None, **kwargs):
         """
         Add a new node to the graph.
         nodeName: str
@@ -83,6 +93,10 @@ class Graph:
         userPrompt: str
         pythonCode: A dictionary containing the arguments and function
         outputSchema: A dictionary containing the output schema with output names as keys and their description.
+        useLLM: bool, whether to use LLM for this node
+        jsonMode: bool, whether to use JSON mode for this node
+        toolName: str, name of the tool
+        toolDescription: str, description of the tool
         kwargs: Additional keyword arguments for the node.
 
         Example input for pythonCode:
@@ -109,7 +123,18 @@ class Graph:
         if nodeName in self.nodePool:
             raise ValueError(f"Node with name {nodeName} already exists. Location: Graph.addNode")
         
-        new_node = GraphNode(nodeName, systemInstructions, userPrompt, pythonCode, outputSchema, **kwargs)
+        new_node = GraphNode(
+            nodeName=nodeName,
+            systemInstructions=systemInstructions,
+            userPrompt=userPrompt,
+            pythonCode=pythonCode,
+            outputSchema=outputSchema,
+            useLLM=useLLM,
+            jsonMode=jsonMode,
+            toolName=toolName,
+            toolDescription=toolDescription,
+            **kwargs
+        )
         self.nodePool[nodeName] = new_node
         try:
             self.compile()
@@ -131,7 +156,7 @@ class Graph:
         # Remove the node from its parents
         for parent in self.nodePool[nodeName]._parents:
             parent_node = self.nodePool[parent[0]]
-            if parent[1] in parent_node._children:
+            if nodeName in parent_node._children:
                 parent_node._children.remove(nodeName)
         
         # Remove the node from its children
@@ -153,7 +178,7 @@ class Graph:
         LOGGER.info(f"Graph reset after removing node {nodeName}. Location: Graph.removeNode")
         return True
     
-    def updateNode(self, nodeName, systemInstructions, userPrompt, pythonCode, outputSchema, **kwargs):
+    def updateNode(self, nodeName, systemInstructions, userPrompt, pythonCode, outputSchema, useLLM=True, jsonMode=False, toolName=None, toolDescription=None, **kwargs):
         """
         Update an existing node in the graph.
         nodeName: str
@@ -161,7 +186,12 @@ class Graph:
         userPrompt: str
         pythonCode: A dictionary containing the arguments and function
         outputSchema: A dictionary containing the output schema with output names as keys and their description.
+        useLLM: bool, whether to use LLM for this node
+        jsonMode: bool, whether to use JSON mode for this node
+        toolName: str, name of the tool
+        toolDescription: str, description of the tool
         kwargs: Additional keyword arguments for the node.
+
         Example input for pythonCode:
         nodeName: "node1"
         systemInstructions: "This is a test node"
@@ -189,7 +219,20 @@ class Graph:
         self.removeNode(nodeName)
 
         # Add the updated node
-        new_node = GraphNode(nodeName, systemInstructions, userPrompt, pythonCode, outputSchema, **kwargs)
+        new_node = GraphNode(
+            nodeName=nodeName,
+            systemInstructions=systemInstructions,
+            userPrompt=userPrompt,
+            pythonCode=pythonCode,
+            outputSchema=outputSchema,
+            useLLM=useLLM,
+            jsonMode=jsonMode,
+            toolName=toolName,
+            toolDescription=toolDescription,
+            **kwargs
+        )
+
+        # Add the updated node to the node pool
         self.nodePool[nodeName] = new_node
 
         # Reset the compliation status of the graph
@@ -220,6 +263,7 @@ class Graph:
         # Compile the graph by checking dependencies and setting parent-child relationships
         for node in self.nodePool.values():
             self.nodePool[node.nodeName].resolve_parent_nodes(self.nodePool)
+            self.nodePool[node.nodeName].resolve_engine()
             node._compiled = True
 
         # Check for circular dependencies
@@ -442,14 +486,21 @@ class Graph:
             with open(file_path, "r") as f:
                 data = json.load(f)
                 for node_name, node_data in data["nodes"].items():
+
+                    # Create a new GraphNode object from the loaded data
                     node = GraphNode(
-                        node_data["nodeName"],
-                        node_data["systemInstructions"],
-                        node_data["userPrompt"],
-                        node_data["pythonCode"],
-                        node_data["outputSchema"],
+                        nodeName=node_data["nodeName"],
+                        systemInstructions=node_data["systemInstructions"],
+                        userPrompt=node_data["userPrompt"],
+                        pythonCode=node_data["pythonCode"],
+                        outputSchema=node_data["outputSchema"],
+                        useLLM=node_data["useLLM"],
+                        jsonMode=node_data["jsonMode"],
+                        toolName=node_data["toolName"],
+                        toolDescription=node_data["toolDescription"],
                         **node_data["kwargs"]
                     )
+
                     # Set the node's properties
                   #  print("fasdfasdfafas ",node_data["_inputs"])
                     node._compiled = node_data["_compiled"]

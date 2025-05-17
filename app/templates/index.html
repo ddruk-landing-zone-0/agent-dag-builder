@@ -395,7 +395,43 @@
                 </div>
                 <button id="addOutputBtn" class="button add-field-btn">Add Output</button>
             </div>
+
+
+
+            <!-- Newly added LLM Props -->
+            <div class="form-group">
+                <label for="userPrompt">User Prompt:</label>
+                <textarea id="userPrompt" class="form-control" placeholder="Enter user prompt"></textarea>
+            </div>
             
+            <div class="form-group">
+                <label for="useLLM">Use LLM:</label>
+                <select id="useLLM" class="form-control">
+                    <option value="false">False</option>
+                    <option value="true">True</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="jsonMode">JSON Mode:</label>
+                <select id="jsonMode" class="form-control">
+                    <option value="false">False</option>
+                    <option value="true">True</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="toolName">Tool Name:</label>
+                <input type="text" id="toolName" class="form-control" placeholder="Enter tool name">
+            </div>
+            
+            <div class="form-group">
+                <label for="toolDescription">Tool Description:</label>
+                <textarea id="toolDescription" class="form-control" placeholder="Enter tool description"></textarea>
+            </div>
+            <!--  -->
+
+
             <button id="submitNodeBtn" class="button">Create Node</button>
         </div>
     </div>
@@ -441,6 +477,12 @@
         const outputSchemaContainer = document.getElementById('outputSchemaContainer');
         const addOutputBtn = document.getElementById('addOutputBtn');
         const submitNodeBtn = document.getElementById('submitNodeBtn');
+
+        // LLM Props
+        const useLLM = document.getElementById('useLLM');
+        const jsonMode = document.getElementById('jsonMode');
+        const toolName = document.getElementById('toolName');
+        const toolDescription = document.getElementById('toolDescription');
 
         // API Functions
         async function fetchSessions() {
@@ -997,6 +1039,35 @@
                     </div>
                 `;
             }
+
+            // LLM Props
+            let llmPropsHtml = '';
+            if (nodeData.useLLM) {
+                llmPropsHtml = `
+                    <div class="node-section">
+                        <h3>LLM Props:</h3>
+                        <div class="property-list">
+                            <div class="property-item">
+                                <div class="property-key">Use LLM:</div>
+                                <div class="property-value">${nodeData.useLLM}</div>
+                            </div>
+                            <div class="property-item">
+                                <div class="property-key">JSON Mode:</div>
+                                <div class="property-value">${nodeData.jsonMode}</div>
+                            </div>
+                            <div class="property-item">
+                                <div class="property-key">Tool Name:</div>
+                                <div class="property-value">${nodeData.toolName}</div>
+                            </div>
+                            <div class="property-item">
+                                <div class="property-key">Tool Description:</div>
+                                <div class="property-value">${nodeData.toolDescription}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
             
             nodeCard.innerHTML = `
                 ${headerHtml}
@@ -1012,6 +1083,9 @@
                         ${parentsHtml}
                         ${childrenHtml}
                         ${outputsHtml}
+                    </div>
+                    <div>
+                        ${llmPropsHtml}
                     </div>
                 </div>
             `;
@@ -1110,9 +1184,15 @@
             userPrompt.value = '';
             pythonArgContainer.innerHTML = '';
             addPythonArg();
-            functionBody.value = 'def function(arg1, arg2):\n    # Your code here\n    return {\'output1\': result1, \'output2\': result2}';
+            functionBody.value = '';
             outputSchemaContainer.innerHTML = '';
             addOutputField();
+
+            // Reset LLM Props
+            useLLM.checked = false;
+            jsonMode.checked = false;
+            toolName.value = '';
+            toolDescription.value = '';
             
             if (isEdit && nodeData) {
                 nodeModalTitle.textContent = 'Edit Node';
@@ -1149,6 +1229,12 @@
                 } else {
                     addOutputField();
                 }
+
+                // LLM Props
+                useLLM.checked = nodeData.useLLM || false;
+                jsonMode.checked = nodeData.jsonMode || false;
+                toolName.value = nodeData.toolName || '';
+                toolDescription.value = nodeData.toolDescription || '';
             } else {
                 nodeModalTitle.textContent = 'Create New Node';
                 submitNodeBtn.textContent = 'Create Node';
@@ -1247,7 +1333,11 @@
                     argument: args,
                     function_body: functionBody.value.trim()
                 },
-                output_schema: outputSchema
+                output_schema: outputSchema,
+                use_LLM: useLLM.checked,
+                json_mode: jsonMode.checked,
+                tool_name: toolName.value.trim(),
+                tool_description: toolDescription.value.trim()
             };
         }
 
