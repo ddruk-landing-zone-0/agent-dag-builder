@@ -1,0 +1,142 @@
+{
+    "graph_id": "e38a06eb1989d38c59173667e4a9fbf204d1a964fd017c09652f9e209f1d3360",
+    "nodes": {
+        "inputs": {
+            "nodeName": "inputs",
+            "systemInstructions": "N/A",
+            "userPrompt": "N/A",
+            "pythonCode": {},
+            "outputSchema": {
+                "i1": "10",
+                "i2": "231"
+            },
+            "useLLM": false,
+            "jsonMode": false,
+            "toolName": "N/A",
+            "toolDescription": "N/A",
+            "kwargs": {
+                "i1": "10",
+                "i2": "231"
+            },
+            "id": "ac1f2e7f91911d3fd2a3a6188a596b64f72bd51e4cbb1fede5fb28159d90789c",
+            "_compiled": true,
+            "_parents": [],
+            "_children": [],
+            "_inputs": {},
+            "_outputs": {
+                "i1": "10",
+                "i2": "231"
+            },
+            "status": "completed"
+        },
+        "asfdasfd": {
+            "nodeName": "asfdasfd",
+            "systemInstructions": "aDadasD",
+            "userPrompt": "fasfADasdasD",
+            "pythonCode": {
+                "argument": {},
+                "function_body": ""
+            },
+            "outputSchema": {
+                "x": "x"
+            },
+            "useLLM": false,
+            "jsonMode": false,
+            "toolName": "",
+            "toolDescription": "",
+            "kwargs": {
+                "model_name": "gemini-2.0-flash-001",
+                "temperature": 0.5,
+                "max_output_tokens": 1000,
+                "max_retries": 5,
+                "wait_time": 30,
+                "deployed_gcp": false
+            },
+            "id": "8ad231d93dbf1d35c106990b0e17389cd40450f4ae4c18d9a548196a53acc636",
+            "_compiled": true,
+            "_parents": [],
+            "_children": [
+                "fasf",
+                "4123123"
+            ],
+            "_inputs": {},
+            "_outputs": {},
+            "status": "completed"
+        },
+        "fasf": {
+            "nodeName": "fasf",
+            "systemInstructions": "dasdas",
+            "userPrompt": "dasda @[asfdasfd.x]",
+            "pythonCode": {
+                "argument": {},
+                "function_body": ""
+            },
+            "outputSchema": {
+                "y": "@[asfdasfd.x]"
+            },
+            "useLLM": false,
+            "jsonMode": false,
+            "toolName": "",
+            "toolDescription": "",
+            "kwargs": {
+                "model_name": "gemini-2.0-flash-001",
+                "temperature": 0.5,
+                "max_output_tokens": 1000,
+                "max_retries": 5,
+                "wait_time": 30,
+                "deployed_gcp": false
+            },
+            "id": "efa8b114a4dc7e4478a509c0f06f238e1734e2363171fac93b858d2568ac89bd",
+            "_compiled": true,
+            "_parents": [
+                [
+                    "asfdasfd",
+                    "x"
+                ]
+            ],
+            "_children": [],
+            "_inputs": {},
+            "_outputs": {},
+            "status": "completed"
+        },
+        "4123123": {
+            "nodeName": "4123123",
+            "systemInstructions": "3123123",
+            "userPrompt": "3123123 @[asfdasfd.x]",
+            "pythonCode": {
+                "argument": {},
+                "function_body": ""
+            },
+            "outputSchema": {
+                "z": "@[asfdasfjd.x]"
+            },
+            "useLLM": false,
+            "jsonMode": false,
+            "toolName": "",
+            "toolDescription": "",
+            "kwargs": {
+                "model_name": "gemini-2.0-flash-001",
+                "temperature": 0.5,
+                "max_output_tokens": 1000,
+                "max_retries": 5,
+                "wait_time": 30,
+                "deployed_gcp": false
+            },
+            "id": "5deca7e48afb6f3ca99f50104d2f7d2bbbdbaed1636ab9772b90f779acc325bc",
+            "_compiled": true,
+            "_parents": [
+                [
+                    "asfdasfd",
+                    "x"
+                ]
+            ],
+            "_children": [],
+            "_inputs": {},
+            "_outputs": {},
+            "status": "completed"
+        }
+    },
+    "venv_path": "./runner_envs/venv",
+    "python_packages": [],
+    "create_env": true
+}

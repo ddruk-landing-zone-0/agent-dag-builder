@@ -152,29 +152,32 @@ class Graph:
         # Remove a node from the graph
         if nodeName not in self.nodePool:
             raise ValueError(f"Node with name {nodeName} does not exist. Location: Graph.removeNode")
-        
+
+        # Dependency nodes are the nodes which are dependent on this node excluding this node
+        dependency_nodes = self._traverse_nodes(nodeName)
+        dependency_nodes.remove(nodeName)
+
         # Remove the node from its parents
         for parent in self.nodePool[nodeName]._parents:
             parent_node = self.nodePool[parent[0]]
             if nodeName in parent_node._children:
                 parent_node._children.remove(nodeName)
-        
         # Remove the node from its children
         for child in self.nodePool[nodeName]._children:
             child_node = self.nodePool[child]
             for parent in child_node._parents:
                 if parent[0] == nodeName:
                     child_node._parents.remove(parent)
-        
+
+
         # Remove the node from the node pool
         del self.nodePool[nodeName]
         LOGGER.info(f"Node {nodeName} removed from the graph. Location: Graph.removeNode")
         
-        # Uncompile the graph
-        self.reset_compiled_nodes()
-
-        # Save the graph
-        self.save_graph()
+        # Uncompile the graph which are dependent on this node including this node
+        self.reset_compiled_nodes(dependency_nodes)
+        # # Save the graph
+        # self.save_graph()
         LOGGER.info(f"Graph reset after removing node {nodeName}. Location: Graph.removeNode")
         return True
     
@@ -214,7 +217,11 @@ class Graph:
         # Update an existing node in the graph
         if nodeName not in self.nodePool:
             raise ValueError(f"Node with name {nodeName} does not exist. Location: Graph.updateNode")
-        
+
+        # Dependency nodes are the nodes which are dependent on this node excluding this node
+        dependency_nodes = self._traverse_nodes(nodeName)
+        dependency_nodes.remove(nodeName)
+
         # Dlelete the node from the graph
         self.removeNode(nodeName)
 
@@ -235,8 +242,11 @@ class Graph:
         # Add the updated node to the node pool
         self.nodePool[nodeName] = new_node
 
-        # Reset the compliation status of the graph
-        self.reset_compiled_nodes()
+        # Reset the compliation status of the graph which are dependent on this node including this node
+        self.reset_compiled_nodes(dependency_nodes)
+
+        # Compile the graph
+        self.compile()
 
         return new_node
     
@@ -278,7 +288,7 @@ class Graph:
         # Save the graph
         self.save_graph()
 
-    def reset_compiled_nodes(self):
+    def reset_compiled_nodes(self,nodeNames=None):
         """
         Reset the compiled status of all nodes in the graph.
         This method sets the status of all nodes to "pending" and clears their parent and child relationships.
@@ -287,8 +297,9 @@ class Graph:
         Exception: input node is not reset.
         """
         # Reset the compiled status of all nodes
+        target_node_names = self.nodePool.keys() if nodeNames is None else nodeNames
         for node in self.nodePool.values():
-            if node.nodeName == "inputs":
+            if node.nodeName == "inputs" or node.nodeName not in target_node_names:
                 continue
             node._compiled = False
             node.status = "pending"
@@ -297,6 +308,8 @@ class Graph:
             node._inputs = {}
             node._outputs = {}
         LOGGER.info("All nodes reset to uncompiled state. Location: Graph.reset_compiled_nodes")
+
+        # self.compile() # Recompile the graph
         self.save_graph()
         
     def check_circular_dependency(self):
@@ -370,6 +383,10 @@ class Graph:
                         self.conditions[child].notify_all()
 
     def _traverse_nodes(self, start_node):
+        """
+        Depth-first traversal of the graph starting from a specific node.
+        Returns a list of all visited nodenames
+        """
         visited = set()
         queue = [start_node]
         while queue:
@@ -438,12 +455,12 @@ class Graph:
             LOGGER.error(f"Error during execution: {e}")
             
         finally:
-            # Set the status of all nodes to completed if they are still running
-            for node_name in visited:
-                node = self.nodePool[node_name]
-                if node.status == "running":
-                    node.status = "completed"
-                    LOGGER.info(f"Node {node_name} status set to completed. Location: Graph.execute_from_node")
+            # # Set the status of all nodes to completed if they are still running
+            # for node_name in visited:
+            #     node = self.nodePool[node_name]
+            #     if node.status == "running":
+            #         node.status = "completed"
+            #         LOGGER.info(f"Node {node_name} status set to completed. Location: Graph.execute_from_node")
             LOGGER.info("Execution completed for all nodes. Location: Graph.execute_from_node")
 
         self.save_graph()

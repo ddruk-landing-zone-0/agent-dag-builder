@@ -57,6 +57,13 @@ class GraphSessionManager:
         ############# Create a new graph and save it to the session directory
         graph = Graph(timeout=self.timeout, venv_path=venv_path, create_env=create_env, python_packages=python_packages, save_dir=f"./saved_graphs/{session_id}/")
         os.makedirs(os.path.join("./saved_graphs/", session_id), exist_ok=True) # create the session directory if it doesn't exist
+
+        # Add a dummy input node to the graph
+        sampleInputFields = {
+            "input1": "<Sample Input>",
+        }
+        graph.addInput(sampleInputFields)
+
         graph.compile() # compile the graph
         
         self.session_metadata[session_id] = {

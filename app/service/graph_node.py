@@ -34,7 +34,7 @@ class GraphNode:
         self._inputs = {} # It is a mutable mapping of input names to their values where the keys are the output keys of the parent nodes' outputs
         self._outputs = {} # It is a mutable mapping of output names to their values where the keys are the output keys of the current node's outputs
 
-        self.status = "pending" # str: Status of the node, can be "pending", "running" or "completed" or "waiting"
+        self.status = "pending" # str: Status of the node, can be "pending", "running" or "completed" or "waiting" or "error"
 
         # inputs are always set to completed
         if nodeName=="inputs":
@@ -222,6 +222,7 @@ class GraphNode:
         references += re.findall(pattern, self.userPrompt)
         references += re.findall(pattern, self.pythonCode.get("function_body", ""))
         references += re.findall(pattern, str(self.pythonCode.get("argument", {})))
+
         
         # Check if the references are valid i.e. if the node names and output keys exist in the node pool
         self._validate_references(references, nodePool)
@@ -258,25 +259,19 @@ class GraphNode:
         #print("ccc",input_str)
         for node_name, output_key in self._parents:
             if node_name in nodePool and output_key in nodePool[node_name].outputSchema:
-                print("1. aaaa",node_name, output_key)
                 try:
                     # Parent key
                     parent_key = nodePool[node_name]._outputs[output_key]
-                    print("2. aaaa",parent_key)
                     # Replace the reference with the actual value from the node pool
                     # Add the current node as a child of the referenced node
-                    #print("bbbbb", input_str, " ",node_name," ",output_key)
                     if f"@[{node_name}.{output_key}]" in input_str:
-                        print("3. aaaa",node_name, output_key)
                         self._inputs[f"@[{node_name}.{output_key}]"] = parent_key
 
                     input_str = input_str.replace(f"@[{node_name}.{output_key}]", parent_key)
-                    print(f">>>>>>> {node_name}.{output_key} replaced with {parent_key}. Mod string: {input_str}")
                 except Exception as e:
                     LOGGER.error(f"Error replacing reference @{node_name}.{output_key}: {e}. Location: GraphNode.resolve_references")
                     # If there's an error, keep the original string
 
-        print("aaaa",input_str)
         return input_str
     
 
@@ -358,62 +353,67 @@ class GraphNode:
         # Set the status to running
         self.status = "running"
 
-        # Execute the Python code with the resolved arguments
+        try:
+            # Get the current state of the node
+            state = self.get_current_state(nodePool)
+            userPrompt = state["userPrompt"]
+            pythonFunctionBody = state["pythonCode"]["function_body"]
+            pythonCodeArgument = state["pythonCode"]["argument"]
 
-        # Get the current state of the node
-        state = self.get_current_state(nodePool)
-        userPrompt = state["userPrompt"]
-        pythonFunctionBody = state["pythonCode"]["function_body"]
-        pythonCodeArgument = state["pythonCode"]["argument"]
-
-        # Check if the Python code is provided
-        if self.useLLM is False:
-            if pythonFunctionBody != "" and python_env_manager is not None:
-                # Prepare the arguments for output
-                result = python_env_manager.execute_python_code(pythonFunctionBody, pythonCodeArgument)
+            # Check if the Python code is provided
+            if self.useLLM is False:
+                if pythonFunctionBody != "" and python_env_manager is not None:
+                    # Prepare the arguments for output
+                    result = python_env_manager.execute_python_code(pythonFunctionBody, pythonCodeArgument)
+                    # Check if the result matches the output schema
+                    if not self._validate_output(result):
+                        LOGGER.error(f"Output does not match the schema for {self.nodeName}. Location: GraphNode.execute")
+                        return None
+                    # Store the result in _outputs
+                    self._outputs = result
+            else:
+                if self.engine is None:
+                    self.resolve_engine()
+                
+                # Generate output using LLM
+                engine_result = self.engine.run([
+                    userPrompt
+                ])
+                
+                result = {}
+                if self.jsonMode:
+                    # Parse the JSON output
+                    try:
+                        # In case of JSON mode, the output is expected to be a list of dictionaries
+                        result = engine_result[0]
+                    except Exception as e:
+                        LOGGER.error(f"Error parsing JSON output: {e}. Location: GraphNode.execute")
+                        raise ValueError(f"Error parsing JSON output: {e}")
+                else:
+                    # Parse the output for non-JSON mode
+                    try:
+                        # In case of non-JSON mode, the output is expected to be a string and outputSchema is a dictionary with only one key
+                        result = {output_key: engine_result for output_key in self.outputSchema.keys()}
+                    except Exception as e:
+                        LOGGER.error(f"Error parsing output: {e}. Location: GraphNode.execute")
+                        raise ValueError(f"Error parsing output: {e}")
+                
                 # Check if the result matches the output schema
                 if not self._validate_output(result):
                     LOGGER.error(f"Output does not match the schema for {self.nodeName}. Location: GraphNode.execute")
                     return None
+                
                 # Store the result in _outputs
                 self._outputs = result
-        else:
-            if self.engine is None:
-                self.resolve_engine()
-            
-            # Generate output using LLM
-            engine_result = self.engine.run([
-                userPrompt
-            ])
-            
-            result = {}
-            if self.jsonMode:
-                # Parse the JSON output
-                try:
-                    # In case of JSON mode, the output is expected to be a list of dictionaries
-                    result = engine_result[0]
-                except Exception as e:
-                    LOGGER.error(f"Error parsing JSON output: {e}. Location: GraphNode.execute")
-                    raise ValueError(f"Error parsing JSON output: {e}")
-            else:
-                # Parse the output for non-JSON mode
-                try:
-                    # In case of non-JSON mode, the output is expected to be a string and outputSchema is a dictionary with only one key
-                    result = {output_key: engine_result for output_key in self.outputSchema.keys()}
-                except Exception as e:
-                    LOGGER.error(f"Error parsing output: {e}. Location: GraphNode.execute")
-                    raise ValueError(f"Error parsing output: {e}")
-            
-            # Check if the result matches the output schema
-            if not self._validate_output(result):
-                LOGGER.error(f"Output does not match the schema for {self.nodeName}. Location: GraphNode.execute")
-                return None
-            
-            # Store the result in _outputs
-            self._outputs = result
-            
-        # Set the status to completed
-        self.status = "completed"
+                
+            # Set the status to completed
+            self.status = "completed"
+
+        except Exception as e:
+            LOGGER.critical(f"Error executing node {self.nodeName}: {e}. Location: GraphNode.execute")
+            self.status = "error"
+            self._outputs = {"error": f"Error executing node {self.nodeName}: {e}. Location: GraphNode.execute"}
+
         return self._outputs
 
     def to_dict(self):
