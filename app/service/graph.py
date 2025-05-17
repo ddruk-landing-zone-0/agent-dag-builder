@@ -451,6 +451,7 @@ class Graph:
                         **node_data["kwargs"]
                     )
                     # Set the node's properties
+                  #  print("fasdfasdfafas ",node_data["_inputs"])
                     node._compiled = node_data["_compiled"]
                     node._parents = node_data["_parents"]
                     node._children = node_data["_children"]
