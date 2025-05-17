@@ -200,7 +200,7 @@ def get_graph_session_manager():
     """
     if not hasattr(get_graph_session_manager, "_instance"):
         get_graph_session_manager._instance = GraphSessionManager(session_root_dir="./saved_graphs/", 
-                                                                    timeout=10, 
+                                                                    timeout=20, 
                                                                     venv_path="./runner_envs/venv", 
                                                                     create_env=True
                                                                     )

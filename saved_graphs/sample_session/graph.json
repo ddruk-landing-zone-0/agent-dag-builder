@@ -1,5 +1,5 @@
 {
-    "graph_id": "716d9528c75b8b98d19485744cbc07dec2d81d6eb2114e31d358c07fbef8b127",
+    "graph_id": "733eeb80597f7532154e5b6b3ea39bc8fd59ab283d81a1867a7fd88ed929ec1b",
     "nodes": {
         "inputs": {
             "nodeName": "inputs",
@@ -8,7 +8,7 @@
             "pythonCode": {},
             "outputSchema": {
                 "cont1": "asia",
-                "cont2": "africa"
+                "cont2": "europe"
             },
             "useLLM": false,
             "jsonMode": false,
@@ -16,19 +16,19 @@
             "toolDescription": "N/A",
             "kwargs": {
                 "cont1": "asia",
-                "cont2": "africa"
+                "cont2": "europe"
             },
-            "id": "e468b82ef661a4a6079f1856fcc6c5ea67a14051086044622def952ede36cd0e",
+            "id": "039f7e6ba5c8182ed6e3f8961428d62f8935676914bccff57f1dc9b14c93ed53",
             "_compiled": true,
             "_parents": [],
             "_children": [
-                "CountryCapital2",
-                "CountryCapital1"
+                "CountryCapital1",
+                "CountryCapital2"
             ],
             "_inputs": {},
             "_outputs": {
                 "cont1": "asia",
-                "cont2": "africa"
+                "cont2": "europe"
             },
             "status": "completed"
         },
@@ -70,7 +70,7 @@
                 "@[inputs.cont1]": "asia"
             },
             "_outputs": {
-                "country_capital": "Okay, here's a country in Asia and its capital city:\n\n*   **Country:** Japan\n*   **Capital City:** Tokyo"
+                "country_capital": "Okay, here's a country in Asia and its capital city:\n\n*   **Country:** Japan\n*   **Capital City:** Tokyo\n"
             },
             "status": "completed"
         },
@@ -109,18 +109,21 @@
                 "PlaceRelationship"
             ],
             "_inputs": {
-                "@[inputs.cont2]": "africa"
+                "@[inputs.cont2]": "europe"
             },
             "_outputs": {
-                "country_capital": "Okay, here's one:\n\n*   **Country:** Nigeria\n*   **Capital City:** Abuja\n"
+                "country_capital": "Okay, here's a country in Europe and its capital city:\n\n*   **Country:** France\n*   **Capital City:** Paris\n"
             },
             "status": "completed"
         },
         "PlaceRelationship": {
             "nodeName": "PlaceRelationship",
             "systemInstructions": "You are an AI assistant. Your task is to assist the user in their tasks.",
-            "userPrompt": "Tell me the relationship between @[CountryCapital1.country_capital] and @[CountryCapital2.country_capital]. Mainly focus on the cities mentioned. How their ecomocic relationships are",
-            "pythonCode": {},
+            "userPrompt": "Tell me the relationship between @[CountryCapital1.country_capital] and @[CountryCapital2.country_capital]. Mainly focus on the cities mentioned. How their social relationships are",
+            "pythonCode": {
+                "argument": {},
+                "function_body": ""
+            },
             "outputSchema": {
                 "relationship": "Relationship between two countries"
             },
@@ -136,7 +139,7 @@
                 "wait_time": 30,
                 "deployed_gcp": false
             },
-            "id": "842a224976ac49bc28676c50b9ccfd51e69bc4ce7e90cbba9d59ada9df250da1",
+            "id": "2416f92009a634bd8814e3aa0764ca948b2da69e726942f81ae4afad48cef55e",
             "_compiled": true,
             "_parents": [
                 [
@@ -148,13 +151,57 @@
                     "country_capital"
                 ]
             ],
-            "_children": [],
+            "_children": [
+                "Capitilizer"
+            ],
             "_inputs": {
-                "@[CountryCapital1.country_capital]": "Okay, here's a country in Asia and its capital city:\n\n*   **Country:** Japan\n*   **Capital City:** Tokyo",
-                "@[CountryCapital2.country_capital]": "Okay, here's one:\n\n*   **Country:** Nigeria\n*   **Capital City:** Abuja\n"
+                "@[CountryCapital1.country_capital]": "Okay, here's a country in Asia and its capital city:\n\n*   **Country:** Japan\n*   **Capital City:** Tokyo\n",
+                "@[CountryCapital2.country_capital]": "Okay, here's a country in Europe and its capital city:\n\n*   **Country:** France\n*   **Capital City:** Paris\n"
             },
             "_outputs": {
-                "relationship": "Okay, I understand. You want me to analyze the economic relationship between Tokyo and Abuja, focusing on their roles as capital cities of Japan and Nigeria, respectively. Here's a breakdown:\n\n**Tokyo, Japan:**\n\n*   **Economic Powerhouse:** Tokyo is one of the world's leading financial centers. It houses the headquarters of major Japanese corporations, banks, and insurance companies. It's a hub for innovation, technology, and manufacturing.\n*   **Highly Developed Economy:** Japan has a highly developed, market-oriented economy. Tokyo benefits from this, attracting significant foreign investment and trade.\n*   **Global Trade and Investment:** Tokyo plays a crucial role in Japan's international trade, with significant exports in automobiles, electronics, and machinery. It's also a major destination for foreign investment.\n*   **Advanced Infrastructure:** Tokyo boasts world-class infrastructure, including transportation, communication networks, and technological infrastructure, which facilitates economic activity.\n\n**Abuja, Nigeria:**\n\n*   **Political and Administrative Center:** Abuja is primarily the political and administrative capital of Nigeria. Its economy is heavily reliant on government activities and services.\n*   **Developing Economy:** Nigeria is a developing economy, heavily dependent on oil exports. While Abuja is growing, it faces challenges related to infrastructure development, diversification, and attracting significant foreign investment outside of the oil sector.\n*   **Growing Financial Sector:** Abuja's financial sector is growing, but it is still relatively small compared to Lagos, the commercial capital of Nigeria.\n*   **Focus on Government Spending:** A significant portion of Abuja's economic activity is driven by government spending and related services.\n\n**Economic Relationship and Key Differences:**\n\nThe economic relationship between Tokyo and Abuja is not direct or substantial in terms of trade or investment. Here's why:\n\n*   **Asymmetrical Economic Power:** Tokyo represents a highly developed, diversified, and technologically advanced economy. Abuja represents a developing economy heavily reliant on a single commodity (oil). This creates a significant power imbalance.\n*   **Limited Direct Trade:** Direct trade between Japan and Nigeria exists, but it's not primarily focused on Tokyo and Abuja. Japan imports oil and gas from Nigeria, while Nigeria imports manufactured goods from Japan. These activities are more likely to be handled through major ports and commercial centers like Lagos (Nigeria) and ports near manufacturing hubs in Japan.\n*   **Investment Flows:** Japanese investment in Nigeria is primarily focused on the oil and gas sector, and to a lesser extent, infrastructure projects. These investments are not necessarily concentrated in Abuja.\n*   **Development Assistance:** Japan provides development assistance to Nigeria, which may indirectly benefit Abuja through infrastructure projects and capacity building.\n\n**In summary:**\n\nWhile both are capital cities, Tokyo and Abuja operate on vastly different economic scales. Tokyo is a global economic powerhouse driving a highly developed economy. Abuja is a developing capital city whose economy is heavily influenced by government activities and the oil sector. Their direct economic relationship is limited, primarily involving broader trade and investment between Japan and Nigeria, rather than specific interactions between the two cities themselves. The flow of economic activity is largely one way, with Japan being a major exporter to Nigeria.\n"
+                "relationship": "The relationship between Tokyo and Paris, based on the information provided, can be understood through the lens of them both being capital cities of major world powers. Here's a breakdown of their social relationships, focusing on the cities themselves:\n\n*   **Global Cities:** Both Tokyo and Paris are considered global cities, meaning they are significant hubs for finance, culture, fashion, politics, and international relations. They exert considerable influence on the world stage.\n\n*   **Cultural Exchange:** There's a history of cultural exchange and mutual admiration between Japan and France. This translates to a relationship between Tokyo and Paris where trends, art, cuisine, and ideas flow in both directions. Think of the popularity of Japanese manga and anime in France, and the influence of French fashion and cuisine in Japan.\n\n*   **Economic Ties:** Both cities are centers of major economies and have strong business ties. Companies from both countries invest in each other's markets, and there's significant trade between Japan and France. This fosters a professional relationship between the business communities in Tokyo and Paris.\n\n*   **Tourism:** Both cities are major tourist destinations. People travel from Japan to Paris to experience its history, art, and culture, and vice versa. This creates a people-to-people connection and fosters understanding between the two cultures.\n\n*   **Diplomatic Relations:** As capital cities, Tokyo and Paris are the seats of their respective governments. This means there are strong diplomatic ties between the two cities, with embassies and consulates facilitating communication and cooperation between Japan and France.\n\n*   **Competition and Cooperation:** While both cities are major players on the world stage, they also compete in areas like tourism, attracting foreign investment, and cultural influence. However, they also cooperate on issues of global importance, such as climate change, economic stability, and international security.\n\nIn summary, the relationship between Tokyo and Paris is complex and multifaceted. It's characterized by cultural exchange, economic ties, diplomatic relations, and a mix of competition and cooperation. They are both important global cities that exert significant influence on the world stage.\n"
+            },
+            "status": "completed"
+        },
+        "Capitilizer": {
+            "nodeName": "Capitilizer",
+            "systemInstructions": "This node is to upper case a given string",
+            "userPrompt": "N/A",
+            "pythonCode": {
+                "argument": {
+                    "arg1": "@[PlaceRelationship.relationship]"
+                },
+                "function_body": "def function(arg1):\n    return {\"caps\":arg1.upper()}"
+            },
+            "outputSchema": {
+                "caps": "Upper case result"
+            },
+            "useLLM": false,
+            "jsonMode": false,
+            "toolName": "",
+            "toolDescription": "",
+            "kwargs": {
+                "model_name": "gemini-2.0-flash-001",
+                "temperature": 0.5,
+                "max_output_tokens": 1000,
+                "max_retries": 5,
+                "wait_time": 30,
+                "deployed_gcp": false
+            },
+            "id": "b745b30e1bfdcabac883f236856d91634bdeeb97eed0ea2586db28b2a2316b02",
+            "_compiled": true,
+            "_parents": [
+                [
+                    "PlaceRelationship",
+                    "relationship"
+                ]
+            ],
+            "_children": [],
+            "_inputs": {
+                "@[PlaceRelationship.relationship]": "The relationship between Tokyo and Paris, based on the information provided, can be understood through the lens of them both being capital cities of major world powers. Here's a breakdown of their social relationships, focusing on the cities themselves:\n\n*   **Global Cities:** Both Tokyo and Paris are considered global cities, meaning they are significant hubs for finance, culture, fashion, politics, and international relations. They exert considerable influence on the world stage.\n\n*   **Cultural Exchange:** There's a history of cultural exchange and mutual admiration between Japan and France. This translates to a relationship between Tokyo and Paris where trends, art, cuisine, and ideas flow in both directions. Think of the popularity of Japanese manga and anime in France, and the influence of French fashion and cuisine in Japan.\n\n*   **Economic Ties:** Both cities are centers of major economies and have strong business ties. Companies from both countries invest in each other's markets, and there's significant trade between Japan and France. This fosters a professional relationship between the business communities in Tokyo and Paris.\n\n*   **Tourism:** Both cities are major tourist destinations. People travel from Japan to Paris to experience its history, art, and culture, and vice versa. This creates a people-to-people connection and fosters understanding between the two cultures.\n\n*   **Diplomatic Relations:** As capital cities, Tokyo and Paris are the seats of their respective governments. This means there are strong diplomatic ties between the two cities, with embassies and consulates facilitating communication and cooperation between Japan and France.\n\n*   **Competition and Cooperation:** While both cities are major players on the world stage, they also compete in areas like tourism, attracting foreign investment, and cultural influence. However, they also cooperate on issues of global importance, such as climate change, economic stability, and international security.\n\nIn summary, the relationship between Tokyo and Paris is complex and multifaceted. It's characterized by cultural exchange, economic ties, diplomatic relations, and a mix of competition and cooperation. They are both important global cities that exert significant influence on the world stage.\n"
+            },
+            "_outputs": {
+                "caps": "THE RELATIONSHIP BETWEEN TOKYO AND PARIS, BASED ON THE INFORMATION PROVIDED, CAN BE UNDERSTOOD THROUGH THE LENS OF THEM BOTH BEING CAPITAL CITIES OF MAJOR WORLD POWERS. HERE'S A BREAKDOWN OF THEIR SOCIAL RELATIONSHIPS, FOCUSING ON THE CITIES THEMSELVES:\n\n*   **GLOBAL CITIES:** BOTH TOKYO AND PARIS ARE CONSIDERED GLOBAL CITIES, MEANING THEY ARE SIGNIFICANT HUBS FOR FINANCE, CULTURE, FASHION, POLITICS, AND INTERNATIONAL RELATIONS. THEY EXERT CONSIDERABLE INFLUENCE ON THE WORLD STAGE.\n\n*   **CULTURAL EXCHANGE:** THERE'S A HISTORY OF CULTURAL EXCHANGE AND MUTUAL ADMIRATION BETWEEN JAPAN AND FRANCE. THIS TRANSLATES TO A RELATIONSHIP BETWEEN TOKYO AND PARIS WHERE TRENDS, ART, CUISINE, AND IDEAS FLOW IN BOTH DIRECTIONS. THINK OF THE POPULARITY OF JAPANESE MANGA AND ANIME IN FRANCE, AND THE INFLUENCE OF FRENCH FASHION AND CUISINE IN JAPAN.\n\n*   **ECONOMIC TIES:** BOTH CITIES ARE CENTERS OF MAJOR ECONOMIES AND HAVE STRONG BUSINESS TIES. COMPANIES FROM BOTH COUNTRIES INVEST IN EACH OTHER'S MARKETS, AND THERE'S SIGNIFICANT TRADE BETWEEN JAPAN AND FRANCE. THIS FOSTERS A PROFESSIONAL RELATIONSHIP BETWEEN THE BUSINESS COMMUNITIES IN TOKYO AND PARIS.\n\n*   **TOURISM:** BOTH CITIES ARE MAJOR TOURIST DESTINATIONS. PEOPLE TRAVEL FROM JAPAN TO PARIS TO EXPERIENCE ITS HISTORY, ART, AND CULTURE, AND VICE VERSA. THIS CREATES A PEOPLE-TO-PEOPLE CONNECTION AND FOSTERS UNDERSTANDING BETWEEN THE TWO CULTURES.\n\n*   **DIPLOMATIC RELATIONS:** AS CAPITAL CITIES, TOKYO AND PARIS ARE THE SEATS OF THEIR RESPECTIVE GOVERNMENTS. THIS MEANS THERE ARE STRONG DIPLOMATIC TIES BETWEEN THE TWO CITIES, WITH EMBASSIES AND CONSULATES FACILITATING COMMUNICATION AND COOPERATION BETWEEN JAPAN AND FRANCE.\n\n*   **COMPETITION AND COOPERATION:** WHILE BOTH CITIES ARE MAJOR PLAYERS ON THE WORLD STAGE, THEY ALSO COMPETE IN AREAS LIKE TOURISM, ATTRACTING FOREIGN INVESTMENT, AND CULTURAL INFLUENCE. HOWEVER, THEY ALSO COOPERATE ON ISSUES OF GLOBAL IMPORTANCE, SUCH AS CLIMATE CHANGE, ECONOMIC STABILITY, AND INTERNATIONAL SECURITY.\n\nIN SUMMARY, THE RELATIONSHIP BETWEEN TOKYO AND PARIS IS COMPLEX AND MULTIFACETED. IT'S CHARACTERIZED BY CULTURAL EXCHANGE, ECONOMIC TIES, DIPLOMATIC RELATIONS, AND A MIX OF COMPETITION AND COOPERATION. THEY ARE BOTH IMPORTANT GLOBAL CITIES THAT EXERT SIGNIFICANT INFLUENCE ON THE WORLD STAGE.\n"
             },
             "status": "completed"
         }
