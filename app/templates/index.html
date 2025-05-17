@@ -736,15 +736,36 @@
             const nodeCard = document.createElement('div');
             nodeCard.className = `node-card ${nodeData.status || 'pending'}`;
             
+            let nodeName = "inputs"
+            // const headerHtml = `
+            //     <div class="node-header">
+            //         <div class="node-title">Inputs Node</div>
+            //         <div class="node-actions">
+            //             <button class="button edit-inputs-btn">Edit Inputs</button>
+            //         </div>
+            //     </div>
+            // `;
+
             const headerHtml = `
                 <div class="node-header">
                     <div class="node-title">Inputs Node</div>
                     <div class="node-actions">
                         <button class="button edit-inputs-btn">Edit Inputs</button>
+                         <button class="button run" data-node="${nodeName}">Run</button>
+                         <button class="button delete" data-node="${nodeName}" data-action="delete">Delete</button>
                     </div>
                 </div>
             `;
-            
+            // const header1Html = `
+            //     <div class="node-header">
+            //         <div class="node-title">${nodeName}</div>
+            //         <div class="node-actions">
+            //             <button class="button run" data-node="${nodeName}">Run</button>
+            //             <button class="button" data-node="${nodeName}" data-action="edit">Edit</button>
+            //             <button class="button delete" data-node="${nodeName}" data-action="delete">Delete</button>
+            //         </div>
+            //     </div>
+            // `;
             let inputsHtml = '<div class="node-section"><h3>Input Fields:</h3>';
             
             if (nodeData.kwargs && Object.keys(nodeData.kwargs).length > 0) {
@@ -820,6 +841,16 @@
                 openInputsModal();
             });
             
+            nodeCard.querySelector(`button[data-node="${nodeName}"][data-action="delete"]`).addEventListener('click', () => {
+                if (confirm(`Are you sure you want to delete the node "${nodeName}"?`)) {
+                    removeNode(state.currentSession, nodeName);
+                }
+            });
+            
+            nodeCard.querySelector(`button.run[data-node="${nodeName}"]`).addEventListener('click', () => {
+                executeNode(state.currentSession, nodeName);
+            });
+                
             nodesContainer.appendChild(nodeCard);
         }
 

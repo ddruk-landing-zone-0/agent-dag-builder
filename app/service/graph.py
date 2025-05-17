@@ -179,7 +179,7 @@ class Graph:
         }
 
         output:
-        Boolean indicating success.
+        new_node: GraphNode object representing the updated node.
         """
         # Update an existing node in the graph
         if nodeName not in self.nodePool:
@@ -195,7 +195,7 @@ class Graph:
         # Reset the compliation status of the graph
         self.reset_compiled_nodes()
 
-        return True
+        return new_node
     
     def getNode(self, nodeName):
         """
@@ -451,6 +451,7 @@ class Graph:
                         **node_data["kwargs"]
                     )
                     # Set the node's properties
+                  #  print("fasdfasdfafas ",node_data["_inputs"])
                     node._compiled = node_data["_compiled"]
                     node._parents = node_data["_parents"]
                     node._children = node_data["_children"]
