@@ -176,16 +176,20 @@ class GraphNode:
             where value is the output of node1 with the key outputKey1
         """
         # Replace references in the input string with actual values from the node pool
+        #print("ccc",input_str)
         for node_name, output_key in self._parents:
             if node_name in nodePool and output_key in nodePool[node_name].outputSchema:
                 try:
                     # Parent key
                     parent_key = nodePool[node_name]._outputs[output_key]
                     # Replace the reference with the actual value from the node pool
-                    input_str = input_str.replace(f"@[{node_name}.{output_key}]", parent_key)
                     # Add the current node as a child of the referenced node
+                    #print("bbbbb", input_str, " ",node_name," ",output_key)
                     if f"@[{node_name}.{output_key}]" in input_str:
                         self._inputs[f"@[{node_name}.{output_key}]"] = parent_key
+                        print("aaaaa",self._inputs)
+
+                    input_str = input_str.replace(f"@[{node_name}.{output_key}]", parent_key)
                 except Exception as e:
                     LOGGER.error(f"Error replacing reference @{node_name}.{output_key}: {e}. Location: GraphNode.resolve_references")
                     # If there's an error, keep the original string
@@ -205,8 +209,9 @@ class GraphNode:
         userPrompt = self.resolve_references(self.userPrompt, nodePool) # Replace references in the user prompt
         pythonCode = self.resolve_references(self.pythonCode.get("function_body", ""), nodePool) # Replace references in the Python code
         argument = self.pythonCode.get("argument", {}) # Replace references in the Python code arguments
+        args_replaced = {}
         for key, value in argument.items():
-            argument[key] = self.resolve_references(value, nodePool) # Replace references in the Python code arguments
+            args_replaced[key] = self.resolve_references(value, nodePool) # Replace references in the Python code arguments
 
         outputs = self._outputs # Get the outputs of the node
 
@@ -216,7 +221,7 @@ class GraphNode:
             "userPrompt": userPrompt,
             "pythonCode": {
                 "function_body": pythonCode,
-                "argument": argument
+                "argument": args_replaced
             },
             "outputs": outputs
         }
