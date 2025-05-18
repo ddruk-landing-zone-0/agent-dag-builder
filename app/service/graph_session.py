@@ -21,13 +21,17 @@ class GraphSessionManager:
         self.session_metadata = {}
         
         for session_key in self.session_keys:
-            self.session_metadata[session_key] = {
-                'session_id': session_key,
-                'graph': None,
-                'created_at': time.time(),
-                'updated_at': time.time(),
-            }
-            self.session_metadata[session_key]['graph'] = self.load_graph_into_session(session_key)
+            try:
+                self.session_metadata[session_key] = {
+                    'session_id': session_key,
+                    'graph': None,
+                    'created_at': time.time(),
+                    'updated_at': time.time(),
+                }
+                self.session_metadata[session_key]['graph'] = self.load_graph_into_session(session_key)
+            except Exception as e:
+                LOGGER.error(f"Error loading session {session_key}: {e}")
+                del self.session_metadata[session_key]
     
 
     def load_graph_into_session(self, session_key):
