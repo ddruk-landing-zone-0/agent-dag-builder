@@ -4,7 +4,7 @@ import hashlib
 import re
 
 from ..llms.gemini import GeminiJsonEngine, GeminiSimpleChatEngine
-
+from ..llms.openai import LangchainOpenaiJsonEngine, LangchainOpenaiSimpleChatEngine
 
 
 class GraphNode:
@@ -174,9 +174,34 @@ class GraphNode:
                                 **self.outputSchema
                             }
                         }
-                        self.engine = GeminiJsonEngine(
+                        if "gemini" in model_name:
+                            self.engine = GeminiJsonEngine(
+                                model_name=model_name,
+                                basemodel=basemodel,
+                                temperature=temperature,
+                                max_output_tokens=max_output_tokens,
+                                systemInstructions=self.systemInstructions,
+                                max_retries=max_retries,
+                                wait_time=wait_time,
+                                deployed_gcp=deployed_gcp
+                            )
+                        elif "gpt" in model_name:
+                            self.engine = LangchainOpenaiJsonEngine(
+                                model_name=model_name,
+                                sampleBaseModel=basemodel,
+                                temperature=temperature,
+                                systemPromptText=self.systemInstructions
+                            )
+
+                    else:
+                        raise ValueError("toolName and toolDescription must be provided for JSON mode.")
+                else:
+                    if len(self.outputSchema.keys()) > 1:
+                        raise ValueError("outputSchema must have only one key for Non JSON LLM mode.")
+                        
+                    if "gemini" in model_name:
+                        self.engine = GeminiSimpleChatEngine(
                             model_name=model_name,
-                            basemodel=basemodel,
                             temperature=temperature,
                             max_output_tokens=max_output_tokens,
                             systemInstructions=self.systemInstructions,
@@ -184,21 +209,12 @@ class GraphNode:
                             wait_time=wait_time,
                             deployed_gcp=deployed_gcp
                         )
-                    else:
-                        raise ValueError("toolName and toolDescription must be provided for JSON mode.")
-                else:
-                    if len(self.outputSchema.keys()) > 1:
-                        raise ValueError("outputSchema must have only one key for Non JSON LLM mode.")
-                        
-                    self.engine = GeminiSimpleChatEngine(
-                        model_name=model_name,
-                        temperature=temperature,
-                        max_output_tokens=max_output_tokens,
-                        systemInstructions=self.systemInstructions,
-                        max_retries=max_retries,
-                        wait_time=wait_time,
-                        deployed_gcp=deployed_gcp
-                    )
+                    elif "gpt" in model_name:
+                        self.engine = LangchainOpenaiSimpleChatEngine(
+                            model_name=model_name,
+                            temperature=temperature,
+                            systemPromptText=self.systemInstructions
+                        )
             else:
                 raise ValueError("systemInstructions and userPrompt must be provided for LLM mode.")
 

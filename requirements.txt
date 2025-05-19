@@ -6,3 +6,6 @@ pydantic
 google-auth 
 google-auth-oauthlib 
 google-auth-httplib2
+langchain_core 
+langchain_openai
+python-dotenv

@@ -2,6 +2,7 @@ from pydantic import BaseModel, Field
 from typing import List, Dict, Any, Type
 
 
+
 ####################################################################################################
 # The following code is used to generate the function declaration for the GeminiModel class.
 # IT receives a Pydantic model schema and converts it to the required format for the function declaration.
@@ -100,3 +101,32 @@ def dict_to_tool_format(tool_dict):
     }
     
     return converted
+
+
+
+def dict_to_pydantic_model(tool_dict: Dict) -> Type[BaseModel]:
+    """
+    Converts a dictionary with tool metadata into a Pydantic BaseModel class.
+
+    Args:
+        tool_dict (Dict): Dictionary with keys 'tool_name', 'description', and 'output_schema'.
+
+    Returns:
+        Type[BaseModel]: A dynamically created Pydantic BaseModel class.
+    """
+    model_name = tool_dict.get("tool_name", "MyModel").replace(" ", "").title()
+    description = tool_dict.get("description", "").strip()
+    output_schema = tool_dict.get("output_schema", {})
+
+    # Generate model source code
+    lines = [f"class {model_name}(BaseModel):"]
+    if description:
+        lines.append(f'    """\n    {description}\n    """')
+    for field, desc in output_schema.items():
+        lines.append(f'    {field}: str = Field(description="{desc}")')
+    model_code = "\n".join(lines)
+
+    # Dynamically execute and return the model class
+    namespace = {}
+    exec("from pydantic import BaseModel, Field\n" + model_code, globals(), namespace)
+    return namespace[model_name]
