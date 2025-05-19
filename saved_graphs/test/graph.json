@@ -1,5 +1,5 @@
 {
-    "graph_id": "20b7fa19f3a912b50a4c5dcdf34882bf89cf12ca76320464652b6f39ec889dc0",
+    "graph_id": "e16db33cc2bd3af50b1ff1f39a516cee0aff12d5e455509bc23d91194c5f4552",
     "nodes": {
         "inputs": {
             "nodeName": "inputs",
@@ -7,16 +7,16 @@
             "userPrompt": "N/A",
             "pythonCode": {},
             "outputSchema": {
-                "userText": "I am angry today"
+                "userText": "I am happy and angry today"
             },
             "useLLM": false,
             "jsonMode": false,
             "toolName": "N/A",
             "toolDescription": "N/A",
             "kwargs": {
-                "userText": "I am angry today"
+                "userText": "I am happy and angry today"
             },
-            "id": "fabbab96650ee928b2a1ff4450e9df691a9d322b738f0e110725bf0a5756000e",
+            "id": "660cf808edb605a588daa7f3542252e52001c23035cfe9f382e69015ef8d60ee",
             "_compiled": true,
             "_parents": [],
             "_children": [
@@ -24,7 +24,7 @@
             ],
             "_inputs": {},
             "_outputs": {
-                "userText": "I am angry today"
+                "userText": "I am happy and angry today"
             },
             "status": "completed"
         },
