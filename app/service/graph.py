@@ -82,6 +82,18 @@ class Graph:
                                 **inputFields # kwargs
                                 )
         self.nodePool["inputs"] = new_node # Add the input node to the node pool
+        
+        ##### OPTIONAL FOR INPUT NODE #####
+        # # All dependency nodes are the nodes which are dependent on this node excluding this node
+        # dependency_nodes = self._traverse_nodes("inputs")
+        # dependency_nodes.remove("inputs")
+
+        # # Reset the compliation status of the graph which are dependent on this node including this node
+        # self.reset_compiled_nodes(dependency_nodes)
+
+        # # Compile the graph
+        # self.compile()
+
         return new_node
 
 
