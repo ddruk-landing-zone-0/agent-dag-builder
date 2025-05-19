@@ -209,3 +209,51 @@ def list_sessions():
         return jsonify({"sessions": sessions}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    
+
+
+@session_controller_blueprint.route('/get-config', methods=['POST'])
+def get_config():
+    """
+    Get the configuration of the graph session manager.
+    """
+    try:
+        session_id = request.json.get('session_id')
+        if not session_id:
+            return jsonify({"error": "Session ID is required."}), 400
+        config = graph_session_manager.get_config(session_id)
+        return jsonify({"config": config}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+
+@session_controller_blueprint.route('/set-config', methods=['POST'])
+def set_config():
+    """
+    Set the configuration of the graph session manager.
+    """
+    try:
+        session_id = request.json.get('session_id')
+        config = request.json.get('config')
+        if not session_id or not config:
+            return jsonify({"error": "Session ID and config are required."}), 400
+        success = graph_session_manager.set_config(session_id, config)
+        return jsonify({"success": success}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+
+@session_controller_blueprint.route('/downlaod-pypackages', methods=['POST'])
+def download_python_packages():
+    """
+    Install packages in the graph session.
+    """
+    try:
+        session_id = request.json.get('session_id')
+        packages = request.json.get('packages')
+        if not session_id or not packages:
+            return jsonify({"error": "Session ID and packages are required."}), 400
+        success = graph_session_manager.download_python_packages(session_id, packages)
+        return jsonify({"success": success}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500

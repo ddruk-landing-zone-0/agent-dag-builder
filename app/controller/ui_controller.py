@@ -24,3 +24,10 @@ def create_session_ui():
     Render the create session UI page.
     """
     return render_template('index-create.html')
+
+@ui_controller_blueprint.route('/ui/config')
+def config_ui():
+    """
+    Render the config UI page.
+    """
+    return render_template('index-config.html')

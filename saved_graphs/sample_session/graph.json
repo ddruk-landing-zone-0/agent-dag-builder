@@ -1,5 +1,5 @@
 {
-    "graph_id": "86e26a528abfba91310b95ec82b56c1fe8aed39e5e3159356c4ab8af458d3d50",
+    "graph_id": "9d47a1a3257ab64d24b4de78845f69b2cb351a5ef59455e405deb57d072e8db6",
     "nodes": {
         "inputs": {
             "nodeName": "inputs",
@@ -32,138 +32,6 @@
             },
             "status": "completed"
         },
-        "CountryCapital1": {
-            "nodeName": "CountryCapital1",
-            "systemInstructions": "You are an AI assistant. Your task is to assist the user in their tasks.",
-            "userPrompt": "Tell me a conutry name and its capital city in @[inputs.cont1]",
-            "pythonCode": {
-                "argument": {},
-                "function_body": ""
-            },
-            "outputSchema": {
-                "country_capital": "A country and its capital city from a particular continent."
-            },
-            "useLLM": true,
-            "jsonMode": false,
-            "toolName": "",
-            "toolDescription": "",
-            "kwargs": {
-                "model_name": "gemini-2.0-flash-001",
-                "temperature": 0.5,
-                "max_output_tokens": 1000,
-                "max_retries": 5,
-                "wait_time": 30,
-                "deployed_gcp": false
-            },
-            "id": "7d06e4275e889ff81572699e5b3b1dff971cba36d571adcfe8416b8466ee90f3",
-            "_compiled": true,
-            "_parents": [
-                [
-                    "inputs",
-                    "cont1"
-                ]
-            ],
-            "_children": [
-                "PlaceRelationship",
-                "DemographyCalc1"
-            ],
-            "_inputs": {
-                "@[inputs.cont1]": "asia"
-            },
-            "_outputs": {
-                "country_capital": "Okay, here's a country in Asia and its capital city:\n\n*   **Country:** Japan\n*   **Capital City:** Tokyo"
-            },
-            "status": "completed"
-        },
-        "CountryCapital2": {
-            "nodeName": "CountryCapital2",
-            "systemInstructions": "You are an AI assistant. Your task is to assist the user in their tasks.",
-            "userPrompt": "Tell me a conutry name and its capital city in @[inputs.cont2]",
-            "pythonCode": {
-                "argument": {},
-                "function_body": ""
-            },
-            "outputSchema": {
-                "country_capital": "A country and its capital city from a particular continent."
-            },
-            "useLLM": true,
-            "jsonMode": false,
-            "toolName": "",
-            "toolDescription": "",
-            "kwargs": {
-                "model_name": "gemini-2.0-flash-001",
-                "temperature": 0.5,
-                "max_output_tokens": 1000,
-                "max_retries": 5,
-                "wait_time": 30,
-                "deployed_gcp": false
-            },
-            "id": "19bf7b6b4f1aa80cc87a2bc5727599628e105fbd880622c2e25f465e231c0074",
-            "_compiled": true,
-            "_parents": [
-                [
-                    "inputs",
-                    "cont2"
-                ]
-            ],
-            "_children": [
-                "PlaceRelationship"
-            ],
-            "_inputs": {
-                "@[inputs.cont2]": "europe"
-            },
-            "_outputs": {
-                "country_capital": "Okay! Here's a country in Europe and its capital city:\n\n*   **Country:** France\n*   **Capital City:** Paris\n"
-            },
-            "status": "completed"
-        },
-        "PlaceRelationship": {
-            "nodeName": "PlaceRelationship",
-            "systemInstructions": "You are an AI assistant. Your task is to assist the user in their tasks.",
-            "userPrompt": "Tell me the relationship between @[CountryCapital1.country_capital] and @[CountryCapital2.country_capital]. Mainly focus on the cities mentioned. How their social relationships are",
-            "pythonCode": {
-                "argument": {},
-                "function_body": ""
-            },
-            "outputSchema": {
-                "relationship": "Relationship between two countries"
-            },
-            "useLLM": true,
-            "jsonMode": false,
-            "toolName": "",
-            "toolDescription": "",
-            "kwargs": {
-                "model_name": "gemini-2.0-flash-001",
-                "temperature": 0.5,
-                "max_output_tokens": 1000,
-                "max_retries": 5,
-                "wait_time": 30,
-                "deployed_gcp": false
-            },
-            "id": "2416f92009a634bd8814e3aa0764ca948b2da69e726942f81ae4afad48cef55e",
-            "_compiled": true,
-            "_parents": [
-                [
-                    "CountryCapital1",
-                    "country_capital"
-                ],
-                [
-                    "CountryCapital2",
-                    "country_capital"
-                ]
-            ],
-            "_children": [
-                "Capitilizer"
-            ],
-            "_inputs": {
-                "@[CountryCapital1.country_capital]": "Okay, here's a country in Asia and its capital city:\n\n*   **Country:** Japan\n*   **Capital City:** Tokyo",
-                "@[CountryCapital2.country_capital]": "Okay! Here's a country in Europe and its capital city:\n\n*   **Country:** France\n*   **Capital City:** Paris\n"
-            },
-            "_outputs": {
-                "relationship": "Okay, let's break down the social relationship between Tokyo and Paris, focusing on their roles as major global cities:\n\n*   **Global Economic Hubs:** Both Tokyo and Paris are major centers of global finance, commerce, and industry. They are home to headquarters of multinational corporations, major stock exchanges, and significant economic activity. This creates a relationship of both **competition** (for investment, talent, and market share) and **cooperation** (through international trade, investment, and economic partnerships). They influence each other's economies through global market trends.\n\n*   **Cultural Centers:** Both cities are renowned for their rich cultural heritage, art, fashion, cuisine, and entertainment. They attract tourists and creative talent from around the world. They are both trendsetters in their respective regions (Asia and Europe) and influence global culture. This fosters a relationship of **mutual admiration, inspiration, and exchange**. They often host cultural events that showcase each other's art and traditions.\n\n*   **Political Influence:** As capitals of their respective countries, Tokyo and Paris hold significant political power and influence on the global stage. They are centers of diplomacy, international organizations, and policy-making. They participate in international forums and negotiations, often working together on global issues such as climate change, security, and economic development. This creates a relationship of **diplomatic cooperation and strategic partnership**.\n\n*   **Tourism and Travel:** Both cities are major tourist destinations, attracting millions of visitors each year. This creates a relationship of **economic interdependence** through tourism revenue and related industries. They also share challenges related to managing tourism, such as infrastructure development and environmental sustainability.\n\n*   **Innovation and Technology:** Both Tokyo and Paris are investing heavily in innovation and technology, particularly in areas such as artificial intelligence, renewable energy, and smart city development. This creates a relationship of **knowledge sharing and collaboration** in research and development. They also compete to attract tech companies and talent.\n\nIn summary, the relationship between Tokyo and Paris is complex and multifaceted, characterized by a mix of competition, cooperation, and mutual influence in the areas of economics, culture, politics, tourism, and innovation. They are both global cities that play a significant role in shaping the world.\n"
-            },
-            "status": "completed"
-        },
         "Capitilizer": {
             "nodeName": "Capitilizer",
             "systemInstructions": "This node is to upper case a given string",
@@ -182,14 +50,14 @@
             "toolName": "",
             "toolDescription": "",
             "kwargs": {
-                "model_name": "gemini-2.0-flash-001",
+                "model_name": "gpt-3.5-turbo",
                 "temperature": 0.5,
                 "max_output_tokens": 1000,
                 "max_retries": 5,
                 "wait_time": 30,
                 "deployed_gcp": false
             },
-            "id": "b745b30e1bfdcabac883f236856d91634bdeeb97eed0ea2586db28b2a2316b02",
+            "id": "42c1fa768a2389976aaca3167a202474c8ab1c2848025bc40babf1b525b4d8c2",
             "_compiled": true,
             "_parents": [
                 [
@@ -199,17 +67,153 @@
             ],
             "_children": [],
             "_inputs": {
-                "@[PlaceRelationship.relationship]": "Okay, let's break down the social relationship between Tokyo and Paris, focusing on their roles as major global cities:\n\n*   **Global Economic Hubs:** Both Tokyo and Paris are major centers of global finance, commerce, and industry. They are home to headquarters of multinational corporations, major stock exchanges, and significant economic activity. This creates a relationship of both **competition** (for investment, talent, and market share) and **cooperation** (through international trade, investment, and economic partnerships). They influence each other's economies through global market trends.\n\n*   **Cultural Centers:** Both cities are renowned for their rich cultural heritage, art, fashion, cuisine, and entertainment. They attract tourists and creative talent from around the world. They are both trendsetters in their respective regions (Asia and Europe) and influence global culture. This fosters a relationship of **mutual admiration, inspiration, and exchange**. They often host cultural events that showcase each other's art and traditions.\n\n*   **Political Influence:** As capitals of their respective countries, Tokyo and Paris hold significant political power and influence on the global stage. They are centers of diplomacy, international organizations, and policy-making. They participate in international forums and negotiations, often working together on global issues such as climate change, security, and economic development. This creates a relationship of **diplomatic cooperation and strategic partnership**.\n\n*   **Tourism and Travel:** Both cities are major tourist destinations, attracting millions of visitors each year. This creates a relationship of **economic interdependence** through tourism revenue and related industries. They also share challenges related to managing tourism, such as infrastructure development and environmental sustainability.\n\n*   **Innovation and Technology:** Both Tokyo and Paris are investing heavily in innovation and technology, particularly in areas such as artificial intelligence, renewable energy, and smart city development. This creates a relationship of **knowledge sharing and collaboration** in research and development. They also compete to attract tech companies and talent.\n\nIn summary, the relationship between Tokyo and Paris is complex and multifaceted, characterized by a mix of competition, cooperation, and mutual influence in the areas of economics, culture, politics, tourism, and innovation. They are both global cities that play a significant role in shaping the world.\n"
+                "@[PlaceRelationship.relationship]": "Japan and France have a long-standing relationship that dates back to the 19th century. Both countries have strong cultural and economic ties, and their relationship is characterized by mutual respect and cooperation. \n\nIn terms of cities, Tokyo and Paris are the respective capital cities of Japan and France. Tokyo is known for its bustling metropolis, advanced technology, and rich cultural heritage. Paris, on the other hand, is famous for its romantic atmosphere, historical landmarks, and vibrant art scene. Both cities are major global hubs with diverse populations and thriving economies.\n\nSocial relationships between the people of Japan and France are generally positive. There is a growing interest in each other's cultures, arts, and cuisines. Many Japanese people are fascinated by French fashion, cuisine, and art, while many French people are intrigued by Japanese traditions, technology, and pop culture.\n\nOverall, the social relationship between Japan and France is characterized by a shared appreciation for each other's cultures, a spirit of collaboration in various fields, and a deepening friendship between the two nations."
             },
             "_outputs": {
-                "caps": "OKAY, LET'S BREAK DOWN THE SOCIAL RELATIONSHIP BETWEEN TOKYO AND PARIS, FOCUSING ON THEIR ROLES AS MAJOR GLOBAL CITIES:\n\n*   **GLOBAL ECONOMIC HUBS:** BOTH TOKYO AND PARIS ARE MAJOR CENTERS OF GLOBAL FINANCE, COMMERCE, AND INDUSTRY. THEY ARE HOME TO HEADQUARTERS OF MULTINATIONAL CORPORATIONS, MAJOR STOCK EXCHANGES, AND SIGNIFICANT ECONOMIC ACTIVITY. THIS CREATES A RELATIONSHIP OF BOTH **COMPETITION** (FOR INVESTMENT, TALENT, AND MARKET SHARE) AND **COOPERATION** (THROUGH INTERNATIONAL TRADE, INVESTMENT, AND ECONOMIC PARTNERSHIPS). THEY INFLUENCE EACH OTHER'S ECONOMIES THROUGH GLOBAL MARKET TRENDS.\n\n*   **CULTURAL CENTERS:** BOTH CITIES ARE RENOWNED FOR THEIR RICH CULTURAL HERITAGE, ART, FASHION, CUISINE, AND ENTERTAINMENT. THEY ATTRACT TOURISTS AND CREATIVE TALENT FROM AROUND THE WORLD. THEY ARE BOTH TRENDSETTERS IN THEIR RESPECTIVE REGIONS (ASIA AND EUROPE) AND INFLUENCE GLOBAL CULTURE. THIS FOSTERS A RELATIONSHIP OF **MUTUAL ADMIRATION, INSPIRATION, AND EXCHANGE**. THEY OFTEN HOST CULTURAL EVENTS THAT SHOWCASE EACH OTHER'S ART AND TRADITIONS.\n\n*   **POLITICAL INFLUENCE:** AS CAPITALS OF THEIR RESPECTIVE COUNTRIES, TOKYO AND PARIS HOLD SIGNIFICANT POLITICAL POWER AND INFLUENCE ON THE GLOBAL STAGE. THEY ARE CENTERS OF DIPLOMACY, INTERNATIONAL ORGANIZATIONS, AND POLICY-MAKING. THEY PARTICIPATE IN INTERNATIONAL FORUMS AND NEGOTIATIONS, OFTEN WORKING TOGETHER ON GLOBAL ISSUES SUCH AS CLIMATE CHANGE, SECURITY, AND ECONOMIC DEVELOPMENT. THIS CREATES A RELATIONSHIP OF **DIPLOMATIC COOPERATION AND STRATEGIC PARTNERSHIP**.\n\n*   **TOURISM AND TRAVEL:** BOTH CITIES ARE MAJOR TOURIST DESTINATIONS, ATTRACTING MILLIONS OF VISITORS EACH YEAR. THIS CREATES A RELATIONSHIP OF **ECONOMIC INTERDEPENDENCE** THROUGH TOURISM REVENUE AND RELATED INDUSTRIES. THEY ALSO SHARE CHALLENGES RELATED TO MANAGING TOURISM, SUCH AS INFRASTRUCTURE DEVELOPMENT AND ENVIRONMENTAL SUSTAINABILITY.\n\n*   **INNOVATION AND TECHNOLOGY:** BOTH TOKYO AND PARIS ARE INVESTING HEAVILY IN INNOVATION AND TECHNOLOGY, PARTICULARLY IN AREAS SUCH AS ARTIFICIAL INTELLIGENCE, RENEWABLE ENERGY, AND SMART CITY DEVELOPMENT. THIS CREATES A RELATIONSHIP OF **KNOWLEDGE SHARING AND COLLABORATION** IN RESEARCH AND DEVELOPMENT. THEY ALSO COMPETE TO ATTRACT TECH COMPANIES AND TALENT.\n\nIN SUMMARY, THE RELATIONSHIP BETWEEN TOKYO AND PARIS IS COMPLEX AND MULTIFACETED, CHARACTERIZED BY A MIX OF COMPETITION, COOPERATION, AND MUTUAL INFLUENCE IN THE AREAS OF ECONOMICS, CULTURE, POLITICS, TOURISM, AND INNOVATION. THEY ARE BOTH GLOBAL CITIES THAT PLAY A SIGNIFICANT ROLE IN SHAPING THE WORLD.\n"
+                "caps": "JAPAN AND FRANCE HAVE A LONG-STANDING RELATIONSHIP THAT DATES BACK TO THE 19TH CENTURY. BOTH COUNTRIES HAVE STRONG CULTURAL AND ECONOMIC TIES, AND THEIR RELATIONSHIP IS CHARACTERIZED BY MUTUAL RESPECT AND COOPERATION. \n\nIN TERMS OF CITIES, TOKYO AND PARIS ARE THE RESPECTIVE CAPITAL CITIES OF JAPAN AND FRANCE. TOKYO IS KNOWN FOR ITS BUSTLING METROPOLIS, ADVANCED TECHNOLOGY, AND RICH CULTURAL HERITAGE. PARIS, ON THE OTHER HAND, IS FAMOUS FOR ITS ROMANTIC ATMOSPHERE, HISTORICAL LANDMARKS, AND VIBRANT ART SCENE. BOTH CITIES ARE MAJOR GLOBAL HUBS WITH DIVERSE POPULATIONS AND THRIVING ECONOMIES.\n\nSOCIAL RELATIONSHIPS BETWEEN THE PEOPLE OF JAPAN AND FRANCE ARE GENERALLY POSITIVE. THERE IS A GROWING INTEREST IN EACH OTHER'S CULTURES, ARTS, AND CUISINES. MANY JAPANESE PEOPLE ARE FASCINATED BY FRENCH FASHION, CUISINE, AND ART, WHILE MANY FRENCH PEOPLE ARE INTRIGUED BY JAPANESE TRADITIONS, TECHNOLOGY, AND POP CULTURE.\n\nOVERALL, THE SOCIAL RELATIONSHIP BETWEEN JAPAN AND FRANCE IS CHARACTERIZED BY A SHARED APPRECIATION FOR EACH OTHER'S CULTURES, A SPIRIT OF COLLABORATION IN VARIOUS FIELDS, AND A DEEPENING FRIENDSHIP BETWEEN THE TWO NATIONS."
+            },
+            "status": "completed"
+        },
+        "CountryCapital1": {
+            "nodeName": "CountryCapital1",
+            "systemInstructions": "You are an AI assistant. You must use `CountryCapital` tool to extract country name and its capital city.",
+            "userPrompt": "Tell me a country name and its capital city in @[inputs.cont1]. You must use `CountryCapital` tool to extract country name and its capital city. You must answer in JSON format using the tool `CountryCapitalTool`.",
+            "pythonCode": {
+                "argument": {},
+                "function_body": ""
+            },
+            "outputSchema": {
+                "capital": "Capital's name",
+                "country": "Country's name"
+            },
+            "useLLM": true,
+            "jsonMode": true,
+            "toolName": "CountryCapitalTool",
+            "toolDescription": "CountryCapitalTool is used to generate a country name and its capital city.",
+            "kwargs": {
+                "model_name": "gpt-3.5-turbo",
+                "temperature": 0.5,
+                "max_output_tokens": 1000,
+                "max_retries": 5,
+                "wait_time": 30,
+                "deployed_gcp": false
+            },
+            "id": "cbd89b3379fffa5e415323642fe5afcbfb20274b7eaa807577616831ea35c748",
+            "_compiled": true,
+            "_parents": [
+                [
+                    "inputs",
+                    "cont1"
+                ]
+            ],
+            "_children": [
+                "DemographyCalc1",
+                "PlaceRelationship"
+            ],
+            "_inputs": {
+                "@[inputs.cont1]": "asia"
+            },
+            "_outputs": {
+                "country": "Japan",
+                "capital": "Tokyo"
+            },
+            "status": "completed"
+        },
+        "PlaceRelationship": {
+            "nodeName": "PlaceRelationship",
+            "systemInstructions": "You are an AI assistant. Your task is to assist the user in their tasks.",
+            "userPrompt": "Tell me the relationship between @[CountryCapital1.country] and @[CountryCapital2.country]. Mainly focus on the cities mentioned. How their social relationships are ?",
+            "pythonCode": {
+                "argument": {},
+                "function_body": ""
+            },
+            "outputSchema": {
+                "relationship": "Relationship between two countries"
+            },
+            "useLLM": true,
+            "jsonMode": false,
+            "toolName": "",
+            "toolDescription": "",
+            "kwargs": {
+                "model_name": "gpt-3.5-turbo",
+                "temperature": 0.5,
+                "max_output_tokens": 1000,
+                "max_retries": 5,
+                "wait_time": 30,
+                "deployed_gcp": false
+            },
+            "id": "df6255693c80c609a0c6c5c02834e20dc28b0ebc4372c844d5dc3d3cf125cbb1",
+            "_compiled": true,
+            "_parents": [
+                [
+                    "CountryCapital1",
+                    "country"
+                ],
+                [
+                    "CountryCapital2",
+                    "country"
+                ]
+            ],
+            "_children": [
+                "Capitilizer"
+            ],
+            "_inputs": {
+                "@[CountryCapital1.country]": "Japan",
+                "@[CountryCapital2.country]": "France"
+            },
+            "_outputs": {
+                "relationship": "Japan and France have a long-standing relationship that dates back to the 19th century. Both countries have strong cultural and economic ties, and their relationship is characterized by mutual respect and cooperation. \n\nIn terms of cities, Tokyo and Paris are the respective capital cities of Japan and France. Tokyo is known for its bustling metropolis, advanced technology, and rich cultural heritage. Paris, on the other hand, is famous for its romantic atmosphere, historical landmarks, and vibrant art scene. Both cities are major global hubs with diverse populations and thriving economies.\n\nSocial relationships between the people of Japan and France are generally positive. There is a growing interest in each other's cultures, arts, and cuisines. Many Japanese people are fascinated by French fashion, cuisine, and art, while many French people are intrigued by Japanese traditions, technology, and pop culture.\n\nOverall, the social relationship between Japan and France is characterized by a shared appreciation for each other's cultures, a spirit of collaboration in various fields, and a deepening friendship between the two nations."
+            },
+            "status": "completed"
+        },
+        "CountryCapital2": {
+            "nodeName": "CountryCapital2",
+            "systemInstructions": "You are an AI assistant. You must use `CountryCapitalTool` tool to extract country name and its capital city.",
+            "userPrompt": "Tell me a country name and its capital city in @[inputs.cont2]. You must use `CountryCapital` tool to extract country name and its capital city. You must answer in JSON format using the tool `CountryCapitalTool`.",
+            "pythonCode": {
+                "argument": {},
+                "function_body": ""
+            },
+            "outputSchema": {
+                "capital": "Capital City Name",
+                "country": "Country Name"
+            },
+            "useLLM": true,
+            "jsonMode": true,
+            "toolName": "CountryCapitalTool",
+            "toolDescription": "CountryCapitalTool is used to generate a country name and its capital city in JSON format.",
+            "kwargs": {
+                "model_name": "gpt-3.5-turbo",
+                "temperature": 0.5,
+                "max_output_tokens": 1000,
+                "max_retries": 5,
+                "wait_time": 30,
+                "deployed_gcp": false
+            },
+            "id": "64e72773f431a146a7872e932ff5854885e38f505a31cf30e02045d568f06815",
+            "_compiled": true,
+            "_parents": [
+                [
+                    "inputs",
+                    "cont2"
+                ]
+            ],
+            "_children": [
+                "PlaceRelationship"
+            ],
+            "_inputs": {
+                "@[inputs.cont2]": "europe"
+            },
+            "_outputs": {
+                "country": "France",
+                "capital": "Paris"
             },
             "status": "completed"
         },
         "DemographyCalc1": {
             "nodeName": "DemographyCalc1",
             "systemInstructions": "You are an AI assistant. Your task is to assist the user to estimate the demography of a country. You must use `DemographyCalc` tool to estimate the demographic details of a country.",
-            "userPrompt": "Here is the details of a continent, country and its capital city ```@[CountryCapital1.country_capital]``` . Tell me the GDP, population, area and density of the country. You must use `DemographyCalc` tool to estimate the demographic details of a country.",
+            "userPrompt": "The country is @[CountryCapital1.country] . Tell me the GDP, population, area and density of the country. You must use `DemographyCalc` tool to answer in JSON format.",
             "pythonCode": {
                 "argument": {},
                 "function_body": ""
@@ -223,31 +227,34 @@
             "useLLM": true,
             "jsonMode": true,
             "toolName": "DemographyCalc",
-            "toolDescription": "This tool is designed to estimate the demographic details of a country. You must use this tool to estimate the demographic details of a country.",
+            "toolDescription": "DemographyCalc tool is designed to estimate the demographic details of a country in JSON format",
             "kwargs": {
-                "model_name": "gemini-2.0-flash-001",
+                "model_name": "gpt-3.5-turbo",
                 "temperature": 0.5,
                 "max_output_tokens": 1000,
                 "max_retries": 5,
                 "wait_time": 30,
                 "deployed_gcp": false
             },
-            "id": "f779f0f621cb8bab81adaf3f542d1c682490f372799cab97f67aa1b77cc1a373",
+            "id": "4b850d93788dc606b60f82e262bf9861834cffa9812ea87ce632b6c1b1c67149",
             "_compiled": true,
             "_parents": [
                 [
                     "CountryCapital1",
-                    "country_capital"
+                    "country"
                 ]
             ],
             "_children": [],
             "_inputs": {
-                "@[CountryCapital1.country_capital]": "Okay, here's a country in Asia and its capital city:\n\n*   **Country:** Japan\n*   **Capital City:** Tokyo"
+                "@[CountryCapital1.country]": "Japan"
             },
             "_outputs": {
-                "error": "Error executing node DemographyCalc1: 'functionCall'. Location: GraphNode.execute"
+                "area": "377975",
+                "density": "347",
+                "gdp": "5147000000000",
+                "population": "126476461"
             },
-            "status": "error"
+            "status": "completed"
         }
     },
     "venv_path": "./runner_envs/venv",

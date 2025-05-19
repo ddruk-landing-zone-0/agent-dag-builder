@@ -21,13 +21,17 @@ class GraphSessionManager:
         self.session_metadata = {}
         
         for session_key in self.session_keys:
-            self.session_metadata[session_key] = {
-                'session_id': session_key,
-                'graph': None,
-                'created_at': time.time(),
-                'updated_at': time.time(),
-            }
-            self.session_metadata[session_key]['graph'] = self.load_graph_into_session(session_key)
+            try:
+                self.session_metadata[session_key] = {
+                    'session_id': session_key,
+                    'graph': None,
+                    'created_at': time.time(),
+                    'updated_at': time.time(),
+                }
+                self.session_metadata[session_key]['graph'] = self.load_graph_into_session(session_key)
+            except Exception as e:
+                LOGGER.error(f"Error loading session {session_key}: {e}")
+                del self.session_metadata[session_key]
     
 
     def load_graph_into_session(self, session_key):
@@ -197,7 +201,51 @@ class GraphSessionManager:
         
         graph.python_env_manager.install_dependencies(python_packages)
         return True
+    
+    def get_config(self,session_id):
+        """
+        It returns the kwargs configuration of the GraphSessionManager.
+        """
+        if session_id not in self.session_metadata:
+            raise ValueError(f"Session with ID {session_id} does not exist.")
+        
+        graph = self.session_metadata[session_id]['graph']
 
+        configs = {}
+
+        for nodeName,node in graph.nodePool.items():
+            configs[node.nodeName] = {
+                'useLLM': node.useLLM,
+                'jsonMode': node.jsonMode,
+                **node.kwargs
+            } 
+
+        return configs
+    
+    def set_config(self, session_id, config):
+        """
+        It sets the kwargs configuration of the GraphSessionManager.
+        """
+        if session_id not in self.session_metadata:
+            raise ValueError(f"Session with ID {session_id} does not exist.")
+        
+        graph = self.session_metadata[session_id]['graph']
+
+
+        for nodeName,node in graph.nodePool.items():
+            if node.nodeName in config:
+                # Check config's key are valid
+                node.useLLM = config[node.nodeName].get('useLLM', node.useLLM)
+                node.jsonMode = config[node.nodeName].get('jsonMode', node.jsonMode)
+                for key, value in config[node.nodeName].items():
+                    if key not in ['useLLM', 'jsonMode']:
+                        node.kwargs[key] = value
+
+        # Compile the graph after setting the config
+        graph.compile()
+        # Save the graph to the session directory
+        graph.save_graph()
+        return True
 
 @lru_cache(maxsize=None)
 def get_graph_session_manager():

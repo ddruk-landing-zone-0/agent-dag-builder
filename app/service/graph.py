@@ -272,9 +272,12 @@ class Graph:
         """
         # Compile the graph by checking dependencies and setting parent-child relationships
         for node in self.nodePool.values():
-            self.nodePool[node.nodeName].resolve_parent_nodes(self.nodePool)
-            self.nodePool[node.nodeName].resolve_engine()
-            node._compiled = True
+            if self.nodePool[node.nodeName].resolve_parent_nodes(self.nodePool) is not None:
+                self.nodePool[node.nodeName].resolve_engine()
+                node._compiled = True
+            else:
+                node._compiled = False
+                LOGGER.error(f"Node {node.nodeName} is not compiled. Location: Graph.compile")
 
         # Check for circular dependencies
         self.check_circular_dependency()

@@ -4,7 +4,7 @@ import hashlib
 import re
 
 from ..llms.gemini import GeminiJsonEngine, GeminiSimpleChatEngine
-
+from ..llms.openai import LangchainOpenaiJsonEngine, LangchainOpenaiSimpleChatEngine
 
 
 class GraphNode:
@@ -121,11 +121,13 @@ class GraphNode:
         """
         for parent in parent_list:
             if parent[0] not in nodePool:
-                LOGGER.error(f"Parent node {parent[0]} not found in node pool. Location: GraphNode._validate_parent")
-                raise ValueError(f"Parent node {parent[0]} not found in node pool.")
+                LOGGER.error(f"Cur Node: {self.nodeName} // Parent node {parent[0]} not found in node pool. Location: GraphNode._validate_references")
+                return False
+                # raise ValueError(f"Cur Node: {self.nodeName}Parent node {parent[0]} not found in node pool.")
             if parent[1] not in nodePool[parent[0]].outputSchema:
-                LOGGER.error(f"Output key '{parent[1]}' not found in parent node {parent[0]}. Location: GraphNode._validate_parent")
-                raise ValueError(f"Output key '{parent[1]}' not found in parent node {parent[0]}.")
+                LOGGER.error(f"Cur Node: {self.nodeName} // Parent node {parent[0]} // Output key '{parent[1]}' not found in parent node {parent[0]}. Location: GraphNode._validate_references")
+                return False
+                # raise ValueError(f"Cur Node: {self.nodeName} // Parent node {parent[0]} // Output key '{parent[1]}' not found in parent node {parent[0]}.")
         return True
 
 
@@ -172,9 +174,34 @@ class GraphNode:
                                 **self.outputSchema
                             }
                         }
-                        self.engine = GeminiJsonEngine(
+                        if "gemini" in model_name:
+                            self.engine = GeminiJsonEngine(
+                                model_name=model_name,
+                                basemodel=basemodel,
+                                temperature=temperature,
+                                max_output_tokens=max_output_tokens,
+                                systemInstructions=self.systemInstructions,
+                                max_retries=max_retries,
+                                wait_time=wait_time,
+                                deployed_gcp=deployed_gcp
+                            )
+                        elif "gpt" in model_name:
+                            self.engine = LangchainOpenaiJsonEngine(
+                                model_name=model_name,
+                                sampleBaseModel=basemodel,
+                                temperature=temperature,
+                                systemPromptText=self.systemInstructions
+                            )
+
+                    else:
+                        raise ValueError("toolName and toolDescription must be provided for JSON mode.")
+                else:
+                    if len(self.outputSchema.keys()) > 1:
+                        raise ValueError("outputSchema must have only one key for Non JSON LLM mode.")
+                        
+                    if "gemini" in model_name:
+                        self.engine = GeminiSimpleChatEngine(
                             model_name=model_name,
-                            basemodel=basemodel,
                             temperature=temperature,
                             max_output_tokens=max_output_tokens,
                             systemInstructions=self.systemInstructions,
@@ -182,21 +209,12 @@ class GraphNode:
                             wait_time=wait_time,
                             deployed_gcp=deployed_gcp
                         )
-                    else:
-                        raise ValueError("toolName and toolDescription must be provided for JSON mode.")
-                else:
-                    if len(self.outputSchema.keys()) > 1:
-                        raise ValueError("outputSchema must have only one key for Non JSON LLM mode.")
-                        
-                    self.engine = GeminiSimpleChatEngine(
-                        model_name=model_name,
-                        temperature=temperature,
-                        max_output_tokens=max_output_tokens,
-                        systemInstructions=self.systemInstructions,
-                        max_retries=max_retries,
-                        wait_time=wait_time,
-                        deployed_gcp=deployed_gcp
-                    )
+                    elif "gpt" in model_name:
+                        self.engine = LangchainOpenaiSimpleChatEngine(
+                            model_name=model_name,
+                            temperature=temperature,
+                            systemPromptText=self.systemInstructions
+                        )
             else:
                 raise ValueError("systemInstructions and userPrompt must be provided for LLM mode.")
 
@@ -225,7 +243,10 @@ class GraphNode:
 
         
         # Check if the references are valid i.e. if the node names and output keys exist in the node pool
-        self._validate_references(references, nodePool)
+        success_validate_references = self._validate_references(references, nodePool)
+
+        if not success_validate_references:
+            return None
 
         # Add the references to the _parents list and update the _children list of the referenced nodes
         for node_name, output_key in references:
