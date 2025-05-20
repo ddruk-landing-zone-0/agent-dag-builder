@@ -113,7 +113,7 @@ def update_node():
                                                                     jsonMode, 
                                                                     tool_name, 
                                                                     tool_description, 
-                                                                    **LLM_CONFIG)
+                                                                    **LLM_CONFIG) # LLM_CONFIG is passed here but not used
         return jsonify({"updated_node": updated_node.to_dict()}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -233,7 +233,7 @@ def set_config():
     Set the configuration of the graph session manager.
     """
     try:
-        session_id = request.json.get('session_id')
+        session_id = request.json.get('session_id') 
         config = request.json.get('config')
         if not session_id or not config:
             return jsonify({"error": "Session ID and config are required."}), 400
