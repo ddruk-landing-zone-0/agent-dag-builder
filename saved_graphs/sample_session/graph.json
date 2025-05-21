@@ -1,5 +1,5 @@
 {
-    "graph_id": "8f25054e105d1dced3b729576b78ad9baf1f879b60e1b46b7ba9e5c3c16c7583",
+    "graph_id": "95b46e1f8cab16b6fd3dc9ac83f2982455078ee9c844df35d4a49d3f2111bcb1",
     "nodes": {
         "inputs": {
             "nodeName": "inputs",
@@ -8,7 +8,7 @@
             "pythonCode": {},
             "outputSchema": {
                 "cont1": "europe",
-                "cont2": "antartica"
+                "cont2": "asia"
             },
             "useLLM": false,
             "jsonMode": false,
@@ -16,19 +16,19 @@
             "toolDescription": "N/A",
             "kwargs": {
                 "cont1": "europe",
-                "cont2": "antartica"
+                "cont2": "asia"
             },
-            "id": "b2bc8ae6ef4ae5b2a00820115ba89f4761a44eb7839b32639b0b164e19b4b62f",
+            "id": "361c97e687f3cb433f81b53bfda268c17b2e2811a7d98464943d4e5369404d31",
             "_compiled": true,
             "_parents": [],
             "_children": [
-                "CountryCapital2",
-                "CountryCapital1"
+                "CountryCapital1",
+                "CountryCapital2"
             ],
             "_inputs": {},
             "_outputs": {
                 "cont1": "europe",
-                "cont2": "antartica"
+                "cont2": "asia"
             },
             "status": "completed"
         },
@@ -67,10 +67,10 @@
             ],
             "_children": [],
             "_inputs": {
-                "@[PlaceRelationship.relationship]": "France has a territorial claim in Antarctica known as the Ad\u00e9lie Land. The French claim in Antarctica is centered around Dumont d'Urville Station, a French scientific research station located on the coast of Ad\u00e9lie Land. The station is named after the French explorer Jules Dumont d'Urville.\n\nIn terms of social relationships, the French presence in Antarctica is primarily focused on scientific research and environmental protection. The researchers and staff at the Dumont d'Urville Station collaborate with other international research stations in Antarctica to study various aspects of the continent, including its climate, wildlife, and geology.\n\nThe social relationships between the French researchers and staff at Dumont d'Urville Station are likely characterized by teamwork, collaboration, and a shared commitment to advancing scientific knowledge about Antarctica. Additionally, the French presence in Antarctica is governed by international agreements and protocols aimed at protecting the environment and promoting peaceful cooperation among nations conducting research on the continent."
+                "@[PlaceRelationship.relationship]": "Germany and Japan have a strong relationship, particularly in the fields of trade, technology, and culture. The cities of Berlin in Germany and Tokyo in Japan have established sister city relationships to promote cultural and economic exchanges.\n\nBerlin and Tokyo have been sister cities since 1994, and this partnership has led to various collaborations in the areas of art, education, and urban development. Both cities have exchanged ideas and best practices in sustainable development, technology innovation, and cultural events.\n\nIn terms of social relationships, the people of Germany and Japan have shown mutual respect and interest in each other's cultures. There are cultural exchanges, language learning programs, and student exchanges between the two countries, fostering a deeper understanding and appreciation of each other's traditions and customs.\n\nOverall, the relationship between Germany and Japan, as reflected in the connections between cities like Berlin and Tokyo, is characterized by cooperation, friendship, and a shared commitment to building a stronger global community."
             },
             "_outputs": {
-                "caps": "FRANCE HAS A TERRITORIAL CLAIM IN ANTARCTICA KNOWN AS THE AD\u00c9LIE LAND. THE FRENCH CLAIM IN ANTARCTICA IS CENTERED AROUND DUMONT D'URVILLE STATION, A FRENCH SCIENTIFIC RESEARCH STATION LOCATED ON THE COAST OF AD\u00c9LIE LAND. THE STATION IS NAMED AFTER THE FRENCH EXPLORER JULES DUMONT D'URVILLE.\n\nIN TERMS OF SOCIAL RELATIONSHIPS, THE FRENCH PRESENCE IN ANTARCTICA IS PRIMARILY FOCUSED ON SCIENTIFIC RESEARCH AND ENVIRONMENTAL PROTECTION. THE RESEARCHERS AND STAFF AT THE DUMONT D'URVILLE STATION COLLABORATE WITH OTHER INTERNATIONAL RESEARCH STATIONS IN ANTARCTICA TO STUDY VARIOUS ASPECTS OF THE CONTINENT, INCLUDING ITS CLIMATE, WILDLIFE, AND GEOLOGY.\n\nTHE SOCIAL RELATIONSHIPS BETWEEN THE FRENCH RESEARCHERS AND STAFF AT DUMONT D'URVILLE STATION ARE LIKELY CHARACTERIZED BY TEAMWORK, COLLABORATION, AND A SHARED COMMITMENT TO ADVANCING SCIENTIFIC KNOWLEDGE ABOUT ANTARCTICA. ADDITIONALLY, THE FRENCH PRESENCE IN ANTARCTICA IS GOVERNED BY INTERNATIONAL AGREEMENTS AND PROTOCOLS AIMED AT PROTECTING THE ENVIRONMENT AND PROMOTING PEACEFUL COOPERATION AMONG NATIONS CONDUCTING RESEARCH ON THE CONTINENT."
+                "caps": "GERMANY AND JAPAN HAVE A STRONG RELATIONSHIP, PARTICULARLY IN THE FIELDS OF TRADE, TECHNOLOGY, AND CULTURE. THE CITIES OF BERLIN IN GERMANY AND TOKYO IN JAPAN HAVE ESTABLISHED SISTER CITY RELATIONSHIPS TO PROMOTE CULTURAL AND ECONOMIC EXCHANGES.\n\nBERLIN AND TOKYO HAVE BEEN SISTER CITIES SINCE 1994, AND THIS PARTNERSHIP HAS LED TO VARIOUS COLLABORATIONS IN THE AREAS OF ART, EDUCATION, AND URBAN DEVELOPMENT. BOTH CITIES HAVE EXCHANGED IDEAS AND BEST PRACTICES IN SUSTAINABLE DEVELOPMENT, TECHNOLOGY INNOVATION, AND CULTURAL EVENTS.\n\nIN TERMS OF SOCIAL RELATIONSHIPS, THE PEOPLE OF GERMANY AND JAPAN HAVE SHOWN MUTUAL RESPECT AND INTEREST IN EACH OTHER'S CULTURES. THERE ARE CULTURAL EXCHANGES, LANGUAGE LEARNING PROGRAMS, AND STUDENT EXCHANGES BETWEEN THE TWO COUNTRIES, FOSTERING A DEEPER UNDERSTANDING AND APPRECIATION OF EACH OTHER'S TRADITIONS AND CUSTOMS.\n\nOVERALL, THE RELATIONSHIP BETWEEN GERMANY AND JAPAN, AS REFLECTED IN THE CONNECTIONS BETWEEN CITIES LIKE BERLIN AND TOKYO, IS CHARACTERIZED BY COOPERATION, FRIENDSHIP, AND A SHARED COMMITMENT TO BUILDING A STRONGER GLOBAL COMMUNITY."
             },
             "status": "completed"
         },
@@ -114,8 +114,8 @@
                 "@[inputs.cont1]": "europe"
             },
             "_outputs": {
-                "capital": "Paris",
-                "country": "France"
+                "capital": "Berlin",
+                "country": "Germany"
             },
             "status": "completed"
         },
@@ -158,11 +158,11 @@
                 "Capitilizer"
             ],
             "_inputs": {
-                "@[CountryCapital1.country]": "France",
-                "@[CountryCapital2.country]": "Antarctica"
+                "@[CountryCapital1.country]": "Germany",
+                "@[CountryCapital2.country]": "Japan"
             },
             "_outputs": {
-                "relationship": "France has a territorial claim in Antarctica known as the Ad\u00e9lie Land. The French claim in Antarctica is centered around Dumont d'Urville Station, a French scientific research station located on the coast of Ad\u00e9lie Land. The station is named after the French explorer Jules Dumont d'Urville.\n\nIn terms of social relationships, the French presence in Antarctica is primarily focused on scientific research and environmental protection. The researchers and staff at the Dumont d'Urville Station collaborate with other international research stations in Antarctica to study various aspects of the continent, including its climate, wildlife, and geology.\n\nThe social relationships between the French researchers and staff at Dumont d'Urville Station are likely characterized by teamwork, collaboration, and a shared commitment to advancing scientific knowledge about Antarctica. Additionally, the French presence in Antarctica is governed by international agreements and protocols aimed at protecting the environment and promoting peaceful cooperation among nations conducting research on the continent."
+                "relationship": "Germany and Japan have a strong relationship, particularly in the fields of trade, technology, and culture. The cities of Berlin in Germany and Tokyo in Japan have established sister city relationships to promote cultural and economic exchanges.\n\nBerlin and Tokyo have been sister cities since 1994, and this partnership has led to various collaborations in the areas of art, education, and urban development. Both cities have exchanged ideas and best practices in sustainable development, technology innovation, and cultural events.\n\nIn terms of social relationships, the people of Germany and Japan have shown mutual respect and interest in each other's cultures. There are cultural exchanges, language learning programs, and student exchanges between the two countries, fostering a deeper understanding and appreciation of each other's traditions and customs.\n\nOverall, the relationship between Germany and Japan, as reflected in the connections between cities like Berlin and Tokyo, is characterized by cooperation, friendship, and a shared commitment to building a stronger global community."
             },
             "status": "completed"
         },
@@ -199,14 +199,15 @@
                 ]
             ],
             "_children": [
-                "PlaceRelationship"
+                "PlaceRelationship",
+                "DemographyCalc2"
             ],
             "_inputs": {
-                "@[inputs.cont2]": "antartica"
+                "@[inputs.cont2]": "asia"
             },
             "_outputs": {
-                "capital": "None",
-                "country": "Antarctica"
+                "capital": "Tokyo",
+                "country": "Japan"
             },
             "status": "completed"
         },
@@ -246,13 +247,59 @@
             ],
             "_children": [],
             "_inputs": {
-                "@[CountryCapital1.country]": "France"
+                "@[CountryCapital1.country]": "Germany"
             },
             "_outputs": {
-                "area": "551695",
-                "density": "119",
-                "gdp": "2902.65 billion",
-                "population": "67.06 million"
+                "area": "357,386 square kilometers",
+                "density": "237 per square kilometer",
+                "gdp": "4.2 trillion USD",
+                "population": "83 million"
+            },
+            "status": "completed"
+        },
+        "DemographyCalc2": {
+            "nodeName": "DemographyCalc2",
+            "systemInstructions": "You are an AI assistant. Your task is to assist the user to estimate the demography of a country. You must use `DemographyCalc` tool to estimate the demographic details of a country.",
+            "userPrompt": "The country is @[CountryCapital2.country] . Tell me the GDP, population, area and density of the country. You must use `DemographyCalc` tool to answer in JSON format.",
+            "pythonCode": {
+                "argument": {},
+                "function_body": ""
+            },
+            "outputSchema": {
+                "gdp": "GDP of the country",
+                "area": "Area of the country",
+                "density": "Population density of the country",
+                "population": "Population of the country"
+            },
+            "useLLM": true,
+            "jsonMode": true,
+            "toolName": "DemographyCalc",
+            "toolDescription": "DemographyCalc tool is designed to estimate the demographic details of a country in JSON format",
+            "kwargs": {
+                "model_name": "gpt-3.5-turbo",
+                "temperature": 0.5,
+                "max_output_tokens": 1000,
+                "max_retries": 5,
+                "wait_time": 30,
+                "deployed_gcp": false
+            },
+            "id": "af1c83f5c487aee78f5d04398a73749ce31cba545dea1987fa4d31904795ddd7",
+            "_compiled": true,
+            "_parents": [
+                [
+                    "CountryCapital2",
+                    "country"
+                ]
+            ],
+            "_children": [],
+            "_inputs": {
+                "@[CountryCapital2.country]": "Japan"
+            },
+            "_outputs": {
+                "gdp": "$5.15 trillion",
+                "area": "377,975 square kilometers",
+                "density": "347.8 people per square kilometer",
+                "population": "126.5 million"
             },
             "status": "completed"
         }

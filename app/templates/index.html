@@ -269,10 +269,27 @@
         .input-fields-container {
             margin-top: 10px;
         }
+
         .input-field-row {
             display: flex;
             gap: 10px;
             margin-bottom: 10px;
+        }
+        .input-field-row textarea {
+            overflow: hidden;
+            resize: none;
+            width: 100%;
+            min-height: 40px;
+            box-sizing: border-box;
+            padding: 6px;
+            font-size: 14px;
+        }
+        .button.delete {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            cursor: pointer;
         }
         .add-field-btn {
             margin-top: 10px;
@@ -343,11 +360,11 @@
             <h2>Add Inputs</h2>
             <div class="input-fields-container" id="inputFieldsContainer">
                 <div class="input-field-row">
-                    <input type="text" class="form-control input-key" placeholder="Input Key">
-                    <input type="text" class="form-control input-value" placeholder="Input Value">
-                    <button class="button delete remove-input-field">X</button>
+                  <textarea class="form-control input-key" placeholder="Input Key"></textarea>
+                  <textarea class="form-control input-value" placeholder="Input Value"></textarea>
+                  <button class="button delete remove-input-field">X</button>
                 </div>
-            </div>
+            </div>              
             <button id="addInputFieldBtn" class="button add-field-btn">Add Field</button>
             <button id="submitInputsBtn" class="button">Submit Inputs</button>
         </div>
@@ -438,6 +455,7 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script>
         // Global state
         const state = {
@@ -860,13 +878,14 @@
                             ${Object.entries(nodeData._outputs).map(([key, value]) => `
                                 <div class="property-item">
                                     <div class="property-key">${key}:</div>
-                                    <div class="property-value">${value}</div>
+                                    <div class="property-value">${marked.parse(value)}</div>
                                 </div>
                             `).join('')}
                         </div>
                     </div>
                 `;
             }
+
             
             nodeCard.innerHTML = `
                 ${headerHtml}
@@ -1036,7 +1055,7 @@
                             ${Object.entries(nodeData._outputs).map(([key, value]) => `
                                 <div class="property-item">
                                     <div class="property-key">${key}:</div>
-                                    <div class="property-value">${value}</div>
+                                    <div class="property-value">${marked.parse(value)}</div>
                                 </div>
                             `).join('')}
                         </div>
@@ -1164,22 +1183,43 @@
             inputsModal.style.display = 'none';
         }
 
+        
+
+        function autoResizeTextarea(textarea) {
+            textarea.style.height = 'auto';
+            textarea.style.height = textarea.scrollHeight + 'px';
+        }
+
         function addInputField(key = '', value = '') {
             const fieldRow = document.createElement('div');
             fieldRow.className = 'input-field-row';
-            
+
             fieldRow.innerHTML = `
-                <input type="text" class="form-control input-key" placeholder="Input Key" value="${key}">
-                <input type="text" class="form-control input-value" placeholder="Input Value" value="${value}">
+                <textarea class="form-control input-key" placeholder="Input Key">${key}</textarea>
+                <textarea class="form-control input-value" placeholder="Input Value">${value}</textarea>
                 <button class="button delete remove-input-field">X</button>
             `;
-            
+
+            // Attach auto-resize to both textareas
+            const textareas = fieldRow.querySelectorAll('textarea');
+            textareas.forEach(textarea => {
+                autoResizeTextarea(textarea); // Initial resize
+                textarea.addEventListener('input', () => autoResizeTextarea(textarea));
+            });
+
             fieldRow.querySelector('.remove-input-field').addEventListener('click', () => {
                 fieldRow.remove();
             });
-            
+
             inputFieldsContainer.appendChild(fieldRow);
-        }
+            }
+
+            // Apply auto-resize to existing textareas on page load
+            document.querySelectorAll('.input-field-row textarea').forEach(textarea => {
+            autoResizeTextarea(textarea);
+            textarea.addEventListener('input', () => autoResizeTextarea(textarea));
+        });
+
 
         function openNodeModal(isEdit = false, nodeData = null) {
             // Reset the form
