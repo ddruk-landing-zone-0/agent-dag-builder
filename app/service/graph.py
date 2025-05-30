@@ -234,8 +234,8 @@ class Graph:
         dependency_nodes = self._traverse_nodes(nodeName)
         dependency_nodes.remove(nodeName)
 
-        # Existing kwargs
-        existing_kwargs = self.nodePool[nodeName].kwargs
+        # # Existing kwargs
+        # existing_kwargs = self.nodePool[nodeName].kwargs
 
         # Dlelete the node from the graph
         self.removeNode(nodeName)
@@ -251,7 +251,7 @@ class Graph:
             jsonMode=jsonMode,
             toolName=toolName,
             toolDescription=toolDescription,
-            **existing_kwargs
+            **kwargs
         )
 
         # Add the updated node to the node pool

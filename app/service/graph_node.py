@@ -277,7 +277,7 @@ class GraphNode:
             where value is the output of node1 with the key outputKey1
         """
         # Replace references in the input string with actual values from the node pool
-        #print("ccc",input_str)
+
         for node_name, output_key in self._parents:
             if node_name in nodePool and output_key in nodePool[node_name].outputSchema:
                 try:
