@@ -1,0 +1,216 @@
+{
+    "graph_id": "d8b271c9844a257f9f634effbfb29e1d3c0ee533de0c2e1704476288688920e2",
+    "nodes": {
+        "inputs": {
+            "nodeName": "inputs",
+            "systemInstructions": "N/A",
+            "userPrompt": "N/A",
+            "pythonCode": {},
+            "outputSchema": {
+                "cont1": "antartica",
+                "cont2": "europe"
+            },
+            "useLLM": false,
+            "jsonMode": false,
+            "toolName": "N/A",
+            "toolDescription": "N/A",
+            "kwargs": {
+                "cont1": "antartica",
+                "cont2": "europe"
+            },
+            "id": "6e2cc7a9484a800e7dc6a9e3aee30baf7e3b6772ff22f9f3a7455cf2b2d3e056",
+            "_compiled": true,
+            "_parents": [],
+            "_children": [
+                "CountryCapital2",
+                "CountryCapital1"
+            ],
+            "_inputs": {},
+            "_outputs": {
+                "cont1": "antartica",
+                "cont2": "europe"
+            },
+            "status": "completed"
+        },
+        "PlaceRelation": {
+            "nodeName": "PlaceRelation",
+            "systemInstructions": "You are an AI assistant. Your task is to assist the user in their tasks.",
+            "userPrompt": "Tell me the relationship between @[CountryCapital1.country] and @[CountryCapital2.country]. Mainly focus on the cities mentioned. How their social and financial relationships are ?",
+            "pythonCode": {
+                "argument": {},
+                "function_body": ""
+            },
+            "outputSchema": {
+                "relationship": "Relationship between two countries"
+            },
+            "useLLM": true,
+            "jsonMode": false,
+            "toolName": "",
+            "toolDescription": "",
+            "kwargs": {
+                "model_name": "gemini-2.0-flash-001",
+                "temperature": 0.5,
+                "max_output_tokens": 1000,
+                "max_retries": 5,
+                "wait_time": 30,
+                "deployed_gcp": false
+            },
+            "id": "17fe40055e12d1648b856b5e2203ec09e0c71ea9157ab907b2165e70f7cce44f",
+            "_compiled": true,
+            "_parents": [
+                [
+                    "CountryCapital1",
+                    "country"
+                ],
+                [
+                    "CountryCapital2",
+                    "country"
+                ]
+            ],
+            "_children": [
+                "Capitalizer"
+            ],
+            "_inputs": {
+                "@[CountryCapital1.country]": "Antarctica",
+                "@[CountryCapital2.country]": "Germany"
+            },
+            "_outputs": {
+                "relationship": "The relationship between Antarctica and Germany is primarily scientific and historical, with a focus on research and exploration. There are no cities in Antarctica, as it's a continent dedicated to scientific research and governed by the Antarctic Treaty System. Therefore, the relationship isn't based on traditional city-to-city social or financial interactions. However, we can explore the connection through research institutions and historical expeditions:\n\n**Historical Exploration:**\n\n*   **Early 20th Century German Antarctic Expeditions:** Germany played a significant role in the early exploration of Antarctica. The most notable was the **German Antarctic Expedition of 1901-1903**, led by Erich von Drygalski. This expedition used the ship *Gauss* and discovered Kaiser Wilhelm II Land. The expedition was based out of **Kiel**, where the *Gauss* was built and equipped. Kiel, a major port city, served as the starting and ending point for this important scientific endeavor.\n*   **New Swabia (Neuschwabenland):** In 1938-1939, Germany conducted another expedition led by Alfred Ritscher, claiming a portion of Antarctica called New Swabia. While controversial due to its timing and association with Nazi Germany, it further solidified Germany's historical presence on the continent.\n\n**Scientific Research:**\n\n*   **Alfred Wegener Institute (AWI):** The Alfred Wegener Institute for Polar and Marine Research, located in **Bremerhaven**, is Germany's leading polar research institution. AWI conducts extensive research in Antarctica, focusing on climate change, glaciology, marine biology, and geophysics. Bremerhaven serves as a crucial logistical hub for German Antarctic research, with research vessels like the *Polarstern* operating from its port.\n*   **Other Research Institutions:** Universities and research centers across Germany, including those in **Berlin**, **Hamburg**, and **Potsdam**, contribute to Antarctic research through data analysis, modeling, and technological development.\n\n**Social and Financial Relationships (Indirect):**\n\n*   **Funding:** The German government, primarily through the Federal Ministry of Education and Research (BMBF), provides significant funding for Antarctic research conducted by AWI and other institutions. This funding supports research projects, infrastructure development (including the Neumayer Station III), and logistical operations.\n*   **International Collaboration:** German scientists collaborate with researchers from other nations through the Antarctic Treaty System. This collaboration involves sharing data, resources, and expertise, fostering international cooperation in Antarctic research.\n*   **Economic Impact:** While there's no direct financial relationship between German cities and Antarctica, the research activities generate economic benefits for cities like Bremerhaven, where AWI is located. These benefits include employment opportunities, technological advancements, and the development of specialized equipment and services for polar research.\n*   **Education and Outreach:** German institutions engage in educational and outreach programs to raise awareness about Antarctica and its importance for understanding global environmental change. These programs often involve collaborations with schools and museums in cities across Germany.\n\n**In summary:**\n\nThe relationship between Germany and Antarctica is primarily scientific, driven by research institutions like the Alfred Wegener Institute in Bremerhaven. While there are no direct social or financial relationships between cities in Germany and Antarctica, cities like Bremerhaven, Kiel, Berlin, Hamburg, and Potsdam play a vital role in supporting Antarctic research through funding, logistical support, scientific expertise, and historical connection. This relationship is crucial for understanding the continent's role in the global environment and for addressing pressing issues like climate change.\n"
+            },
+            "status": "completed"
+        },
+        "CountryCapital2": {
+            "nodeName": "CountryCapital2",
+            "systemInstructions": "You are an AI assistant. You must use `CountryCapitalTool` tool to extract country name and its capital city.",
+            "userPrompt": "Tell me a country name and its capital city in @[inputs.cont2]. You must use `CountryCapital` tool to extract country name and its capital city. You must answer in JSON format using the tool `CountryCapitalTool`.",
+            "pythonCode": {
+                "argument": {},
+                "function_body": ""
+            },
+            "outputSchema": {
+                "capital": "Capital City Name",
+                "country": "Country Name"
+            },
+            "useLLM": true,
+            "jsonMode": true,
+            "toolName": "CountryCapitalTool",
+            "toolDescription": "CountryCapitalTool is used to generate a country name and its capital city in JSON format.",
+            "kwargs": {
+                "deployed_gcp": false,
+                "max_output_tokens": 1000,
+                "max_retries": 5,
+                "model_name": "gpt-3.5-turbo",
+                "temperature": 0.5,
+                "wait_time": 30
+            },
+            "id": "0f009b682ff919c537c6c33e8451b2b51131377d913f2026cc48ac453c742352",
+            "_compiled": true,
+            "_parents": [
+                [
+                    "inputs",
+                    "cont2"
+                ]
+            ],
+            "_children": [
+                "PlaceRelation"
+            ],
+            "_inputs": {
+                "@[inputs.cont2]": "europe"
+            },
+            "_outputs": {
+                "capital": "Berlin",
+                "country": "Germany"
+            },
+            "status": "completed"
+        },
+        "CountryCapital1": {
+            "nodeName": "CountryCapital1",
+            "systemInstructions": "You are an AI assistant. You must use `CountryCapitalTool` tool to extract country name and its capital city.",
+            "userPrompt": "Tell me a country name and its capital city in @[inputs.cont1]. You must use `CountryCapital` tool to extract country name and its capital city. You must answer in JSON format using the tool `CountryCapitalTool`.",
+            "pythonCode": {
+                "argument": {},
+                "function_body": ""
+            },
+            "outputSchema": {
+                "capital": "Capital City Name",
+                "country": "Country Name"
+            },
+            "useLLM": true,
+            "jsonMode": true,
+            "toolName": "CountryCapitalTool",
+            "toolDescription": "CountryCapitalTool is used to generate a country name and its capital city in JSON format.",
+            "kwargs": {
+                "deployed_gcp": false,
+                "max_output_tokens": 1000,
+                "max_retries": 5,
+                "model_name": "gpt-3.5-turbo",
+                "temperature": 0.5,
+                "wait_time": 30
+            },
+            "id": "fc1146b9099f88b180fed9f247b150db943a659c9b0bba51502b2db782ca570f",
+            "_compiled": true,
+            "_parents": [
+                [
+                    "inputs",
+                    "cont1"
+                ]
+            ],
+            "_children": [
+                "PlaceRelation"
+            ],
+            "_inputs": {
+                "@[inputs.cont1]": "antartica"
+            },
+            "_outputs": {
+                "capital": "None",
+                "country": "Antarctica"
+            },
+            "status": "completed"
+        },
+        "Capitalizer": {
+            "nodeName": "Capitalizer",
+            "systemInstructions": "Capitalizer",
+            "userPrompt": "Capitalizer",
+            "pythonCode": {
+                "argument": {
+                    "arg1": "@[PlaceRelation.relationship]"
+                },
+                "function_body": "import time;\n\ndef function(arg1):\n    time.sleep(10);\n    return {\"caps\":arg1.upper()}"
+            },
+            "outputSchema": {
+                "caps": "caps answer"
+            },
+            "useLLM": false,
+            "jsonMode": false,
+            "toolName": "",
+            "toolDescription": "",
+            "kwargs": {
+                "deployed_gcp": false,
+                "max_output_tokens": 1000,
+                "max_retries": 5,
+                "model_name": "gemini-2.0-flash-001",
+                "temperature": 0.5,
+                "wait_time": 30
+            },
+            "id": "f44670de10457b42eb0160d478316d4e212453e44a9b63742f38457d131f7f4d",
+            "_compiled": true,
+            "_parents": [
+                [
+                    "PlaceRelation",
+                    "relationship"
+                ]
+            ],
+            "_children": [],
+            "_inputs": {
+                "@[PlaceRelation.relationship]": "The relationship between Antarctica and Germany is primarily scientific and historical, with a focus on research and exploration. There are no cities in Antarctica, as it's a continent dedicated to scientific research and governed by the Antarctic Treaty System. Therefore, the relationship isn't based on traditional city-to-city social or financial interactions. However, we can explore the connection through research institutions and historical expeditions:\n\n**Historical Exploration:**\n\n*   **Early 20th Century German Antarctic Expeditions:** Germany played a significant role in the early exploration of Antarctica. The most notable was the **German Antarctic Expedition of 1901-1903**, led by Erich von Drygalski. This expedition used the ship *Gauss* and discovered Kaiser Wilhelm II Land. The expedition was based out of **Kiel**, where the *Gauss* was built and equipped. Kiel, a major port city, served as the starting and ending point for this important scientific endeavor.\n*   **New Swabia (Neuschwabenland):** In 1938-1939, Germany conducted another expedition led by Alfred Ritscher, claiming a portion of Antarctica called New Swabia. While controversial due to its timing and association with Nazi Germany, it further solidified Germany's historical presence on the continent.\n\n**Scientific Research:**\n\n*   **Alfred Wegener Institute (AWI):** The Alfred Wegener Institute for Polar and Marine Research, located in **Bremerhaven**, is Germany's leading polar research institution. AWI conducts extensive research in Antarctica, focusing on climate change, glaciology, marine biology, and geophysics. Bremerhaven serves as a crucial logistical hub for German Antarctic research, with research vessels like the *Polarstern* operating from its port.\n*   **Other Research Institutions:** Universities and research centers across Germany, including those in **Berlin**, **Hamburg**, and **Potsdam**, contribute to Antarctic research through data analysis, modeling, and technological development.\n\n**Social and Financial Relationships (Indirect):**\n\n*   **Funding:** The German government, primarily through the Federal Ministry of Education and Research (BMBF), provides significant funding for Antarctic research conducted by AWI and other institutions. This funding supports research projects, infrastructure development (including the Neumayer Station III), and logistical operations.\n*   **International Collaboration:** German scientists collaborate with researchers from other nations through the Antarctic Treaty System. This collaboration involves sharing data, resources, and expertise, fostering international cooperation in Antarctic research.\n*   **Economic Impact:** While there's no direct financial relationship between German cities and Antarctica, the research activities generate economic benefits for cities like Bremerhaven, where AWI is located. These benefits include employment opportunities, technological advancements, and the development of specialized equipment and services for polar research.\n*   **Education and Outreach:** German institutions engage in educational and outreach programs to raise awareness about Antarctica and its importance for understanding global environmental change. These programs often involve collaborations with schools and museums in cities across Germany.\n\n**In summary:**\n\nThe relationship between Germany and Antarctica is primarily scientific, driven by research institutions like the Alfred Wegener Institute in Bremerhaven. While there are no direct social or financial relationships between cities in Germany and Antarctica, cities like Bremerhaven, Kiel, Berlin, Hamburg, and Potsdam play a vital role in supporting Antarctic research through funding, logistical support, scientific expertise, and historical connection. This relationship is crucial for understanding the continent's role in the global environment and for addressing pressing issues like climate change.\n"
+            },
+            "_outputs": {
+                "caps": "THE RELATIONSHIP BETWEEN ANTARCTICA AND GERMANY IS PRIMARILY SCIENTIFIC AND HISTORICAL, WITH A FOCUS ON RESEARCH AND EXPLORATION. THERE ARE NO CITIES IN ANTARCTICA, AS IT'S A CONTINENT DEDICATED TO SCIENTIFIC RESEARCH AND GOVERNED BY THE ANTARCTIC TREATY SYSTEM. THEREFORE, THE RELATIONSHIP ISN'T BASED ON TRADITIONAL CITY-TO-CITY SOCIAL OR FINANCIAL INTERACTIONS. HOWEVER, WE CAN EXPLORE THE CONNECTION THROUGH RESEARCH INSTITUTIONS AND HISTORICAL EXPEDITIONS:\n\n**HISTORICAL EXPLORATION:**\n\n*   **EARLY 20TH CENTURY GERMAN ANTARCTIC EXPEDITIONS:** GERMANY PLAYED A SIGNIFICANT ROLE IN THE EARLY EXPLORATION OF ANTARCTICA. THE MOST NOTABLE WAS THE **GERMAN ANTARCTIC EXPEDITION OF 1901-1903**, LED BY ERICH VON DRYGALSKI. THIS EXPEDITION USED THE SHIP *GAUSS* AND DISCOVERED KAISER WILHELM II LAND. THE EXPEDITION WAS BASED OUT OF **KIEL**, WHERE THE *GAUSS* WAS BUILT AND EQUIPPED. KIEL, A MAJOR PORT CITY, SERVED AS THE STARTING AND ENDING POINT FOR THIS IMPORTANT SCIENTIFIC ENDEAVOR.\n*   **NEW SWABIA (NEUSCHWABENLAND):** IN 1938-1939, GERMANY CONDUCTED ANOTHER EXPEDITION LED BY ALFRED RITSCHER, CLAIMING A PORTION OF ANTARCTICA CALLED NEW SWABIA. WHILE CONTROVERSIAL DUE TO ITS TIMING AND ASSOCIATION WITH NAZI GERMANY, IT FURTHER SOLIDIFIED GERMANY'S HISTORICAL PRESENCE ON THE CONTINENT.\n\n**SCIENTIFIC RESEARCH:**\n\n*   **ALFRED WEGENER INSTITUTE (AWI):** THE ALFRED WEGENER INSTITUTE FOR POLAR AND MARINE RESEARCH, LOCATED IN **BREMERHAVEN**, IS GERMANY'S LEADING POLAR RESEARCH INSTITUTION. AWI CONDUCTS EXTENSIVE RESEARCH IN ANTARCTICA, FOCUSING ON CLIMATE CHANGE, GLACIOLOGY, MARINE BIOLOGY, AND GEOPHYSICS. BREMERHAVEN SERVES AS A CRUCIAL LOGISTICAL HUB FOR GERMAN ANTARCTIC RESEARCH, WITH RESEARCH VESSELS LIKE THE *POLARSTERN* OPERATING FROM ITS PORT.\n*   **OTHER RESEARCH INSTITUTIONS:** UNIVERSITIES AND RESEARCH CENTERS ACROSS GERMANY, INCLUDING THOSE IN **BERLIN**, **HAMBURG**, AND **POTSDAM**, CONTRIBUTE TO ANTARCTIC RESEARCH THROUGH DATA ANALYSIS, MODELING, AND TECHNOLOGICAL DEVELOPMENT.\n\n**SOCIAL AND FINANCIAL RELATIONSHIPS (INDIRECT):**\n\n*   **FUNDING:** THE GERMAN GOVERNMENT, PRIMARILY THROUGH THE FEDERAL MINISTRY OF EDUCATION AND RESEARCH (BMBF), PROVIDES SIGNIFICANT FUNDING FOR ANTARCTIC RESEARCH CONDUCTED BY AWI AND OTHER INSTITUTIONS. THIS FUNDING SUPPORTS RESEARCH PROJECTS, INFRASTRUCTURE DEVELOPMENT (INCLUDING THE NEUMAYER STATION III), AND LOGISTICAL OPERATIONS.\n*   **INTERNATIONAL COLLABORATION:** GERMAN SCIENTISTS COLLABORATE WITH RESEARCHERS FROM OTHER NATIONS THROUGH THE ANTARCTIC TREATY SYSTEM. THIS COLLABORATION INVOLVES SHARING DATA, RESOURCES, AND EXPERTISE, FOSTERING INTERNATIONAL COOPERATION IN ANTARCTIC RESEARCH.\n*   **ECONOMIC IMPACT:** WHILE THERE'S NO DIRECT FINANCIAL RELATIONSHIP BETWEEN GERMAN CITIES AND ANTARCTICA, THE RESEARCH ACTIVITIES GENERATE ECONOMIC BENEFITS FOR CITIES LIKE BREMERHAVEN, WHERE AWI IS LOCATED. THESE BENEFITS INCLUDE EMPLOYMENT OPPORTUNITIES, TECHNOLOGICAL ADVANCEMENTS, AND THE DEVELOPMENT OF SPECIALIZED EQUIPMENT AND SERVICES FOR POLAR RESEARCH.\n*   **EDUCATION AND OUTREACH:** GERMAN INSTITUTIONS ENGAGE IN EDUCATIONAL AND OUTREACH PROGRAMS TO RAISE AWARENESS ABOUT ANTARCTICA AND ITS IMPORTANCE FOR UNDERSTANDING GLOBAL ENVIRONMENTAL CHANGE. THESE PROGRAMS OFTEN INVOLVE COLLABORATIONS WITH SCHOOLS AND MUSEUMS IN CITIES ACROSS GERMANY.\n\n**IN SUMMARY:**\n\nTHE RELATIONSHIP BETWEEN GERMANY AND ANTARCTICA IS PRIMARILY SCIENTIFIC, DRIVEN BY RESEARCH INSTITUTIONS LIKE THE ALFRED WEGENER INSTITUTE IN BREMERHAVEN. WHILE THERE ARE NO DIRECT SOCIAL OR FINANCIAL RELATIONSHIPS BETWEEN CITIES IN GERMANY AND ANTARCTICA, CITIES LIKE BREMERHAVEN, KIEL, BERLIN, HAMBURG, AND POTSDAM PLAY A VITAL ROLE IN SUPPORTING ANTARCTIC RESEARCH THROUGH FUNDING, LOGISTICAL SUPPORT, SCIENTIFIC EXPERTISE, AND HISTORICAL CONNECTION. THIS RELATIONSHIP IS CRUCIAL FOR UNDERSTANDING THE CONTINENT'S ROLE IN THE GLOBAL ENVIRONMENT AND FOR ADDRESSING PRESSING ISSUES LIKE CLIMATE CHANGE.\n"
+            },
+            "status": "completed"
+        }
+    },
+    "venv_path": "./runner_envs/venv",
+    "python_packages": [],
+    "create_env": true
+}

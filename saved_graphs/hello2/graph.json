@@ -1,0 +1,216 @@
+{
+    "graph_id": "b96b09407d67bb2a659dee890714500b8988498dbc1c7a0c434f133248513735",
+    "nodes": {
+        "inputs": {
+            "nodeName": "inputs",
+            "systemInstructions": "N/A",
+            "userPrompt": "N/A",
+            "pythonCode": {},
+            "outputSchema": {
+                "cont1": "antartica",
+                "cont2": "europe"
+            },
+            "useLLM": false,
+            "jsonMode": false,
+            "toolName": "N/A",
+            "toolDescription": "N/A",
+            "kwargs": {
+                "cont1": "antartica",
+                "cont2": "europe"
+            },
+            "id": "6e2cc7a9484a800e7dc6a9e3aee30baf7e3b6772ff22f9f3a7455cf2b2d3e056",
+            "_compiled": true,
+            "_parents": [],
+            "_children": [
+                "CountryCapital2",
+                "CountryCapital1"
+            ],
+            "_inputs": {},
+            "_outputs": {
+                "cont1": "antartica",
+                "cont2": "europe"
+            },
+            "status": "completed"
+        },
+        "Capitalizer": {
+            "nodeName": "Capitalizer",
+            "systemInstructions": "Capitalizer",
+            "userPrompt": "Capitalizer",
+            "pythonCode": {
+                "argument": {
+                    "arg1": "@[PlaceRelation.relationship]"
+                },
+                "function_body": "import time;\n\ndef function(arg1):\n    time.sleep(10);\n    return {\"caps\":arg1.upper()}"
+            },
+            "outputSchema": {
+                "caps": "caps answer"
+            },
+            "useLLM": false,
+            "jsonMode": false,
+            "toolName": "",
+            "toolDescription": "",
+            "kwargs": {
+                "deployed_gcp": false,
+                "max_output_tokens": 1000,
+                "max_retries": 5,
+                "model_name": "gemini-2.0-flash-001",
+                "temperature": 0.5,
+                "wait_time": 30
+            },
+            "id": "f44670de10457b42eb0160d478316d4e212453e44a9b63742f38457d131f7f4d",
+            "_compiled": true,
+            "_parents": [
+                [
+                    "PlaceRelation",
+                    "relationship"
+                ]
+            ],
+            "_children": [],
+            "_inputs": {
+                "@[PlaceRelation.relationship]": "The relationship between Antarctica and France is primarily centered around **scientific research and territorial claims**, rather than direct social or financial relationships between specific cities. Here's a breakdown:\n\n**1. Territorial Claim:**\n\n*   France claims a sector of Antarctica called **Ad\u00e9lie Land (Terre Ad\u00e9lie)**. This claim is based on exploration and is recognized by some countries, but like all Antarctic territorial claims, it is held in abeyance under the Antarctic Treaty System.\n\n**2. Scientific Research:**\n\n*   **Dumond d'Urville Station:** This is a French research station located in Ad\u00e9lie Land. It's a key base for French scientific programs in Antarctica.\n*   **Concordia Station:** France, in partnership with Italy, operates the Concordia Station, located on the high Antarctic plateau (Dome C). This station is a major hub for research into glaciology, astronomy, atmospheric science, and human adaptation to extreme environments.\n*   **Institut Paul-\u00c9mile Victor (IPEV):** This is the French Polar Institute. It's the primary organization responsible for coordinating and supporting French research in both the Arctic and Antarctic. IPEV manages the logistics for Dumont d'Urville and Concordia stations.\n\n**3. Cities and Their Indirect Relationship:**\n\n*   While there aren't direct \"city-to-city\" relationships in the traditional sense, certain French cities are indirectly linked to Antarctic activities:\n    *   **Brest:** As a major port city, Brest is often involved in the logistical support of French Antarctic expeditions. Ships carrying supplies and personnel to Antarctica may depart from or return to Brest.\n    *   **Paris:** Being the capital city, Paris is where the headquarters of IPEV is located. Government funding and policy decisions regarding French Antarctic research are made in Paris.\n    *   **Grenoble:** The Universit\u00e9 Grenoble Alpes is a hub for polar research, with many scientists involved in Antarctic projects.\n\n**4. Social and Financial Relationships:**\n\n*   **Social:** The social connection is primarily through the scientific community. Researchers, engineers, and support staff from various French cities participate in Antarctic programs. There's a community of \"polar\" scientists and enthusiasts in France.\n*   **Financial:** The French government, through IPEV and other research institutions, provides the funding for Antarctic research and operations. This funding supports salaries, equipment, logistics, and infrastructure. The economic impact on specific cities is mainly related to the jobs and contracts generated by these activities. For example, companies in Brest might benefit from contracts to supply ships heading to Antarctica.\n\n**In summary:** The relationship between France and Antarctica is primarily a governmental and scientific one, focused on research and territorial claims. While specific French cities aren't directly twinned with Antarctic locations, they play a role in supporting French Antarctic activities through logistics, research, and funding. The social and financial connections are centered on the scientific community and the economic activity generated by Antarctic programs."
+            },
+            "_outputs": {
+                "caps": "THE RELATIONSHIP BETWEEN ANTARCTICA AND FRANCE IS PRIMARILY CENTERED AROUND **SCIENTIFIC RESEARCH AND TERRITORIAL CLAIMS**, RATHER THAN DIRECT SOCIAL OR FINANCIAL RELATIONSHIPS BETWEEN SPECIFIC CITIES. HERE'S A BREAKDOWN:\n\n**1. TERRITORIAL CLAIM:**\n\n*   FRANCE CLAIMS A SECTOR OF ANTARCTICA CALLED **AD\u00c9LIE LAND (TERRE AD\u00c9LIE)**. THIS CLAIM IS BASED ON EXPLORATION AND IS RECOGNIZED BY SOME COUNTRIES, BUT LIKE ALL ANTARCTIC TERRITORIAL CLAIMS, IT IS HELD IN ABEYANCE UNDER THE ANTARCTIC TREATY SYSTEM.\n\n**2. SCIENTIFIC RESEARCH:**\n\n*   **DUMOND D'URVILLE STATION:** THIS IS A FRENCH RESEARCH STATION LOCATED IN AD\u00c9LIE LAND. IT'S A KEY BASE FOR FRENCH SCIENTIFIC PROGRAMS IN ANTARCTICA.\n*   **CONCORDIA STATION:** FRANCE, IN PARTNERSHIP WITH ITALY, OPERATES THE CONCORDIA STATION, LOCATED ON THE HIGH ANTARCTIC PLATEAU (DOME C). THIS STATION IS A MAJOR HUB FOR RESEARCH INTO GLACIOLOGY, ASTRONOMY, ATMOSPHERIC SCIENCE, AND HUMAN ADAPTATION TO EXTREME ENVIRONMENTS.\n*   **INSTITUT PAUL-\u00c9MILE VICTOR (IPEV):** THIS IS THE FRENCH POLAR INSTITUTE. IT'S THE PRIMARY ORGANIZATION RESPONSIBLE FOR COORDINATING AND SUPPORTING FRENCH RESEARCH IN BOTH THE ARCTIC AND ANTARCTIC. IPEV MANAGES THE LOGISTICS FOR DUMONT D'URVILLE AND CONCORDIA STATIONS.\n\n**3. CITIES AND THEIR INDIRECT RELATIONSHIP:**\n\n*   WHILE THERE AREN'T DIRECT \"CITY-TO-CITY\" RELATIONSHIPS IN THE TRADITIONAL SENSE, CERTAIN FRENCH CITIES ARE INDIRECTLY LINKED TO ANTARCTIC ACTIVITIES:\n    *   **BREST:** AS A MAJOR PORT CITY, BREST IS OFTEN INVOLVED IN THE LOGISTICAL SUPPORT OF FRENCH ANTARCTIC EXPEDITIONS. SHIPS CARRYING SUPPLIES AND PERSONNEL TO ANTARCTICA MAY DEPART FROM OR RETURN TO BREST.\n    *   **PARIS:** BEING THE CAPITAL CITY, PARIS IS WHERE THE HEADQUARTERS OF IPEV IS LOCATED. GOVERNMENT FUNDING AND POLICY DECISIONS REGARDING FRENCH ANTARCTIC RESEARCH ARE MADE IN PARIS.\n    *   **GRENOBLE:** THE UNIVERSIT\u00c9 GRENOBLE ALPES IS A HUB FOR POLAR RESEARCH, WITH MANY SCIENTISTS INVOLVED IN ANTARCTIC PROJECTS.\n\n**4. SOCIAL AND FINANCIAL RELATIONSHIPS:**\n\n*   **SOCIAL:** THE SOCIAL CONNECTION IS PRIMARILY THROUGH THE SCIENTIFIC COMMUNITY. RESEARCHERS, ENGINEERS, AND SUPPORT STAFF FROM VARIOUS FRENCH CITIES PARTICIPATE IN ANTARCTIC PROGRAMS. THERE'S A COMMUNITY OF \"POLAR\" SCIENTISTS AND ENTHUSIASTS IN FRANCE.\n*   **FINANCIAL:** THE FRENCH GOVERNMENT, THROUGH IPEV AND OTHER RESEARCH INSTITUTIONS, PROVIDES THE FUNDING FOR ANTARCTIC RESEARCH AND OPERATIONS. THIS FUNDING SUPPORTS SALARIES, EQUIPMENT, LOGISTICS, AND INFRASTRUCTURE. THE ECONOMIC IMPACT ON SPECIFIC CITIES IS MAINLY RELATED TO THE JOBS AND CONTRACTS GENERATED BY THESE ACTIVITIES. FOR EXAMPLE, COMPANIES IN BREST MIGHT BENEFIT FROM CONTRACTS TO SUPPLY SHIPS HEADING TO ANTARCTICA.\n\n**IN SUMMARY:** THE RELATIONSHIP BETWEEN FRANCE AND ANTARCTICA IS PRIMARILY A GOVERNMENTAL AND SCIENTIFIC ONE, FOCUSED ON RESEARCH AND TERRITORIAL CLAIMS. WHILE SPECIFIC FRENCH CITIES AREN'T DIRECTLY TWINNED WITH ANTARCTIC LOCATIONS, THEY PLAY A ROLE IN SUPPORTING FRENCH ANTARCTIC ACTIVITIES THROUGH LOGISTICS, RESEARCH, AND FUNDING. THE SOCIAL AND FINANCIAL CONNECTIONS ARE CENTERED ON THE SCIENTIFIC COMMUNITY AND THE ECONOMIC ACTIVITY GENERATED BY ANTARCTIC PROGRAMS."
+            },
+            "status": "completed"
+        },
+        "CountryCapital1": {
+            "nodeName": "CountryCapital1",
+            "systemInstructions": "You are an AI assistant. You must use `CountryCapitalTool` tool to extract country name and its capital city.",
+            "userPrompt": "Tell me a country name and its capital city in @[inputs.cont1]. You must use `CountryCapital` tool to extract country name and its capital city. You must answer in JSON format using the tool `CountryCapitalTool`.",
+            "pythonCode": {
+                "argument": {},
+                "function_body": ""
+            },
+            "outputSchema": {
+                "capital": "Capital City Name",
+                "country": "Country Name"
+            },
+            "useLLM": true,
+            "jsonMode": true,
+            "toolName": "CountryCapitalTool",
+            "toolDescription": "CountryCapitalTool is used to generate a country name and its capital city in JSON format.",
+            "kwargs": {
+                "deployed_gcp": false,
+                "max_output_tokens": 1000,
+                "max_retries": 5,
+                "model_name": "gpt-3.5-turbo",
+                "temperature": 0.5,
+                "wait_time": 30
+            },
+            "id": "fc1146b9099f88b180fed9f247b150db943a659c9b0bba51502b2db782ca570f",
+            "_compiled": true,
+            "_parents": [
+                [
+                    "inputs",
+                    "cont1"
+                ]
+            ],
+            "_children": [
+                "PlaceRelation"
+            ],
+            "_inputs": {
+                "@[inputs.cont1]": "antartica"
+            },
+            "_outputs": {
+                "capital": "None",
+                "country": "Antarctica"
+            },
+            "status": "completed"
+        },
+        "CountryCapital2": {
+            "nodeName": "CountryCapital2",
+            "systemInstructions": "You are an AI assistant. You must use `CountryCapitalTool` tool to extract country name and its capital city.",
+            "userPrompt": "Tell me a country name and its capital city in @[inputs.cont2]. You must use `CountryCapital` tool to extract country name and its capital city. You must answer in JSON format using the tool `CountryCapitalTool`.",
+            "pythonCode": {
+                "argument": {},
+                "function_body": ""
+            },
+            "outputSchema": {
+                "capital": "Capital City Name",
+                "country": "Country Name"
+            },
+            "useLLM": true,
+            "jsonMode": true,
+            "toolName": "CountryCapitalTool",
+            "toolDescription": "CountryCapitalTool is used to generate a country name and its capital city in JSON format.",
+            "kwargs": {
+                "deployed_gcp": false,
+                "max_output_tokens": 1000,
+                "max_retries": 5,
+                "model_name": "gpt-3.5-turbo",
+                "temperature": 0.5,
+                "wait_time": 30
+            },
+            "id": "0f009b682ff919c537c6c33e8451b2b51131377d913f2026cc48ac453c742352",
+            "_compiled": true,
+            "_parents": [
+                [
+                    "inputs",
+                    "cont2"
+                ]
+            ],
+            "_children": [
+                "PlaceRelation"
+            ],
+            "_inputs": {
+                "@[inputs.cont2]": "europe"
+            },
+            "_outputs": {
+                "capital": "Paris",
+                "country": "France"
+            },
+            "status": "completed"
+        },
+        "PlaceRelation": {
+            "nodeName": "PlaceRelation",
+            "systemInstructions": "You are an AI assistant. Your task is to assist the user in their tasks.",
+            "userPrompt": "Tell me the relationship between @[CountryCapital1.country] and @[CountryCapital2.country]. Mainly focus on the cities mentioned. How their social and financial relationships are ?",
+            "pythonCode": {
+                "argument": {},
+                "function_body": ""
+            },
+            "outputSchema": {
+                "relationship": "Relationship between two countries"
+            },
+            "useLLM": true,
+            "jsonMode": false,
+            "toolName": "",
+            "toolDescription": "",
+            "kwargs": {
+                "deployed_gcp": false,
+                "max_output_tokens": 1000,
+                "max_retries": 5,
+                "model_name": "gemini-2.0-flash-001",
+                "temperature": 0.5,
+                "wait_time": 30
+            },
+            "id": "ef49f13616cc1e11004c536a96a52450c26cfe598daff2ff858f43bda13ed004",
+            "_compiled": true,
+            "_parents": [
+                [
+                    "CountryCapital1",
+                    "country"
+                ],
+                [
+                    "CountryCapital2",
+                    "country"
+                ]
+            ],
+            "_children": [
+                "Capitalizer"
+            ],
+            "_inputs": {
+                "@[CountryCapital1.country]": "Antarctica",
+                "@[CountryCapital2.country]": "France"
+            },
+            "_outputs": {
+                "relationship": "The relationship between Antarctica and France is primarily centered around **scientific research and territorial claims**, rather than direct social or financial relationships between specific cities. Here's a breakdown:\n\n**1. Territorial Claim:**\n\n*   France claims a sector of Antarctica called **Ad\u00e9lie Land (Terre Ad\u00e9lie)**. This claim is based on exploration and is recognized by some countries, but like all Antarctic territorial claims, it is held in abeyance under the Antarctic Treaty System.\n\n**2. Scientific Research:**\n\n*   **Dumond d'Urville Station:** This is a French research station located in Ad\u00e9lie Land. It's a key base for French scientific programs in Antarctica.\n*   **Concordia Station:** France, in partnership with Italy, operates the Concordia Station, located on the high Antarctic plateau (Dome C). This station is a major hub for research into glaciology, astronomy, atmospheric science, and human adaptation to extreme environments.\n*   **Institut Paul-\u00c9mile Victor (IPEV):** This is the French Polar Institute. It's the primary organization responsible for coordinating and supporting French research in both the Arctic and Antarctic. IPEV manages the logistics for Dumont d'Urville and Concordia stations.\n\n**3. Cities and Their Indirect Relationship:**\n\n*   While there aren't direct \"city-to-city\" relationships in the traditional sense, certain French cities are indirectly linked to Antarctic activities:\n    *   **Brest:** As a major port city, Brest is often involved in the logistical support of French Antarctic expeditions. Ships carrying supplies and personnel to Antarctica may depart from or return to Brest.\n    *   **Paris:** Being the capital city, Paris is where the headquarters of IPEV is located. Government funding and policy decisions regarding French Antarctic research are made in Paris.\n    *   **Grenoble:** The Universit\u00e9 Grenoble Alpes is a hub for polar research, with many scientists involved in Antarctic projects.\n\n**4. Social and Financial Relationships:**\n\n*   **Social:** The social connection is primarily through the scientific community. Researchers, engineers, and support staff from various French cities participate in Antarctic programs. There's a community of \"polar\" scientists and enthusiasts in France.\n*   **Financial:** The French government, through IPEV and other research institutions, provides the funding for Antarctic research and operations. This funding supports salaries, equipment, logistics, and infrastructure. The economic impact on specific cities is mainly related to the jobs and contracts generated by these activities. For example, companies in Brest might benefit from contracts to supply ships heading to Antarctica.\n\n**In summary:** The relationship between France and Antarctica is primarily a governmental and scientific one, focused on research and territorial claims. While specific French cities aren't directly twinned with Antarctic locations, they play a role in supporting French Antarctic activities through logistics, research, and funding. The social and financial connections are centered on the scientific community and the economic activity generated by Antarctic programs."
+            },
+            "status": "completed"
+        }
+    },
+    "venv_path": "./runner_envs/venv",
+    "python_packages": [],
+    "create_env": true
+}

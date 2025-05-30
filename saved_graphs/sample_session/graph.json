@@ -1,5 +1,5 @@
 {
-    "graph_id": "95b46e1f8cab16b6fd3dc9ac83f2982455078ee9c844df35d4a49d3f2111bcb1",
+    "graph_id": "c3ccbb886f71d841c4f06798aff8a280b678cb351ce7484a8ca2c2cf62d0c187",
     "nodes": {
         "inputs": {
             "nodeName": "inputs",
@@ -7,162 +7,28 @@
             "userPrompt": "N/A",
             "pythonCode": {},
             "outputSchema": {
-                "cont1": "europe",
-                "cont2": "asia"
+                "cont1": "africa",
+                "cont2": "america"
             },
             "useLLM": false,
             "jsonMode": false,
             "toolName": "N/A",
             "toolDescription": "N/A",
             "kwargs": {
-                "cont1": "europe",
-                "cont2": "asia"
+                "cont1": "africa",
+                "cont2": "america"
             },
-            "id": "361c97e687f3cb433f81b53bfda268c17b2e2811a7d98464943d4e5369404d31",
+            "id": "02f7fe8cd7729ea866bf87bf2da7042f248e5cc5df62a0f5655c74cccb8116c8",
             "_compiled": true,
             "_parents": [],
             "_children": [
-                "CountryCapital1",
-                "CountryCapital2"
+                "CountryCapital2",
+                "CountryCapital1"
             ],
             "_inputs": {},
             "_outputs": {
-                "cont1": "europe",
-                "cont2": "asia"
-            },
-            "status": "completed"
-        },
-        "Capitilizer": {
-            "nodeName": "Capitilizer",
-            "systemInstructions": "This node is to upper case a given string",
-            "userPrompt": "N/A",
-            "pythonCode": {
-                "argument": {
-                    "arg1": "@[PlaceRelationship.relationship]"
-                },
-                "function_body": "def function(arg1):\n    return {\"caps\":arg1.upper()}"
-            },
-            "outputSchema": {
-                "caps": "Upper case result"
-            },
-            "useLLM": false,
-            "jsonMode": false,
-            "toolName": "",
-            "toolDescription": "",
-            "kwargs": {
-                "model_name": "gpt-3.5-turbo",
-                "temperature": 0.5,
-                "max_output_tokens": 1000,
-                "max_retries": 5,
-                "wait_time": 30,
-                "deployed_gcp": false
-            },
-            "id": "42c1fa768a2389976aaca3167a202474c8ab1c2848025bc40babf1b525b4d8c2",
-            "_compiled": true,
-            "_parents": [
-                [
-                    "PlaceRelationship",
-                    "relationship"
-                ]
-            ],
-            "_children": [],
-            "_inputs": {
-                "@[PlaceRelationship.relationship]": "Germany and Japan have a strong relationship, particularly in the fields of trade, technology, and culture. The cities of Berlin in Germany and Tokyo in Japan have established sister city relationships to promote cultural and economic exchanges.\n\nBerlin and Tokyo have been sister cities since 1994, and this partnership has led to various collaborations in the areas of art, education, and urban development. Both cities have exchanged ideas and best practices in sustainable development, technology innovation, and cultural events.\n\nIn terms of social relationships, the people of Germany and Japan have shown mutual respect and interest in each other's cultures. There are cultural exchanges, language learning programs, and student exchanges between the two countries, fostering a deeper understanding and appreciation of each other's traditions and customs.\n\nOverall, the relationship between Germany and Japan, as reflected in the connections between cities like Berlin and Tokyo, is characterized by cooperation, friendship, and a shared commitment to building a stronger global community."
-            },
-            "_outputs": {
-                "caps": "GERMANY AND JAPAN HAVE A STRONG RELATIONSHIP, PARTICULARLY IN THE FIELDS OF TRADE, TECHNOLOGY, AND CULTURE. THE CITIES OF BERLIN IN GERMANY AND TOKYO IN JAPAN HAVE ESTABLISHED SISTER CITY RELATIONSHIPS TO PROMOTE CULTURAL AND ECONOMIC EXCHANGES.\n\nBERLIN AND TOKYO HAVE BEEN SISTER CITIES SINCE 1994, AND THIS PARTNERSHIP HAS LED TO VARIOUS COLLABORATIONS IN THE AREAS OF ART, EDUCATION, AND URBAN DEVELOPMENT. BOTH CITIES HAVE EXCHANGED IDEAS AND BEST PRACTICES IN SUSTAINABLE DEVELOPMENT, TECHNOLOGY INNOVATION, AND CULTURAL EVENTS.\n\nIN TERMS OF SOCIAL RELATIONSHIPS, THE PEOPLE OF GERMANY AND JAPAN HAVE SHOWN MUTUAL RESPECT AND INTEREST IN EACH OTHER'S CULTURES. THERE ARE CULTURAL EXCHANGES, LANGUAGE LEARNING PROGRAMS, AND STUDENT EXCHANGES BETWEEN THE TWO COUNTRIES, FOSTERING A DEEPER UNDERSTANDING AND APPRECIATION OF EACH OTHER'S TRADITIONS AND CUSTOMS.\n\nOVERALL, THE RELATIONSHIP BETWEEN GERMANY AND JAPAN, AS REFLECTED IN THE CONNECTIONS BETWEEN CITIES LIKE BERLIN AND TOKYO, IS CHARACTERIZED BY COOPERATION, FRIENDSHIP, AND A SHARED COMMITMENT TO BUILDING A STRONGER GLOBAL COMMUNITY."
-            },
-            "status": "completed"
-        },
-        "CountryCapital1": {
-            "nodeName": "CountryCapital1",
-            "systemInstructions": "You are an AI assistant. You must use `CountryCapital` tool to extract country name and its capital city.",
-            "userPrompt": "Tell me a country name and its capital city in @[inputs.cont1]. You must use `CountryCapital` tool to extract country name and its capital city. You must answer in JSON format using the tool `CountryCapitalTool`.",
-            "pythonCode": {
-                "argument": {},
-                "function_body": ""
-            },
-            "outputSchema": {
-                "capital": "Capital's name",
-                "country": "Country's name"
-            },
-            "useLLM": true,
-            "jsonMode": true,
-            "toolName": "CountryCapitalTool",
-            "toolDescription": "CountryCapitalTool is used to generate a country name and its capital city.",
-            "kwargs": {
-                "model_name": "gpt-3.5-turbo",
-                "temperature": 0.5,
-                "max_output_tokens": 1000,
-                "max_retries": 5,
-                "wait_time": 30,
-                "deployed_gcp": false
-            },
-            "id": "cbd89b3379fffa5e415323642fe5afcbfb20274b7eaa807577616831ea35c748",
-            "_compiled": true,
-            "_parents": [
-                [
-                    "inputs",
-                    "cont1"
-                ]
-            ],
-            "_children": [
-                "DemographyCalc1",
-                "PlaceRelationship"
-            ],
-            "_inputs": {
-                "@[inputs.cont1]": "europe"
-            },
-            "_outputs": {
-                "capital": "Berlin",
-                "country": "Germany"
-            },
-            "status": "completed"
-        },
-        "PlaceRelationship": {
-            "nodeName": "PlaceRelationship",
-            "systemInstructions": "You are an AI assistant. Your task is to assist the user in their tasks.",
-            "userPrompt": "Tell me the relationship between @[CountryCapital1.country] and @[CountryCapital2.country]. Mainly focus on the cities mentioned. How their social relationships are ?",
-            "pythonCode": {
-                "argument": {},
-                "function_body": ""
-            },
-            "outputSchema": {
-                "relationship": "Relationship between two countries"
-            },
-            "useLLM": true,
-            "jsonMode": false,
-            "toolName": "",
-            "toolDescription": "",
-            "kwargs": {
-                "model_name": "gpt-3.5-turbo",
-                "temperature": 0.5,
-                "max_output_tokens": 1000,
-                "max_retries": 5,
-                "wait_time": 30,
-                "deployed_gcp": false
-            },
-            "id": "df6255693c80c609a0c6c5c02834e20dc28b0ebc4372c844d5dc3d3cf125cbb1",
-            "_compiled": true,
-            "_parents": [
-                [
-                    "CountryCapital1",
-                    "country"
-                ],
-                [
-                    "CountryCapital2",
-                    "country"
-                ]
-            ],
-            "_children": [
-                "Capitilizer"
-            ],
-            "_inputs": {
-                "@[CountryCapital1.country]": "Germany",
-                "@[CountryCapital2.country]": "Japan"
-            },
-            "_outputs": {
-                "relationship": "Germany and Japan have a strong relationship, particularly in the fields of trade, technology, and culture. The cities of Berlin in Germany and Tokyo in Japan have established sister city relationships to promote cultural and economic exchanges.\n\nBerlin and Tokyo have been sister cities since 1994, and this partnership has led to various collaborations in the areas of art, education, and urban development. Both cities have exchanged ideas and best practices in sustainable development, technology innovation, and cultural events.\n\nIn terms of social relationships, the people of Germany and Japan have shown mutual respect and interest in each other's cultures. There are cultural exchanges, language learning programs, and student exchanges between the two countries, fostering a deeper understanding and appreciation of each other's traditions and customs.\n\nOverall, the relationship between Germany and Japan, as reflected in the connections between cities like Berlin and Tokyo, is characterized by cooperation, friendship, and a shared commitment to building a stronger global community."
+                "cont1": "africa",
+                "cont2": "america"
             },
             "status": "completed"
         },
@@ -203,11 +69,11 @@
                 "DemographyCalc2"
             ],
             "_inputs": {
-                "@[inputs.cont2]": "asia"
+                "@[inputs.cont2]": "america"
             },
             "_outputs": {
-                "capital": "Tokyo",
-                "country": "Japan"
+                "capital": "Washington, D.C.",
+                "country": "United States"
             },
             "status": "completed"
         },
@@ -246,16 +112,9 @@
                 ]
             ],
             "_children": [],
-            "_inputs": {
-                "@[CountryCapital1.country]": "Germany"
-            },
-            "_outputs": {
-                "area": "357,386 square kilometers",
-                "density": "237 per square kilometer",
-                "gdp": "4.2 trillion USD",
-                "population": "83 million"
-            },
-            "status": "completed"
+            "_inputs": {},
+            "_outputs": {},
+            "status": "pending"
         },
         "DemographyCalc2": {
             "nodeName": "DemographyCalc2",
@@ -283,7 +142,7 @@
                 "wait_time": 30,
                 "deployed_gcp": false
             },
-            "id": "af1c83f5c487aee78f5d04398a73749ce31cba545dea1987fa4d31904795ddd7",
+            "id": "7b088d00fa9077f146b6dcf0bd6921d37bfcabbad014505ec4fd74bf42a72f51",
             "_compiled": true,
             "_parents": [
                 [
@@ -293,15 +152,135 @@
             ],
             "_children": [],
             "_inputs": {
-                "@[CountryCapital2.country]": "Japan"
+                "@[CountryCapital2.country]": "United States"
             },
             "_outputs": {
-                "gdp": "$5.15 trillion",
-                "area": "377,975 square kilometers",
-                "density": "347.8 people per square kilometer",
-                "population": "126.5 million"
+                "gdp": "21.43 trillion USD",
+                "area": "9.8 million sq km",
+                "density": "36.3 people per sq km",
+                "population": "331 million"
             },
             "status": "completed"
+        },
+        "Capitilizer": {
+            "nodeName": "Capitilizer",
+            "systemInstructions": "This node is to upper case a given string",
+            "userPrompt": "N/A",
+            "pythonCode": {
+                "argument": {
+                    "arg1": "@[PlaceRelationship.relationship]"
+                },
+                "function_body": "def function(arg1):\n    return {\"caps\":arg1.upper()}"
+            },
+            "outputSchema": {
+                "caps": "Upper case result"
+            },
+            "useLLM": false,
+            "jsonMode": false,
+            "toolName": "",
+            "toolDescription": "",
+            "kwargs": {
+                "model_name": "gpt-3.5-turbo",
+                "temperature": 0.5,
+                "max_output_tokens": 1000,
+                "max_retries": 5,
+                "wait_time": 30,
+                "deployed_gcp": false
+            },
+            "id": "42c1fa768a2389976aaca3167a202474c8ab1c2848025bc40babf1b525b4d8c2",
+            "_compiled": true,
+            "_parents": [
+                [
+                    "PlaceRelationship",
+                    "relationship"
+                ]
+            ],
+            "_children": [],
+            "_inputs": {},
+            "_outputs": {},
+            "status": "pending"
+        },
+        "PlaceRelationship": {
+            "nodeName": "PlaceRelationship",
+            "systemInstructions": "You are an AI assistant. Your task is to assist the user in their tasks.",
+            "userPrompt": "Tell me the relationship between @[CountryCapital1.country] and @[CountryCapital2.country]. Mainly focus on the cities mentioned. How their social relationships are ?",
+            "pythonCode": {
+                "argument": {},
+                "function_body": ""
+            },
+            "outputSchema": {
+                "relationship": "Relationship between two countries"
+            },
+            "useLLM": true,
+            "jsonMode": false,
+            "toolName": "",
+            "toolDescription": "",
+            "kwargs": {
+                "model_name": "gpt-3.5-turbo",
+                "temperature": 0.5,
+                "max_output_tokens": 1000,
+                "max_retries": 5,
+                "wait_time": 30,
+                "deployed_gcp": false
+            },
+            "id": "df6255693c80c609a0c6c5c02834e20dc28b0ebc4372c844d5dc3d3cf125cbb1",
+            "_compiled": true,
+            "_parents": [
+                [
+                    "CountryCapital1",
+                    "country"
+                ],
+                [
+                    "CountryCapital2",
+                    "country"
+                ]
+            ],
+            "_children": [
+                "Capitilizer"
+            ],
+            "_inputs": {},
+            "_outputs": {},
+            "status": "pending"
+        },
+        "CountryCapital1": {
+            "nodeName": "CountryCapital1",
+            "systemInstructions": "You are an AI assistant. You must use `CountryCapital` tool to extract country name and its capital city.",
+            "userPrompt": "Tell me a country name and its capital city in @[inputs.cont1]. You must use `CountryCapital` tool to extract country name and its capital city. You must answer in JSON format using the tool `CountryCapitalTool`.",
+            "pythonCode": {
+                "argument": {},
+                "function_body": ""
+            },
+            "outputSchema": {
+                "capital": "Capital's name",
+                "country": "Country's name"
+            },
+            "useLLM": true,
+            "jsonMode": true,
+            "toolName": "CountryCapitalTool",
+            "toolDescription": "CountryCapitalTool is used to generate a country name and its capital city.",
+            "kwargs": {
+                "model_name": "gpt-3.5-turbo",
+                "temperature": 0.5,
+                "max_output_tokens": 1000,
+                "max_retries": 5,
+                "wait_time": 30,
+                "deployed_gcp": false
+            },
+            "id": "cbd89b3379fffa5e415323642fe5afcbfb20274b7eaa807577616831ea35c748",
+            "_compiled": true,
+            "_parents": [
+                [
+                    "inputs",
+                    "cont1"
+                ]
+            ],
+            "_children": [
+                "DemographyCalc1",
+                "PlaceRelationship"
+            ],
+            "_inputs": {},
+            "_outputs": {},
+            "status": "pending"
         }
     },
     "venv_path": "./runner_envs/venv",
