@@ -65,8 +65,8 @@
                 ]
             ],
             "_children": [
-                "PlaceRelationship",
-                "DemographyCalc2"
+                "DemographyCalc2",
+                "PlaceRelationship"
             ],
             "_inputs": {
                 "@[inputs.cont2]": "america"
