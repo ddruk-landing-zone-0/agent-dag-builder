@@ -204,7 +204,7 @@ def delete_session():
         return jsonify({"error": str(e)}), 500
     
 
-@session_controller_blueprint.route('/list-sessions', methods=['GET'])
+@session_controller_blueprint.route('/list-sessions', methods=['GET','POST'])
 def list_sessions():
     """
     List all graph sessions.
