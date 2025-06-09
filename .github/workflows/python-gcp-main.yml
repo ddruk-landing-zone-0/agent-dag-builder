@@ -59,18 +59,11 @@ jobs:
       # -------------------------
       - name: Build Publisher Docker Image
         run: |
-          if [ -z "${{ secrets.GCP_SA_KEY }}" ]; then
-            echo "GCP_SA_KEY secret is empty!" >&2
-            exit 1
-          fi
-          if [ -z "${{ secrets.env }}" ]; then
-            echo "env secret is empty!" >&2
-            exit 1
-          fi
           echo "${{ secrets.GCP_SA_KEY }}" | base64 --decode > key.json
           echo "${{ secrets.env }}" > .env
           docker build -f ${{ inputs.DOCKER_FILE }} -t ${{ inputs.GAR_LOCATION }}/${{ inputs.IMAGE_NAME }}:latest .
           docker images
+
 
       - name: Push Docker Image to Artifact Registry
         run: |
