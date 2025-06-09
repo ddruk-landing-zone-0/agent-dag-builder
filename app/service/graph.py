@@ -1,4 +1,3 @@
-
 from .logger import LOGGER
 from .pyenv_manager import PythonEnvironmentManager
 from .graph_node import GraphNode
@@ -9,6 +8,9 @@ import time
 from collections import defaultdict
 import os
 import json
+
+# Add import for GCS
+from google.cloud import storage
 
 
 
@@ -497,32 +499,64 @@ class Graph:
 
     def save_graph(self):
         """
-        Save the graph to a JSON file.
+        Save the graph to a JSON file or GCS bucket.
         Path is resolved as : /self.save_dir(session_id)/graph.json
-        The graph is saved in a directory specified by the save_dir attribute.
+        The graph is saved in a directory specified by the save_dir attribute or to GCS if ACCESS_GCS is true.
         """
-        # Save the graph to a JSON file
-        if not self.save_dir:
-            LOGGER.error("Save directory is not set. Location: Graph.save_graph")
-            raise ValueError("Save directory is not set. Location: Graph.save_graph")
-        file_path = os.path.join(self.save_dir, f"graph.json")
-        with open(file_path, "w") as f:
-            json.dump(self.to_dict(), f, indent=4)
-        LOGGER.info(f"Graph saved to {file_path}. Location: Graph.save_graph")
+        access_gcs = os.environ.get("ACCESS_GCS", "false").lower() == "true"
+        gcs_bucket = os.environ.get("GCS_BUCKET")
+        file_name = "graph.json"
+        file_path = os.path.join(self.save_dir, file_name)
+
+        if access_gcs:
+            if not gcs_bucket:
+                LOGGER.error("GCS_BUCKET environment variable is not set. Location: Graph.save_graph")
+                raise ValueError("GCS_BUCKET environment variable is not set. Location: Graph.save_graph")
+            # Save to GCS
+            try:
+                client = storage.Client()
+                bucket = client.bucket(gcs_bucket)
+                blob_path = os.path.join(self.save_dir, file_name) if self.save_dir else file_name
+                blob = bucket.blob(blob_path)
+                blob.upload_from_string(json.dumps(self.to_dict(), indent=4), content_type="application/json")
+                LOGGER.info(f"Graph saved to GCS: gs://{gcs_bucket}/{blob_path}. Location: Graph.save_graph")
+            except Exception as e:
+                LOGGER.error(f"Failed to save graph to GCS: {e}. Location: Graph.save_graph")
+                raise
+        else:
+            # Save to local disk
+            if not self.save_dir:
+                LOGGER.error("Save directory is not set. Location: Graph.save_graph")
+                raise ValueError("Save directory is not set. Location: Graph.save_graph")
+            with open(file_path, "w") as f:
+                json.dump(self.to_dict(), f, indent=4)
+            LOGGER.info(f"Graph saved to {file_path}. Location: Graph.save_graph")
 
     def load_graph(self):
         """
-        Load the graph from a JSON file.
+        Load the graph from a JSON file or GCS bucket.
         Path is resolved as : /self.save_dir(session_id)/graph.json
         """
-        # Load the graph from a JSON file
-        file_path = os.path.join(self.save_dir, f"graph.json")
-        try:
-            with open(file_path, "r") as f:
-                data = json.load(f)
-                for node_name, node_data in data["nodes"].items():
+        access_gcs = os.environ.get("ACCESS_GCS", "false").lower() == "true"
+        gcs_bucket = os.environ.get("GCS_BUCKET")
+        file_name = "graph.json"
+        file_path = os.path.join(self.save_dir, file_name)
 
-                    # Create a new GraphNode object from the loaded data
+        if access_gcs:
+            if not gcs_bucket:
+                LOGGER.error("GCS_BUCKET environment variable is not set. Location: Graph.load_graph")
+                raise ValueError("GCS_BUCKET environment variable is not set. Location: Graph.load_graph")
+            # Load from GCS
+            try:
+                client = storage.Client()
+                bucket = client.bucket(gcs_bucket)
+                blob_path = os.path.join(self.save_dir, file_name) if self.save_dir else file_name
+                blob = bucket.blob(blob_path)
+                if not blob.exists():
+                    LOGGER.error(f"Graph file not found in GCS: gs://{gcs_bucket}/{blob_path}. Location: Graph.load_graph")
+                    raise FileNotFoundError(f"Graph file not found in GCS: gs://{gcs_bucket}/{blob_path}")
+                data = json.loads(blob.download_as_text())
+                for node_name, node_data in data["nodes"].items():
                     node = GraphNode(
                         nodeName=node_data["nodeName"],
                         systemInstructions=node_data["systemInstructions"],
@@ -535,39 +569,67 @@ class Graph:
                         toolDescription=node_data["toolDescription"],
                         **node_data["kwargs"]
                     )
-
-                    # Set the node's properties
-                  #  print("fasdfasdfafas ",node_data["_inputs"])
                     node._compiled = node_data["_compiled"]
                     node._parents = node_data["_parents"]
                     node._children = node_data["_children"]
                     node._inputs = node_data["_inputs"]
                     node._outputs = node_data["_outputs"]
                     node.status = node_data["status"]
-                    
-                    # Add the node to the node pool
                     self.nodePool[node_name] = node
 
-
-                # Tries to gerneate the python env object
                 self.venv_path = data.get("venv_path", None)
                 self.python_packages = data.get("python_packages", [])
                 self.create_env = data.get("create_env", False)
-                
                 if self.venv_path is not None:
                     self.python_env_manager = PythonEnvironmentManager(self.venv_path, self.create_env)
                     if self.python_packages:
                         self.python_env_manager.install_dependencies(self.python_packages)
-                
-                LOGGER.info(f"Graph loaded from {file_path}. Location: Graph.load_graph")
-        except FileNotFoundError:
-            LOGGER.error(f"Graph file not found: {file_path}. Location: Graph.load_graph")
-            raise
-        except json.JSONDecodeError:
-            LOGGER.error(f"Error decoding JSON from file: {file_path}. Location: Graph.load_graph")
-            raise
-        except Exception as e:
-            LOGGER.error(f"Error loading graph: {e}. Location: Graph.load_graph")
-            raise
+                LOGGER.info(f"Graph loaded from GCS: gs://{gcs_bucket}/{blob_path}. Location: Graph.load_graph")
+            except Exception as e:
+                LOGGER.error(f"Error loading graph from GCS: {e}. Location: Graph.load_graph")
+                raise
+        else:
+            # Load from local disk
+            try:
+                with open(file_path, "r") as f:
+                    data = json.load(f)
+                    for node_name, node_data in data["nodes"].items():
+                        node = GraphNode(
+                            nodeName=node_data["nodeName"],
+                            systemInstructions=node_data["systemInstructions"],
+                            userPrompt=node_data["userPrompt"],
+                            pythonCode=node_data["pythonCode"],
+                            outputSchema=node_data["outputSchema"],
+                            useLLM=node_data["useLLM"],
+                            jsonMode=node_data["jsonMode"],
+                            toolName=node_data["toolName"],
+                            toolDescription=node_data["toolDescription"],
+                            **node_data["kwargs"]
+                        )
+                        node._compiled = node_data["_compiled"]
+                        node._parents = node_data["_parents"]
+                        node._children = node_data["_children"]
+                        node._inputs = node_data["_inputs"]
+                        node._outputs = node_data["_outputs"]
+                        node.status = node_data["status"]
+                        self.nodePool[node_name] = node
+
+                    self.venv_path = data.get("venv_path", None)
+                    self.python_packages = data.get("python_packages", [])
+                    self.create_env = data.get("create_env", False)
+                    if self.venv_path is not None:
+                        self.python_env_manager = PythonEnvironmentManager(self.venv_path, self.create_env)
+                        if self.python_packages:
+                            self.python_env_manager.install_dependencies(self.python_packages)
+                    LOGGER.info(f"Graph loaded from {file_path}. Location: Graph.load_graph")
+            except FileNotFoundError:
+                LOGGER.error(f"Graph file not found: {file_path}. Location: Graph.load_graph")
+                raise
+            except json.JSONDecodeError:
+                LOGGER.error(f"Error decoding JSON from file: {file_path}. Location: Graph.load_graph")
+                raise
+            except Exception as e:
+                LOGGER.error(f"Error loading graph: {e}. Location: Graph.load_graph")
+                raise
         self.compile()
-        LOGGER.info(f"Graph compiled after loading from {file_path}. Location: Graph.load_graph")
+        LOGGER.info(f"Graph compiled after loading. Location: Graph.load_graph")

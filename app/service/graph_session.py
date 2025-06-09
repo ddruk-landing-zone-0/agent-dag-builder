@@ -5,6 +5,8 @@ import os
 import shutil
 from functools import lru_cache
 
+# Add import for GCS
+from google.cloud import storage
 
 class GraphSessionManager:
     """
@@ -17,7 +19,26 @@ class GraphSessionManager:
         self.venv_path = venv_path
         self.create_env = create_env
 
-        self.session_keys = os.listdir(session_root_dir)
+        # GCS logic
+        self.access_gcs = os.environ.get("ACCESS_GCS", "false").lower() == "true"
+        self.gcs_bucket = os.environ.get("GCS_BUCKET")
+        self.session_root_dir = session_root_dir
+
+        if self.access_gcs:
+            if not self.gcs_bucket:
+                raise ValueError("GCS_BUCKET environment variable is not set.")
+            client = storage.Client()
+            bucket = client.bucket(self.gcs_bucket)
+            # List all "directories" (prefixes) under session_root_dir
+            blobs = bucket.list_blobs(prefix=session_root_dir.strip("/") + "/", delimiter="/")
+            self.session_keys = set()
+            for page in blobs.pages:
+                for prefix in page.prefixes:
+                    session_key = prefix.rstrip("/").split("/")[-1]
+                    self.session_keys.add(session_key)
+            self.session_keys = list(self.session_keys)
+        else:
+            self.session_keys = os.listdir(session_root_dir)
         self.session_metadata = {}
         
         for session_key in self.session_keys:
@@ -39,7 +60,7 @@ class GraphSessionManager:
         It initializes a dummy graph object and loads the graph from the session directory.
         The graph is stored as /saved_graphs/{session_key}/graph.json.
         """
-        graph = Graph(timeout=self.timeout, venv_path=None, create_env=None, python_packages=None, save_dir=f"./saved_graphs/{session_key}/")
+        graph = Graph(timeout=self.timeout, venv_path=None, create_env=None, python_packages=None, save_dir=f"{self.session_root_dir.rstrip('/')}/{session_key}/")
         graph.load_graph()
         return graph
     
@@ -59,8 +80,9 @@ class GraphSessionManager:
             python_packages = [] # default to empty list
         
         ############# Create a new graph and save it to the session directory
-        graph = Graph(timeout=self.timeout, venv_path=venv_path, create_env=create_env, python_packages=python_packages, save_dir=f"./saved_graphs/{session_id}/")
-        os.makedirs(os.path.join("./saved_graphs/", session_id), exist_ok=True) # create the session directory if it doesn't exist
+        graph = Graph(timeout=self.timeout, venv_path=venv_path, create_env=create_env, python_packages=python_packages, save_dir=f"{self.session_root_dir.rstrip('/')}/{session_id}/")
+        if not self.access_gcs:
+            os.makedirs(os.path.join(self.session_root_dir, session_id), exist_ok=True) # create the session directory if it doesn't exist
 
         # Add a dummy input node to the graph
         sampleInputFields = {
@@ -159,20 +181,38 @@ class GraphSessionManager:
     
     def delete_session(self, session_id):
         """
-        It deletes the session with the given session ID form RAM.
-        Then it deletes the session directory from the disk.
+        It deletes the session with the given session ID from RAM.
+        Then it deletes the session directory from the disk or GCS.
         """
         if session_id not in self.session_metadata:
             raise ValueError(f"Session with ID {session_id} does not exist.")
         
         del self.session_metadata[session_id]
         LOGGER.info(f"Session {session_id} deleted.")
-        session_dir = os.path.join("./saved_graphs/", session_id)
-        if os.path.exists(session_dir):
-            shutil.rmtree(session_dir)
-            LOGGER.info(f"Session directory {session_dir} deleted.")
+        session_dir = os.path.join(self.session_root_dir, session_id)
+        if self.access_gcs:
+            # Delete all blobs under the session_dir prefix in GCS
+            try:
+                client = storage.Client()
+                bucket = client.bucket(self.gcs_bucket)
+                prefix = f"{self.session_root_dir.rstrip('/')}/{session_id}/"
+                blobs = bucket.list_blobs(prefix=prefix)
+                deleted_any = False
+                for blob in blobs:
+                    blob.delete()
+                    deleted_any = True
+                if deleted_any:
+                    LOGGER.info(f"GCS session directory {prefix} deleted.")
+                else:
+                    LOGGER.warning(f"GCS session directory {prefix} does not exist or is empty.")
+            except Exception as e:
+                LOGGER.error(f"Error deleting GCS session directory {prefix}: {e}")
         else:
-            LOGGER.warning(f"Session directory {session_dir} does not exist.")
+            if os.path.exists(session_dir):
+                shutil.rmtree(session_dir)
+                LOGGER.info(f"Session directory {session_dir} deleted.")
+            else:
+                LOGGER.warning(f"Session directory {session_dir} does not exist.")
         return True
     
     def list_sessions(self):
