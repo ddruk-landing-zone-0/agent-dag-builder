@@ -19,4 +19,4 @@ jobs:
             IMAGE_NAME: agent-builder-image
             SERVICE_ACCOUNT: sample-project-0-sa@sample-project-0-455918.iam.gserviceaccount.com
             DOCKER_FILE: Dockerfile.app
-            CLOUD_RUN_RAM: 512Mi
+            CLOUD_RUN_RAM: 3Gi

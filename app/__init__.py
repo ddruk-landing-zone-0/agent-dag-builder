@@ -2,8 +2,8 @@ import os
 from dotenv import load_dotenv
 
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "key.json"
-os.environ["GOOGLE_CLOUD_PROJECT"] = "openserve-0"
-os.environ["GOOGLE_CLOUD_LOCATION"] = "us-central1" 
+os.environ["GOOGLE_CLOUD_PROJECT"] = "sample-project-0-455918"
+os.environ["GOOGLE_CLOUD_LOCATION"] = "us-central1"
 # Load environment variables from .env file
 load_dotenv()
 
