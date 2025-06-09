@@ -180,4 +180,5 @@ runner_envs
 tmp_graph.json
 key.json
 .env
-key-*.json
+key*
+key_b64.txt
