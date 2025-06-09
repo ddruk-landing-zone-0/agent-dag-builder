@@ -8,7 +8,7 @@ on:
             - dev-0
 jobs:
     main: 
-        uses: ddruk-landing-zone-0/sample-python-wsgi-prod-app/.github/workflows/python-gcp-main.yml@main
+        uses: ddruk-landing-zone-0/agent-dag-builder/.github/workflows/python-gcp-main.yml@main
         secrets: inherit
         with:
             GCP_PROJECT_ID: sample-project-0-455918
