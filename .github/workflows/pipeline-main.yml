@@ -14,7 +14,7 @@ jobs:
             GCP_PROJECT_ID: sample-project-0-455918
             CLOUD_RUN_SERVICE: agent-builder
             CLOUD_RUN_REGION: us-central1
-            GAR_LOCATION: us-central1-docker.pkg.dev/hackathon0-project/gar-agent-builder
+            GAR_LOCATION: us-central1-docker.pkg.dev/sample-project-0-455918/gar-agent-builder
             GAR_LOCATION_PREFIX: us-central1-docker.pkg.dev
             IMAGE_NAME: agent-builder-image
             SERVICE_ACCOUNT: sample-project-0-sa@sample-project-0-455918.iam.gserviceaccount.com
