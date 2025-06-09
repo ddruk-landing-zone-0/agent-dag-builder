@@ -1,0 +1,95 @@
+name: Deploy Python App to Cloud Run
+
+on:
+  workflow_dispatch:
+  workflow_call:
+    inputs:
+        GCP_PROJECT_ID: 
+            type: string
+            required: true
+        CLOUD_RUN_SERVICE:
+            type: string
+            required: true
+        CLOUD_RUN_REGION:
+            type: string
+            required: true
+        GAR_LOCATION:
+            type: string
+            required: true
+        GAR_LOCATION_PREFIX:
+            type: string
+            required: true
+        IMAGE_NAME:
+            type: string
+            required: true
+        SERVICE_ACCOUNT:
+            type: string
+            required: true 
+        DOCKER_FILE:
+            type: string    
+            required: true
+        CLOUD_RUN_RAM:
+            type: string
+            required: true
+            
+jobs:
+  code_checkout:
+    name: Checkout And Deploy
+    if: ${{ !contains(github.event.head_commit.message, '[skip-ci]') }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Authenticate with GCP
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Set up Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configure Docker for Google Artifact Registry
+        run: |
+          gcloud auth configure-docker ${{ inputs.GAR_LOCATION_PREFIX }}
+
+      # -------------------------
+      # BUILD AND DEPLOY
+      # -------------------------
+      - name: Build Publisher Docker Image
+        run: |
+          if [ -z "${{ secrets.GCP_SA_KEY }}" ]; then
+            echo "GCP_SA_KEY secret is empty!" >&2
+            exit 1
+          fi
+          if [ -z "${{ secrets.env }}" ]; then
+            echo "env secret is empty!" >&2
+            exit 1
+          fi
+          echo "${{ secrets.GCP_SA_KEY }}" > key.json
+          echo "${{ secrets.env }}" > .env
+          docker build -f ${{ inputs.DOCKER_FILE }} -t ${{ inputs.GAR_LOCATION }}/${{ inputs.IMAGE_NAME }}:latest .
+          docker images
+
+      - name: Push Docker Image to Artifact Registry
+        run: |
+          docker push ${{ inputs.GAR_LOCATION }}/${{ inputs.IMAGE_NAME }}:latest
+
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy ${{ inputs.CLOUD_RUN_SERVICE }} \
+            --image ${{ inputs.GAR_LOCATION }}/${{ inputs.IMAGE_NAME }}:latest \
+            --region ${{ inputs.CLOUD_RUN_REGION }} \
+            --platform managed \
+            --allow-unauthenticated \
+            --service-account=${{ inputs.SERVICE_ACCOUNT }} \
+            --memory ${{ inputs.CLOUD_RUN_RAM }}
+
+          # Fetch and display the deployed service URL
+          DEPLOYED_URL=$(gcloud run services describe ${{ inputs.CLOUD_RUN_SERVICE }} \
+            --region ${{ inputs.CLOUD_RUN_REGION }} \
+            --format 'value(status.url)')
+
+          echo "✅ Cloud Run Service Deployed Successfully!"
+          echo "🌍 Deployed URL For Pub: $DEPLOYED_URL"

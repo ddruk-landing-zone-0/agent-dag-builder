@@ -1,5 +1,5 @@
 {
-    "graph_id": "e16db33cc2bd3af50b1ff1f39a516cee0aff12d5e455509bc23d91194c5f4552",
+    "graph_id": "3b0bfe2a7a511bd149600e591483372e589713cfb8367a6b3ebb65fc2e7dcdb1",
     "nodes": {
         "inputs": {
             "nodeName": "inputs",
@@ -74,11 +74,11 @@
             "_children": [],
             "_inputs": {
                 "@[csdas.anger]": "High",
-                "@[csdas.joy]": "Low",
+                "@[csdas.joy]": "High",
                 "@[csdas.sadness]": "Low"
             },
             "_outputs": {
-                "output": "HighLowLow"
+                "output": "HighHighLow"
             },
             "status": "completed"
         },
@@ -119,12 +119,47 @@
                 "SamplePythonConcatenation"
             ],
             "_inputs": {
-                "@[inputs.userText]": "I am angry today"
+                "@[inputs.userText]": "I am happy and angry today"
             },
             "_outputs": {
-                "joy": "Low",
+                "joy": "High",
                 "sadness": "Low",
                 "anger": "High"
+            },
+            "status": "completed"
+        },
+        "Ilm": {
+            "nodeName": "Ilm",
+            "systemInstructions": "asfdsdhk",
+            "userPrompt": "afdsadsfw",
+            "pythonCode": {
+                "argument": {
+                    "safd": "sfsaf"
+                },
+                "function_body": ""
+            },
+            "outputSchema": {
+                "asfdsd": "afssafd"
+            },
+            "useLLM": true,
+            "jsonMode": false,
+            "toolName": "",
+            "toolDescription": "",
+            "kwargs": {
+                "deployed_gcp": false,
+                "max_output_tokens": 1000,
+                "max_retries": 5,
+                "model_name": "gpt-3.5-turbo",
+                "temperature": 0.5,
+                "wait_time": 30
+            },
+            "id": "c71dd3f3eccee49709aa4aecf1b6627a977b3eb8af79c61297b730357f7a4af1",
+            "_compiled": true,
+            "_parents": [],
+            "_children": [],
+            "_inputs": {},
+            "_outputs": {
+                "asfdsd": "Hello! How can I assist you today?"
             },
             "status": "completed"
         }

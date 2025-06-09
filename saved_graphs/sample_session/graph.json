@@ -22,8 +22,8 @@
             "_compiled": true,
             "_parents": [],
             "_children": [
-                "CountryCapital2",
-                "CountryCapital1"
+                "CountryCapital1",
+                "CountryCapital2"
             ],
             "_inputs": {},
             "_outputs": {
