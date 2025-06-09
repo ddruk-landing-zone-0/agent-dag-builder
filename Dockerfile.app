@@ -23,4 +23,5 @@ RUN apt-get update && apt-get install -y \
 EXPOSE 8080
 
 # Run app.py when the container launches with gunicorn
-CMD ["gunicorn", "-w", "2", "--timeout", "120", "-b", "0.0.0.0:8080", "wsgi:app"]
+# CMD ["gunicorn", "-w", "2", "--timeout", "120", "-b", "0.0.0.0:8080", "wsgi:app"]
+CMD ["python", "wsgi.py"]
