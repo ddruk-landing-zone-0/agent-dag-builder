@@ -30,10 +30,10 @@
             "_compiled": true,
             "_parents": [],
             "_children": [
-                "Member_iam_module_properties",
-                "SaResolver",
+                "google_service_account_iam_member_properties",
                 "RoleResolver",
-                "google_service_account_iam_member_properties"
+                "Member_iam_module_properties",
+                "SaResolver"
             ],
             "_inputs": {},
             "_outputs": {
@@ -176,9 +176,9 @@
                 ]
             ],
             "_children": [
-                "Member_iam_module_properties",
                 "FinalLocal",
-                "google_service_account_iam_member_properties"
+                "google_service_account_iam_member_properties",
+                "Member_iam_module_properties"
             ],
             "_inputs": {},
             "_outputs": {},
@@ -220,9 +220,9 @@
                 ]
             ],
             "_children": [
-                "Member_iam_module_properties",
                 "FinalLocal",
-                "google_service_account_iam_member_properties"
+                "google_service_account_iam_member_properties",
+                "Member_iam_module_properties"
             ],
             "_inputs": {},
             "_outputs": {},
